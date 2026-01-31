@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MealMajor.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260128041320_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260131220716_ChangeUserIdToString")]
+    partial class ChangeUserIdToString
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,17 +26,10 @@ namespace MealMajor.API.Migrations
 
             modelBuilder.Entity("MealMajor.API.Models.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
+                    b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("passwordHash")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
 
