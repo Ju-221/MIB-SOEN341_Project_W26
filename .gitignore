@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# bun
+bun.lock.tmp
+
+# build output
+dist/
+
+# env
+.env
+.env.local
+
+# logs
+*.log
