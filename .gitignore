@@ -7,6 +7,10 @@
 .LSOverride
 Icon?
 ._*
+Icon
+._*
+.Spotlight-V100
+.Trashes
 
 # Windows
 Thumbs.db
@@ -236,3 +240,4 @@ nyc_output/
 # frontend/.env.local
 # scripts/local/
 # sandbox/
+Desktop.ini
