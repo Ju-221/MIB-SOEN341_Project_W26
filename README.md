@@ -1,5 +1,13 @@
 # Mealmajor
 
+## DEV_POST
+
+If you're seeing this, this is the main branch for testing new features, our nightly build if anything. This is branch is expected to be experimental while bugs are caught slowly. pull at your own risk, but this should be the most up to date in features developed branch. 
+
+# Major updates:
+
+31/1/2026 - added dot net 10 backend and supabase(postgre-db) as database. Initalization for more features like loggin to start soon...
+
 ## Problem
 
 University students often struggle to eat healthy and stay organized with their meals. 
