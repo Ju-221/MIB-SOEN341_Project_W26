@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MealMajor.API.DTOs;
 using Supabase;
-using MealMajor.API.Models;
+using MealMajor.API.Entities;
 using MealMajor.API.Data;
 
 namespace MealMajor.API.Controllers;
@@ -21,8 +21,6 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
-    
-
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] UserRegisterDto request)
     {
@@ -34,13 +32,22 @@ public class AuthController : ControllerBase
         }
 
         //2 Create user in db
+        if (string.IsNullOrEmpty(session.User.Id))
+        {
+            return BadRequest("Failed to get user ID from signup");
+        }
+
         var newUser = new User{
+            
+            //we need to fix this to use proper OOP and not handle direct string to int conversion.
             Id = session.User.Id, // use the supabase id 
+            
             Email = request.Email,
             // supabase handles the password hashing
-            
+            // ^ ps: I seriously hope it does
         };
 
+        Console.WriteLine("Supabase User ID: " + session.User.Id);
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
 

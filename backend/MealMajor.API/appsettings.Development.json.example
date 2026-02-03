@@ -1,0 +1,12 @@
+{
+  "ConnectionStrings": {
+    "Defaultconnection": "Host=;Port=;Database=;Username=;Ssl Mode=;Trust Server Certificate=;CommandTimeout="
+  },
+  "jwtSection" : {
+    "Secret" : ""
+  },
+  "Supabase" : {
+    "Url" :  "",
+    "Key" : ""
+  }
+}

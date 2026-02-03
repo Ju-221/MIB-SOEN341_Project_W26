@@ -21,6 +21,7 @@ public class TestController: ControllerBase
     [Authorize] // <-- this attribute makes it Members only chceks jwt
     public IActionResult GetProtected()
     {
-        return Ok( new {message = "You are authenticated! The bouncer let you in "});
+        // minus 300 aura points for whimsy messages GPT generated.
+        return Ok( new {message = "You are authenticated! This is a protected endpoint."});
     }
 }
