@@ -11,6 +11,8 @@ Icon
 ._*
 .Spotlight-V100
 .Trashes
+**/bin/
+**/obj/
 
 # Windows
 Thumbs.db
