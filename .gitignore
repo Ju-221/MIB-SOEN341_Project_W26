@@ -106,6 +106,8 @@ tsconfig.tsbuildinfo
 # ASP.NET / C# BACKEND
 ###############################
 # Build output
+**/bin/
+**/obj/
 bin/
 obj/
 [Bb]uild/
