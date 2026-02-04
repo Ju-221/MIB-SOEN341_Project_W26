@@ -7,8 +7,7 @@ public class AppDbContext : DbContext // inherit from dbcontext
 {
     // shoudln't worry much about the parameter its is essentially an iidentifier for the db argument passed
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
-        // Database.EnsureDeleted();
-        // Database.EnsureCreated();
+    
     }
 
     public DbSet<User> Users {get;set;}

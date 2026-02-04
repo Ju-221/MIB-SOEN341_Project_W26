@@ -2,26 +2,53 @@ using Microsoft.EntityFrameworkCore;
 using MealMajor.API.Data;
 using Supabase;
 using System.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+// MIB 2026 (C) - MealMajor Project
+// This is the main entry point for the MealMajor API application.
+// It sets up the web application, configures services, and defines middleware.
+// see CONTRIBUTING.md for more info on how to contribute to the project.
 
-    var url = "https://fhrltmywppxsfuorbpdt.supabase.co/";
-    var key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZocmx0bXl3cHB4c2Z1b3JicGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0ODI1NjUsImV4cCI6MjA4NTA1ODU2NX0.Wo0acq3UAJyJ4ZzKZ7BW_VsKIgXOU1Gfm21EPTz0XX0";
-    var options = new SupabaseOptions
+var builder = WebApplication.CreateBuilder(args); // 
 
+
+// enable controllers from services 
+builder.Services.AddControllers();
+
+// database configuration
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("SupabasedConnectionString")));
+
+// Authentication configuration Supabase JWT
+// we read teh secretkey from appsettings.json
+var jwtSecret = builder.Configuration["jwtSection:Secret"];
+
+// Fallback just in case it's missing to prevent crash on startup, but auth won't work
+
+var keyBytes = Encoding.UTF8.GetBytes(jwtSecret ??  "temp_key_so_it_compiles");
+
+
+// what even are these
+// ^lmao
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options => {
+    options.RequireHttpsMetadata = false; // why https if we run local will it work 
+    options.SaveToken = true;
+    options.TokenValidationParameters  = new TokenValidationParameters 
     {
-        AutoRefreshToken = true,
-        AutoConnectRealtime = true,
-         // SessionHandler = new SupabaseSessionHandler() <-- This must be implemented by the developer
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        ValidateIssuer = false,
+        ValidateAudience = false
     };
+});
 
-// Note the creation as a singleton.
-builder.Services.AddSingleton(provider => new Supabase.Client(url, key, options));
-
-
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-// maps out aall the endpoints
+// maps all the apis in the controllers
 builder.Services.AddOpenApi();
 
 // Add controllers
@@ -77,7 +104,6 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
-
 
 
 app.Run();

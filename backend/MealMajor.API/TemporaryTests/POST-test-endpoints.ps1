@@ -1,3 +1,4 @@
+## Use to test your endpoints quickly
 # Test GET weatherforecast
 Invoke-WebRequest -Uri "http://localhost:5168/weatherforecast" -Method Get
 
