@@ -18,6 +18,15 @@ function SignIn() {
 
   return (
     <div className="signin-container">
+      <button
+        type="button"
+        className="signin-nav-button"
+        onClick={() => {
+          window.location.hash = '#profile'
+        }}
+      >
+        ← Profile
+      </button>
       <div className="signin-card">
         <div className="signin-header">
           <h1>MealMajor</h1>

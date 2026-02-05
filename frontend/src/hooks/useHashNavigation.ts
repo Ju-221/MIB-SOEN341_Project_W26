@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-type Page = 'signin' | 'signup'
+type Page = 'signin' | 'signup' | 'profile'
 
 export function useHashNavigation(defaultPage: Page = 'signin') {
   const [currentPage, setCurrentPage] = useState<Page>(defaultPage)
@@ -8,7 +8,7 @@ export function useHashNavigation(defaultPage: Page = 'signin') {
   useEffect(() => {
     const updatePageFromHash = () => {
       const hash = window.location.hash.slice(1)
-      if (hash === 'signup' || hash === 'signin') {
+      if (hash === 'signup' || hash === 'signin' || hash === 'profile') {
         setCurrentPage(hash as Page)
       } else {
         setCurrentPage(defaultPage)
