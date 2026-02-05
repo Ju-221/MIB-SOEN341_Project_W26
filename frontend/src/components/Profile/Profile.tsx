@@ -45,7 +45,6 @@ function Profile() {
 
   const toggleSelection = (
     value: string,
-    selected: string[],
     setSelected: Dispatch<SetStateAction<string[]>>
   ) => {
     setSelected((current) =>
@@ -164,7 +163,7 @@ function Profile() {
                     type="button"
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() =>
-                      toggleSelection(option, selectedDiets, setSelectedDiets)
+                      toggleSelection(option, setSelectedDiets)
                     }
                   >
                     {option}
@@ -180,7 +179,7 @@ function Profile() {
                     type="button"
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() =>
-                      toggleSelection(option, selectedDiets, setSelectedDiets)
+                      toggleSelection(option, setSelectedDiets)
                     }
                   >
                     {option}
@@ -251,11 +250,7 @@ function Profile() {
                     type="button"
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() =>
-                      toggleSelection(
-                        option,
-                        selectedAllergies,
-                        setSelectedAllergies
-                      )
+                      toggleSelection(option, setSelectedAllergies)
                     }
                   >
                     {option}
@@ -271,11 +266,7 @@ function Profile() {
                     type="button"
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() =>
-                      toggleSelection(
-                        option,
-                        selectedAllergies,
-                        setSelectedAllergies
-                      )
+                      toggleSelection(option, setSelectedAllergies)
                     }
                   >
                     {option}
