@@ -1,59 +1,90 @@
 using Microsoft.AspNetCore.Mvc;
 using MealMajor.API.DTOs;
-using Supabase;
-using MealMajor.API.Entities;
 using MealMajor.API.Data;
+using MealMajor.API.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MealMajor.API.Controllers;
 
-[ApiController]
-[Route("[controller]")]
+[Route("auth")]
 public class AuthController : ControllerBase 
 {
-
-    private readonly Client _supabase;
     private readonly AppDbContext _context;
 
-    // we ask for the lcient in the constructor
-    public AuthController(Client supabase, AppDbContext context)
+    public AuthController(AppDbContext context)
     {
-        _supabase = supabase;
         _context = context;
     }
 
-    [HttpPost("signup")]
-    public async Task<IActionResult> SignUp([FromBody] UserRegisterDto request)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] UserRegisterDto request)
     {
-        var session = await _supabase.Auth.SignUp(request.Email, request.Password);
-        
-        if (session == null)
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+        if (user == null)
         {
-            return BadRequest("signup failed");
+            return Unauthorized("Invalid credentials");
         }
 
-        //2 Create user in db
-        if (string.IsNullOrEmpty(session.User.Id))
+        var providedHash = HashPassword(request.Password);
+        var isMatch = FixedTimeEquals(user.passwordHash, providedHash) || user.passwordHash == request.Password;
+        if (!isMatch)
         {
-            return BadRequest("Failed to get user ID from signup");
+            return Unauthorized("Invalid credentials");
         }
 
-        var newUser = new User{
-            
-            //we need to fix this to use proper OOP and not handle direct string to int conversion.
-            Id = session.User.Id, // use the supabase id 
-            
+        return Ok(new
+        {
+            message = "Login successful",
+            email = user.Email
+        });
+    }
+
+    [HttpPost("signup")]
+    public async Task<IActionResult> Signup([FromBody] UserRegisterDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) ||
+            string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest("email, and password are required.");
+        }
+
+        var exists = await _context.Users.AnyAsync(u => u.Email == request.Email);
+        if (exists)
+        {
+            return Conflict("Email already in use.");
+        }
+
+        var user = new User
+        {
             Email = request.Email,
-            // supabase handles the password hashing
-            // ^ ps: I seriously hope it does
+            passwordHash = HashPassword(request.Password)
         };
 
-        Console.WriteLine("Supabase User ID: " + session.User.Id);
-        _context.Users.Add(newUser);
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return Ok(new {
-            message = "Signup request received!",
-            email = request.Email
+        Console.WriteLine("Signup successful for " + user.Email);
+        return Ok(new
+        {
+            message = "Signup successful",
+            email = user.Email
         });
+    }
+
+    //we're doing our own hashing now.
+    //honestly if we follow OOP this should be done at the entity level but whatever.
+    private static string HashPassword(string password)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+        return Convert.ToHexString(bytes);
+    }
+
+    private static bool FixedTimeEquals(string left, string right)
+    {
+        var leftBytes = Encoding.UTF8.GetBytes(left);
+        var rightBytes = Encoding.UTF8.GetBytes(right);
+        return leftBytes.Length == rightBytes.Length && CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
     }
 }

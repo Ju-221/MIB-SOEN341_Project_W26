@@ -6,7 +6,7 @@ namespace MealMajor.API.Entities; // defines a namespace to avoid naming conflic
 //       and making sure OOP is being followed properly.
 
 public class User {
-    public string Id {get; set;}
+    public int Id {get; set;}
 
     [Required]
     [EmailAddress]
