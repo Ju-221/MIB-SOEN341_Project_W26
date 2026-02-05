@@ -46,6 +46,7 @@ Invoke-WebRequest -Uri "http://localhost:5168/stats/user-table-db" `
     -Method Get `
     -Headers @{"Authorization"="Bearer $token"}
 
+    write-host "this next test should fail. If it doesn't, there is an issue with authentication."
 # Test protected endpoint with the invalid token to test authentication
 Invoke-WebRequest -Uri "http://localhost:5168/Test/protected" `
     -Method Get `

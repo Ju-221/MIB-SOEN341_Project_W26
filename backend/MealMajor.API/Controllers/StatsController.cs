@@ -20,7 +20,16 @@ public class StatsController : ControllerBase
     [Authorize]
     public IActionResult GetTable()
     {
-        var tableData = EnsureTable.GetUsersTable(_context);
+        var tableData = EnsureTable.GetUsersStringTable(_context);
+        Console.WriteLine("Fetching Users table data...\n" + tableData);
+        return Ok(tableData);
+    }
+    
+    [HttpGet("user-json-db")]
+    [Authorize]
+    public IActionResult GetJsonTable()
+    {
+        var tableData = EnsureTable.GetUsersJSON(_context);
         Console.WriteLine("Fetching Users table data...\n" + tableData);
         return Ok(tableData);
     }

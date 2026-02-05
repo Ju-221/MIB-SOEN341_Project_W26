@@ -8,6 +8,7 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [loading, setLoading] = useState(false)
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
@@ -33,7 +34,7 @@ function SignUp() {
     return newErrors
   }
 
-  const handleCreateAccount = (e: React.FormEvent) => {
+  const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors = validateForm()
 
@@ -41,8 +42,33 @@ function SignUp() {
       setErrors(newErrors)
     } else {
       setErrors({})
-      // TODO: Handle account creation logic
-      console.log('Create account with:', { email, password })
+      setLoading(true)
+
+      try {
+        const response = await fetch('http://localhost:5168/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Signup failed')
+        }
+
+        // Store the JWT token
+        localStorage.setItem('token', data.token)
+        
+        // Redirect to dashboard
+        window.location.hash = '#dashboard'
+      } catch (err) {
+        setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
@@ -62,6 +88,8 @@ function SignUp() {
         </div>
 
         <form onSubmit={handleCreateAccount} className="signup-form">
+          {errors.general && <div className="error-message">{errors.general}</div>}
+          
           <div className="form-group">
             <label htmlFor="email">
               Email Address <span className="required">*</span>
@@ -127,8 +155,8 @@ function SignUp() {
             )}
           </div>
 
-          <button type="submit" className="create-account-button">
-            Create Account
+          <button type="submit" className="create-account-button" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 

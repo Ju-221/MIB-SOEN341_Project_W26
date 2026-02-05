@@ -4,11 +4,22 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading;
 
 // MIB 2026 (C) - MealMajor Project
 // This is the main entry point for the MealMajor API application.
 // It sets up the web application, configures services, and defines middleware.
 // see CONTRIBUTING.md for more info on how to contribute to the project.
+
+const string SingleInstanceMutexName = "MealMajor.API.SingleInstance";
+using var singleInstanceMutex = new Mutex(true, SingleInstanceMutexName, out var isFirstInstance);
+
+//adding threadlock to prevent multiple instances.
+if (!isFirstInstance)
+{
+    Console.Error.WriteLine("MealMajor.API is already running. Aborting startup.");
+    Environment.Exit(1);
+}
 
 var builder = WebApplication.CreateBuilder(args); // 
 
@@ -42,6 +53,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Add CORS to allow frontend to make requests
+//I don't feel too confident about having this here, but it works for now.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:8080", "http://localhost:5173", "http://localhost:3000")
+              .AllowAnyHeader() //really we couldn't find a way to limit this better?
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Ensure Users table exists (temporary placement)
@@ -58,6 +81,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
