@@ -32,7 +32,7 @@ CREATE TABLE Users (
 
             var result = new System.Text.StringBuilder();
             result.AppendLine("=== Users Table Data ===");
-            result.AppendLine("ID | Email | PasswordHash");
+            result.AppendLine("ID | Email ");
             result.AppendLine("----------------------------------------");
 
             using var selectCmd = conn.CreateCommand();

@@ -1,4 +1,5 @@
 using MealMajor.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MealMajor.API.Controllers;
@@ -14,7 +15,9 @@ public class StatsController : ControllerBase
         _context = context;
     }
 
+    
     [HttpGet("user-table-db")]
+    [Authorize]
     public IActionResult GetTable()
     {
         var tableData = EnsureTable.GetUsersTable(_context);
