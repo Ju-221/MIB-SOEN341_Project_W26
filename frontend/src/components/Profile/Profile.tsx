@@ -112,7 +112,6 @@ function Profile() {
             </p>
           </div>
         </header>
-
         <section className="profile-card">
           <div className="profile-card-header">
             <h2>Personal Information</h2>
