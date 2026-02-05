@@ -12,33 +12,32 @@ namespace MealMajor.API.Controllers;
 public class AuthController : ControllerBase 
 {
     private readonly AppDbContext _context;
-
-    public AuthController(AppDbContext context)
+    private readonly TokenService _tokenService;
+    
+    public AuthController(AppDbContext context, TokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] UserRegisterDto request)
+    public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto )
     {
-        var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
         if (user == null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var providedHash = HashPassword(request.Password);
-        var isMatch = FixedTimeEquals(user.passwordHash, providedHash) || user.passwordHash == request.Password;
+        var providedHash = HashPassword(loginDto.Password);
+        var isMatch = FixedTimeEquals(user.passwordHash, providedHash) || user.passwordHash == loginDto.Password;
         if (!isMatch)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        return Ok(new
-        {
-            message = "Login successful",
-            email = user.Email
-        });
+        var token = _tokenService.GenerateToken(user.Id.ToString());
+        return Ok(new { token = token, message = "Login successful" });
     }
 
     [HttpPost("signup")]
@@ -65,11 +64,13 @@ public class AuthController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
+        var token = _tokenService.GenerateToken(user.Id.ToString());
         Console.WriteLine("Signup successful for " + user.Email);
         return Ok(new
         {
             message = "Signup successful",
-            email = user.Email
+            email = user.Email,
+            token = token
         });
     }
 
