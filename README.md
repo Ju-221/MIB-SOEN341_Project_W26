@@ -51,7 +51,7 @@ Deliverables for Sprint 1:
 |-------------------|-----------:|------------|------------------|
 | Berenis Fopa Tsamo| 40317889   | developer - backend and db  | berny-ft         |
 | Ashton Levine     | _          | Full-Stack | ashtonlevine     |
-| Joseph Tilden     | -          | Full-Stack | -   |
+| Joseph Tilden     | 40317545   | Full-Stack | JosephTilden     |
 | Juan Vargas       | 40230765   | Dev-Ops    | ju-221           |
 | Zain Bassal       | -          | Full-Stack | -                |
 | Anais Perron      | -          | Full-Stack | AnaisPerron      |
