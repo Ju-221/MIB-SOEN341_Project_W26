@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using MealMajor.API.DTOs;
-using Supabase;
 using MealMajor.API.Models;
 using MealMajor.API.Data;
 
@@ -10,43 +15,47 @@ namespace MealMajor.API.Controllers;
 [Route("[controller]")]
 public class AuthController : ControllerBase 
 {
-
-    private readonly Client _supabase;
     private readonly AppDbContext _context;
+    private readonly IConfiguration _config; 
 
-    // we ask for the lcient in the constructor
-    public AuthController(Client supabase, AppDbContext context)
+    public AuthController(AppDbContext context, IConfiguration config)
     {
-        _supabase = supabase;
         _context = context;
-    }
+        _config = config;
 
-    
+    }
 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] UserRegisterDto request)
     {
-        var session = await _supabase.Auth.SignUp(request.Email, request.Password);
-        
-        if (session == null)
-        {
-            return BadRequest("signup failed");
-        }
 
-        //2 Create user in db
-        var newUser = new User{
-            Id = session.User.Id, // use the supabase id 
+        // Check if the email already exists
+        if (await _context.Users.AnyAsync( u => u.Email == request.Email))
+        {
+            return BadRequest(new { message = "Email already exists"});
+        }
+        
+        var newUser = new User
+        {
+            Id = Guid.NewGuid(),
             Email = request.Email,
-            // supabase handles the password hashing
             
         };
 
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
 
-        return Ok(new {
-            message = "Signup request received!",
-            email = request.Email
-        });
+        return Ok(new { message = "User created successfully", email = request.Email});
+
     }
+
+
+    [HttpPost("signin")]
+    public async Task<IActionResult> SignIn([FromBody] UserLoginDto request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        if (user == null || ~BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+    }
+    
 }
