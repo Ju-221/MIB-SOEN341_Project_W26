@@ -1,5 +1,10 @@
 # Mealmajor
 
+## How to run
+
+Simply make sure to have a secret key (32 character long min,) in the backend/MealMajor.api/appsetting.json
+then go to the frontend folder and run 'npm install && npm run dev'
+
 ## Problem
 
 University students often struggle to eat healthy and stay organized with their meals. 
