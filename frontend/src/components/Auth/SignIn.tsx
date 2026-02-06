@@ -1,15 +1,62 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './SignIn.css'
 
 function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSignIn = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user has a valid token and "remember me" is enabled
+    const token = localStorage.getItem('token')
+    const isRemembered = localStorage.getItem('rememberMe') === 'true'
+    
+    if (token && isRemembered) {
+      // Auto-login by redirecting to dashboard
+      window.location.hash = '#dashboard'
+    }
+  }, [])
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Handle sign in logic
-    console.log('Sign in with:', { email, password })
+    setError('')
+    setLoading(true)
+
+    try {
+      const response = await fetch('http://localhost:5168/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed')
+      }
+
+      // Store the JWT token
+      localStorage.setItem('token', data.token)
+      
+      // Store remember me preference
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true')
+      } else {
+        localStorage.removeItem('rememberMe')
+      }
+      
+      // Redirect to dashboard
+      window.location.hash = '#dashboard'
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const togglePasswordVisibility = () => {
@@ -18,21 +65,14 @@ function SignIn() {
 
   return (
     <div className="signin-container">
-      <button
-        type="button"
-        className="signin-nav-button"
-        onClick={() => {
-          window.location.hash = '#profile'
-        }}
-      >
-        ← Profile
-      </button>
       <div className="signin-card">
         <div className="signin-header">
           <h1>MealMajor</h1>
         </div>
 
         <form onSubmit={handleSignIn} className="signin-form">
+          {error && <div className="error-message">{error}</div>}
+          
           <div className="form-group">
             <label htmlFor="email">
               Email Address <span className="required">*</span>
@@ -71,8 +111,18 @@ function SignIn() {
             </div>
           </div>
 
-          <button type="submit" className="signin-button">
-            Sign In
+          <div className="checkbox-group">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <label htmlFor="rememberMe">Remember me</label>
+          </div>
+
+          <button type="submit" className="signin-button" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

@@ -33,16 +33,57 @@ function SignUp() {
     return newErrors
   }
 
-  const handleCreateAccount = (e: React.FormEvent) => {
+  const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors = validateForm()
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-    } else {
-      setErrors({})
-      // TODO: Handle account creation logic
-      console.log('Create account with:', { email, password })
+      return
+    }
+
+    setErrors({})
+
+    try {
+      const response = await fetch('http://localhost:5168/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to create account'
+        
+        try {
+          // Try to read response as text first (backend returns plain text errors)
+          errorMessage = await response.text()
+          if (!errorMessage) {
+            errorMessage = 'Failed to create account'
+          }
+        } catch (e) {
+          console.error('Error reading response:', e)
+          errorMessage = 'Failed to create account'
+        }
+
+        // Map common backend errors to user-friendly messages
+        if (errorMessage.includes('Email already in use')) {
+          setErrors({ email: 'Email already in use' })
+        } else if (errorMessage.includes('required')) {
+          setErrors({ form: 'Please fill in all required fields' })
+        } else {
+          setErrors({ form: errorMessage })
+        }
+        return
+      }
+
+      const data = await response.json()
+      localStorage.setItem('token', data.token)
+      window.location.hash = '#dashboard'
+    } catch (error) {
+      console.error('Error:', error)
+      setErrors({ form: 'An unexpected error occurred. Please try again.' })
     }
   }
 
@@ -62,6 +103,8 @@ function SignUp() {
         </div>
 
         <form onSubmit={handleCreateAccount} className="signup-form">
+          {errors.form && <div className="form-error-message">{errors.form}</div>}
+          
           <div className="form-group">
             <label htmlFor="email">Email Address <span className="required">*</span></label>
             <input
