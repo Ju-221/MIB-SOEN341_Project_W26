@@ -51,8 +51,8 @@ Deliverables for Sprint 1:
 | Name              | Student ID | Role       | GitHub User Name |
 |-------------------|-----------:|------------|------------------|
 | Berenis Fopa Tsamo| 40317889   | developer - backend and db  | berny-ft         |
-| Ashton Levine     | _          | Full-Stack | ashtonlevine     |
+| Ashton Levine     | 40306341   | Full-Stack | ashtonlevine     |
 | Joseph Tilden     | 40317545   | Full-Stack | JosephTilden     |
 | Juan Vargas       | 40230765   | Dev-Ops    | ju-221           |
-| Zain Bassal       | -          | Full-Stack | ZainBassal       |
-| Anais Perron      | -          | Full-Stack | AnaisPerron      |
+| Zain Bassal       | 40316035   | Full-Stack | ZainBassal       |
+| Anais Perron      | 40317973   | Full-Stack | AnaisPerron      |
