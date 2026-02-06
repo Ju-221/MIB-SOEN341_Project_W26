@@ -53,5 +53,5 @@ Deliverables for Sprint 1:
 | Ashton Levine     | _          | Full-Stack | ashtonlevine     |
 | Joseph Tilden     | 40317545   | Full-Stack | JosephTilden     |
 | Juan Vargas       | 40230765   | Dev-Ops    | ju-221           |
-| Zain Bassal       | -          | Full-Stack | -                |
+| Zain Bassal       | -          | Full-Stack | ZainBassal       |
 | Anais Perron      | -          | Full-Stack | AnaisPerron      |
