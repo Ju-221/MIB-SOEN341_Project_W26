@@ -29,15 +29,10 @@ function Profile() {
     'Sesame',
     'Sulfites',
   ]
-  const initialSelectedDiets = ['Vegetarian', 'Vegan']
-  const initialSelectedAllergies: string[] = []
 
-  const [selectedDiets, setSelectedDiets] = useState<string[]>(
-    initialSelectedDiets
-  )
-  const [selectedAllergies, setSelectedAllergies] = useState<string[]>(
-    initialSelectedAllergies
-  )
+  
+  const [selectedDiets, setSelectedDiets] = useState<string[]>([])
+  const [selectedAllergies, setSelectedAllergies] = useState<string[]>([])
   const [customDiets, setCustomDiets] = useState<string[]>([])
   const [customAllergies, setCustomAllergies] = useState<string[]>([])
   const [customDietInput, setCustomDietInput] = useState('')
@@ -83,8 +78,6 @@ function Profile() {
   }
 
   const handleReset = () => {
-    setSelectedDiets(initialSelectedDiets)
-    setSelectedAllergies(initialSelectedAllergies)
     setCustomDiets([])
     setCustomAllergies([])
     setCustomDietInput('')
