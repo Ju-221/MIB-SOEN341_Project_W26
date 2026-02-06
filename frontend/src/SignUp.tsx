@@ -80,7 +80,7 @@ function SignUp() {
 
       const data = await response.json()
       localStorage.setItem('token', data.token)
-      window.location.hash = '#dashboard'
+      window.location.hash = '#profile'
     } catch (error) {
       console.error('Error:', error)
       setErrors({ form: 'An unexpected error occurred. Please try again.' })

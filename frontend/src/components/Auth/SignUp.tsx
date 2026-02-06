@@ -62,8 +62,8 @@ function SignUp() {
         // Store the JWT token
         localStorage.setItem('token', data.token)
         
-        // Redirect to dashboard
-        window.location.hash = '#dashboard'
+        // Redirect to profile
+        window.location.hash = '#profile'
       } catch (err) {
         setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
       } finally {

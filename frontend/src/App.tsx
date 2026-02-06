@@ -1,6 +1,6 @@
 import { useHashNavigation } from './hooks/useHashNavigation'
 import { SignIn, SignUp } from './components/Auth'
-import { Dashboard } from './components/Dashboard'
+import { Profile } from './components/Profile'
 import { useEffect } from 'react'
 import './App.css'
 
@@ -12,19 +12,19 @@ function App() {
     return localStorage.getItem('token') !== null
   }
 
-  // Redirect to signin if trying to access dashboard without authentication
+  // Redirect to signin if trying to access profile without authentication
   useEffect(() => {
-    if (currentPage === 'dashboard' && !isAuthenticated()) {
+    if (currentPage === 'profile' && !isAuthenticated()) {
       window.location.hash = '#signin'
     }
   }, [currentPage])
 
   // Render based on current page and authentication
-  if (currentPage === 'dashboard') {
+  if (currentPage === 'profile') {
     if (!isAuthenticated()) {
       return <SignIn />
     }
-    return <Dashboard />
+    return <Profile />
   }
 
   return currentPage === 'signin' ? <SignIn /> : <SignUp />

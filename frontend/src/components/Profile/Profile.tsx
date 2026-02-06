@@ -105,11 +105,13 @@ function Profile() {
         type="button"
         className="profile-nav-button"
         onClick={() => {
+          localStorage.removeItem('token')
+          localStorage.removeItem('rememberMe')
           window.location.hash = '#signin'
         }}
       >
-        ← Sign In
-      </button>
+        ← Logout
+      </button> 
       <div className="profile-shell">
         <header className="profile-header">
           <div>

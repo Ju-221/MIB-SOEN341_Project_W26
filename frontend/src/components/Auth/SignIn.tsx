@@ -15,8 +15,8 @@ function SignIn() {
     const isRemembered = localStorage.getItem('rememberMe') === 'true'
     
     if (token && isRemembered) {
-      // Auto-login by redirecting to dashboard
-      window.location.hash = '#dashboard'
+      // Auto-login by redirecting to profile
+      window.location.hash = '#profile'
     }
   }, [])
 
@@ -50,8 +50,8 @@ function SignIn() {
         localStorage.removeItem('rememberMe')
       }
       
-      // Redirect to dashboard
-      window.location.hash = '#dashboard'
+      // Redirect to profile
+      window.location.hash = '#profile'
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
