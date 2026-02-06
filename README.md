@@ -7,6 +7,7 @@ If you're seeing this, this is the main branch for testing new features, our nig
 # Major updates:
 
 31/1/2026 - added dot net 10 backend and supabase(postgre-db) as database. Initalization for more features like loggin to start soon...
+06/2/2026 - Sprint 1 finished and ready for testing! Dropped supabase in change for litesql and implemented JWT tokens, frontend mockup finished
 
 ## Problem
 
