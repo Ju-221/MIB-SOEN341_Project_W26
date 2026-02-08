@@ -1,5 +1,14 @@
 # Mealmajor
 
+## DEV_POST
+
+If you're seeing this, this is the main branch for testing new features, our nightly build if anything. This is branch is expected to be experimental while bugs are caught slowly. pull at your own risk, but this should be the most up to date in features developed branch. 
+
+# Major updates:
+
+31/1/2026 - added dot net 10 backend and supabase(postgre-db) as database. Initalization for more features like loggin to start soon...
+06/2/2026 - Sprint 1 finished and ready for testing! Dropped supabase in change for litesql and implemented JWT tokens, frontend mockup finished
+
 ## Problem
 
 University students often struggle to eat healthy and stay organized with their meals. 
@@ -42,8 +51,8 @@ Deliverables for Sprint 1:
 | Name              | Student ID | Role       | GitHub User Name |
 |-------------------|-----------:|------------|------------------|
 | Berenis Fopa Tsamo| 40317889   | developer - backend and db  | berny-ft         |
-| Ashton Levine     | _          | Full-Stack | ashtonlevine     |
-| Joseph Tilden     | -          | Full-Stack | -   |
+| Ashton Levine     | 40306341   | Full-Stack | ashtonlevine     |
+| Joseph Tilden     | 40317545   | Full-Stack | JosephTilden     |
 | Juan Vargas       | 40230765   | Dev-Ops    | ju-221           |
-| Zain Bassal       | -          | Full-Stack | -                |
-| Anais Perron      | -          | Full-Stack | AnaisPerron      |
+| Zain Bassal       | 40316035   | Full-Stack | ZainBassal       |
+| Anais Perron      | 40317973   | Full-Stack | AnaisPerron      |

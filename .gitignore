@@ -11,6 +11,8 @@ Icon
 ._*
 .Spotlight-V100
 .Trashes
+**/bin/
+**/obj/
 
 # Windows
 Thumbs.db
@@ -41,6 +43,12 @@ logs/
 .env
 .env.*
 !.env.example
+.env
+bin/
+obj/
+*.user
+*.vs
+.vscode/
 
 # Some frameworks use env.[env].local
 *.env.local
@@ -106,8 +114,6 @@ tsconfig.tsbuildinfo
 # ASP.NET / C# BACKEND
 ###############################
 # Build output
-**/bin/
-**/obj/
 bin/
 obj/
 [Bb]uild/
@@ -243,3 +249,19 @@ nyc_output/
 # scripts/local/
 # sandbox/
 Desktop.ini
+# dependencies
+node_modules/
+
+# bun
+bun.lock.tmp
+
+# build output
+dist/
+
+# env
+.env
+.env.local
+
+# logs
+*.log
+backend/MealMajor.API/appsettings.json
