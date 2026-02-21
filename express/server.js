@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
@@ -22,6 +23,11 @@ app.use('/api/auth', authRoutes);
 
 import preferencesRoutes from './routes/preferences.js';
 app.use('/api/preferences', preferencesRoutes);
+
+import recipesRoutes from './routes/recipes.js';
+app.use('/api/recipes', recipesRoutes);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
     res.json({ message: 'MealMajor API is running...' });
