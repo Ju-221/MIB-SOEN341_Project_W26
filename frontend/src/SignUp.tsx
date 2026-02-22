@@ -133,7 +133,7 @@ function SignUp() {
                 onClick={togglePasswordVisibility}
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
             <span className="help-text">Must be at least 6 characters</span>
@@ -156,7 +156,7 @@ function SignUp() {
                 onClick={toggleConfirmPasswordVisibility}
                 aria-label="Toggle confirm password visibility"
               >
-                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                {showConfirmPassword ? 'Hide' : 'Show'}
               </button>
             </div>
             {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}

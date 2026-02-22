@@ -177,15 +177,6 @@ function Profile() {
 
   return (
     <div className="profile-page">
-      <button
-        type="button"
-        className="profile-nav-button"
-        onClick={() => {
-          window.location.hash = "#signin";
-        }}
-      >
-        ← Sign In
-      </button>
       <div className="profile-shell">
         <header className="profile-header">
           <div>
@@ -256,7 +247,7 @@ function Profile() {
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
                     {option}
-                    {selected ? " ✓" : ""}
+                    {selected ? " (selected)" : ""}
                   </button>
                 );
               })}
@@ -270,7 +261,7 @@ function Profile() {
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
                     {option}
-                    {selected ? " ✓" : ""}
+                    {selected ? " (selected)" : ""}
                   </button>
                 );
               })}
@@ -341,7 +332,7 @@ function Profile() {
                     }
                   >
                     {option}
-                    {selected ? " ✓" : ""}
+                    {selected ? " (selected)" : ""}
                   </button>
                 );
               })}
@@ -357,7 +348,7 @@ function Profile() {
                     }
                   >
                     {option}
-                    {selected ? " ✓" : ""}
+                    {selected ? " (selected)" : ""}
                   </button>
                 );
               })}

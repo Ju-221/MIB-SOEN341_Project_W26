@@ -53,7 +53,7 @@ function SignIn() {
                 onClick={togglePasswordVisibility}
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
           </div>

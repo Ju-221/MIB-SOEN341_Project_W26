@@ -1,36 +1,17 @@
 .profile-page {
-  min-height: 100vh;
+  min-height: 100%;
   background: #f5f7fb;
-  padding: 40px 20px 80px;
+  padding: 40px 32px 80px;
   display: flex;
   justify-content: center;
-  position: relative;
+  flex: 1;
 }
 
 .profile-shell {
   width: 100%;
-  max-width: 980px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.profile-nav-button {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  border-radius: 0px;
-  padding: 10px 16px;
-  background: #ffffff;
-  color: #111827;
-  border: 1px solid #d7d7d7;
-  box-shadow: 0 6px 14px rgba(17, 24, 39, 0.08);
-  font-size: 14px;
-}
-
-.profile-nav-button:hover {
-  box-shadow: 0 8px 16px rgba(17, 24, 39, 0.12);
-  border-color: #bdbdbd;
 }
 
 .profile-header {
@@ -39,7 +20,6 @@
   align-items: flex-end;
   gap: 20px;
 }
-
 
 .profile-header h1 {
   margin: 6px 0 8px;
@@ -272,11 +252,6 @@
 @media (max-width: 600px) {
   .profile-page {
     padding: 24px 16px 60px;
-  }
-
-  .profile-nav-button {
-    top: 16px;
-    left: 16px;
   }
 
   .profile-card-body {
