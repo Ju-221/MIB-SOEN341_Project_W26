@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import RecipeManager from "../Recipe-Manager/CreateRecipe";
 
 import "./Profile.css";
 
@@ -113,6 +114,7 @@ function Profile() {
   const [customAllergies, setCustomAllergies] = useState<string[]>([]);
   const [customDietInput, setCustomDietInput] = useState("");
   const [customAllergyInput, setCustomAllergyInput] = useState("");
+  const [showRecipeManager, setShowRecipeManager] = useState(false);
 
   // The following function was drafted with the assistance of ChatGPT Codex.
   // Prompt: "Help me clean up and ensure the toggleSelection helper function works correctly for diet/allergy selection, This function should simply manage the selection state of either diets or allergies or both. Once a button is clicked, it should change colour and show that it is selected. ."
@@ -411,11 +413,37 @@ function Profile() {
           >
             Reset Changes
           </button>
+          <button
+            type="button"
+            className="profile-button secondary"
+            onClick={() => setShowRecipeManager(true)}
+          >
+             Manage Recipes
+          </button>
           <button type="button"  onClick={handleSave}className="profile-button primary">
             Save Changes
           </button>
         </div>
       </div>
+      {showRecipeManager && (
+        <div
+          className="modal-overlay-profile"
+          onClick={() => setShowRecipeManager(false)}
+        >
+          <div
+            className="modal-content-profile"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close-profile"
+              onClick={() => setShowRecipeManager(false)}
+            >
+              ×
+            </button>
+            <RecipeManager />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
