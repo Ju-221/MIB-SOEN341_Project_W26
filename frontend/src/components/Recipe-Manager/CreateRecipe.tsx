@@ -1,61 +1,126 @@
 import React, { useState } from 'react';
 import './CreateRecipe.css';
 
-interface Recipe {
-  id: string;
+interface Ingredient {
   name: string;
+  amount?: string;
+  unit?: string;
+  cost?: number;
+}
+
+interface Step {
+  text: string;
+  image?: string;
+}
+
+interface Recipe {
+  id: string | number;
+  title: string;
   description: string;
-  ingredients: string[];
-  instructions: string[];
-  servings: number;
+  ingredients: (string | Ingredient)[];
+  steps: (string | Step)[];
+  categories: string[];
+  difficulty?: string;
   prepTime: number;
   cookTime: number;
-  image: string;
+  estimatedCost: number;
+  heroImage?: string;
+  createdBy?: number;
+  createdAt?: string;
+  // Legacy fields for compatibility
+  name?: string;
+  servings?: number;
+  image?: string;
+  instructions?: string[];
 }
 
 const RecipeManager: React.FC = () => {
+  // Available tags organized by category
+  const tagCategories = {
+    allergies: {
+      label: 'Allergies & Intolerances',
+      tags: ['peanuts', 'tree-nuts', 'eggs', 'milk', 'fish', 'crustaceans', 'soy', 'wheat', 'sesame', 'mustard', 'lactose', 'gluten']
+    },
+    difficulty: {
+      label: 'Difficulty Level',
+      tags: ['easy', 'medium', 'hard']
+    },
+    diet: {
+      label: 'Diet Preferences',
+      tags: ['vegetarian', 'vegan', 'keto', 'low-carb', 'high-protein', 'pescetarian', 'halal', 'kosher']
+    },
+    goals: {
+      label: 'Goals & Attributes',
+      tags: ['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free']
+    }
+  };
+
+  const userProfileTags = ['quick', 'easy', 'healthy', 'vegetarian'];
+  const [customTags, setCustomTags] = useState<string[]>([]);
+  const [customTagInput, setCustomTagInput] = useState<string>('');
+  const [stepImagePreviews, setStepImagePreviews] = useState<{ [key: number]: string }>({});
+
   const [recipes, setRecipes] = useState<Recipe[]>([
     {
       id: '1',
+      title: 'Sample Recipe',
       name: 'Sample Recipe',
       description: 'A delicious sample recipe',
       ingredients: ['Ingredient 1', 'Ingredient 2'],
+      steps: [{ text: 'Step 1' }, { text: 'Step 2' }],
       instructions: ['Step 1', 'Step 2'],
-      servings: 4,
-      prepTime: 15,
-      cookTime: 30,
+      categories: ['quick', 'easy'],
+      servings: 0,
+      prepTime: 0,
+      cookTime: 0,
+      estimatedCost: 0,
+      heroImage: 'https://via.placeholder.com/300x200?text=Recipe',
       image: 'https://via.placeholder.com/300x200?text=Recipe',
     },
   ]);
 
   const [showModal, setShowModal] = useState(false);
+  const [showRecipeDetail, setShowRecipeDetail] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
   const [formData, setFormData] = useState<Recipe>({
     id: '',
+    title: '',
     name: '',
     description: '',
-    ingredients: [''],
+    ingredients: [{ name: '', cost: 0 }],
+    steps: [{ text: '' }],
     instructions: [''],
+    categories: [],
+    difficulty: 'Medium',
     servings: 4,
     prepTime: 15,
     cookTime: 30,
+    estimatedCost: 0,
+    heroImage: '',
     image: '',
   });
 
   const handleCreateRecipe = () => {
     setFormData({
       id: '',
+      title: '',
       name: '',
       description: '',
-      ingredients: [''],
+      ingredients: [{ name: '', cost: 0 }],
+      steps: [{ text: '' }],
       instructions: [''],
-      servings: 4,
-      prepTime: 15,
+      categories: [],
+      difficulty: 'Medium',
+      servings: 0,
+      prepTime: 0,
       cookTime: 30,
+      estimatedCost: 0,
+      heroImage: '',
       image: '',
     });
     setImagePreview('');
@@ -65,12 +130,21 @@ const RecipeManager: React.FC = () => {
 
   const handleEditRecipe = (recipe: Recipe) => {
     setFormData(recipe);
-    setImagePreview(recipe.image);
+    // Extract custom tags that aren't in the predefined categories
+    const allPredefinedTags = Object.values(tagCategories).flatMap(cat => cat.tags);
+    const customRecipeTags = recipe.categories.filter(tag => !allPredefinedTags.includes(tag));
+    setCustomTags(customRecipeTags);
+    setImagePreview(recipe.heroImage || recipe.image || '');
     setIsEditing(true);
     setShowModal(true);
   };
 
-  const handleDeleteRecipe = (id: string) => {
+  const handleViewRecipeDetail = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setShowRecipeDetail(true);
+  };
+
+  const handleDeleteRecipe = (id: string | number) => {
     setSelectedRecipeId(id);
     setShowDeleteConfirm(true);
   };
@@ -90,7 +164,7 @@ const RecipeManager: React.FC = () => {
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        setFormData({ ...formData, image: result });
+        setFormData({ ...formData, image: result, heroImage: result });
       };
       reader.readAsDataURL(file);
     }
@@ -109,60 +183,193 @@ const RecipeManager: React.FC = () => {
 
   const handleArrayFieldChange = (
     index: number,
-    field: 'ingredients' | 'instructions',
-    value: string
+    field: 'ingredients' | 'steps',
+    value: string,
+    subfield?: string
   ) => {
-    const updatedArray = [...formData[field]];
-    updatedArray[index] = value;
-    setFormData({ ...formData, [field]: updatedArray });
+    if (!formData[field]) return;
+    const currentArray = Array.isArray(formData[field]) ? [...(formData[field] as (string | any)[])] : [];
+    
+    if (field === 'ingredients') {
+      const ingredient = currentArray[index];
+      if (typeof ingredient === 'object') {
+        if (subfield === 'cost') {
+          // Allow empty string for user to clear field, otherwise parse as float
+          if (value === '' || value === '-') {
+            // Allow user to clear or start typing negative (even though min=0 prevents saving)
+            currentArray[index] = { ...ingredient, cost: value === '' ? 0 : 0 };
+          } else {
+            const costValue = parseFloat(value);
+            // Only update if it's a valid number
+            if (!isNaN(costValue) && costValue >= 0) {
+              currentArray[index] = { ...ingredient, cost: costValue };
+            }
+          }
+        } else if (subfield === 'name') {
+          // Explicitly handle name to avoid confusion
+          currentArray[index] = { ...ingredient, name: value };
+        } else {
+          currentArray[index] = { ...ingredient, [subfield || 'name']: value };
+        }
+      } else {
+        currentArray[index] = { name: value, cost: 0 };
+      }
+    } else if (field === 'steps') {
+      const step = currentArray[index];
+      if (typeof step === 'object') {
+        currentArray[index] = { ...step, [subfield || 'text']: value };
+      } else {
+        currentArray[index] = { text: value };
+      }
+    } else {
+      currentArray[index] = value;
+    }
+    
+    setFormData({ ...formData, [field]: currentArray });
+  };
+  const handleStepImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setStepImagePreviews({ ...stepImagePreviews, [index]: result });
+        
+        const currentArray = Array.isArray(formData.steps) ? [...(formData.steps as (string | Step)[])] : [];
+        const step = currentArray[index];
+        if (typeof step === 'object') {
+          currentArray[index] = { ...step, image: result };
+        } else {
+          currentArray[index] = { text: step || '', image: result };
+        }
+        setFormData({ ...formData, steps: currentArray });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleAddArrayField = (field: 'ingredients' | 'instructions') => {
+  const handleAddArrayField = (field: 'ingredients' | 'steps') => {
+    const currentArray = formData[field] as (string | any)[];
+    if (!currentArray) return;
+    
+    const newItem = field === 'ingredients' ? { name: '', cost: 0 } : { text: '' };
     setFormData({
       ...formData,
-      [field]: [...formData[field], ''],
+      [field]: [...currentArray, newItem],
     });
   };
 
   const handleRemoveArrayField = (
     index: number,
-    field: 'ingredients' | 'instructions'
+    field: 'ingredients' | 'steps'
   ) => {
-    const updatedArray = formData[field].filter((_, i) => i !== index);
+    const currentArray = formData[field] as (string | any)[];
+    if (!currentArray) return;
+    const updatedArray = currentArray.filter((_, i) => i !== index);
+    const emptyItem = field === 'ingredients' ? [{ name: '', cost: 0 }] : [{ text: '' }];
     setFormData({
       ...formData,
-      [field]: updatedArray.length > 0 ? updatedArray : [''],
+      [field]: updatedArray.length > 0 ? updatedArray : emptyItem,
+    });
+  };
+
+  const handleToggleTag = (tag: string) => {
+    const isDifficultyTag = tagCategories.difficulty.tags.includes(tag);
+    
+    if (isDifficultyTag) {
+      // For difficulty tags, ensure only one can be selected
+      const nonDifficultyCategories = formData.categories.filter(t => !tagCategories.difficulty.tags.includes(t));
+      
+      if (formData.categories.includes(tag)) {
+        // If already selected, deselect it
+        setFormData({
+          ...formData,
+          categories: nonDifficultyCategories,
+        });
+      } else {
+        // Select this difficulty, removing any other difficulty
+        setFormData({
+          ...formData,
+          categories: [...nonDifficultyCategories, tag],
+        });
+      }
+    } else {
+      // For other tags, toggle normally
+      setFormData({
+        ...formData,
+        categories: formData.categories.includes(tag)
+          ? formData.categories.filter((t) => t !== tag)
+          : [...formData.categories, tag],
+      });
+    }
+  };
+
+  const handleAddCustomTag = () => {
+    if (customTagInput.trim() && !customTags.includes(customTagInput.trim())) {
+      const newTag = customTagInput.trim().toLowerCase();
+      setCustomTags([...customTags, newTag]);
+      setFormData({
+        ...formData,
+        categories: [...formData.categories, newTag],
+      });
+      setCustomTagInput('');
+    }
+  };
+
+  const handleRemoveCustomTag = (tag: string) => {
+    setCustomTags(customTags.filter((t) => t !== tag));
+    setFormData({
+      ...formData,
+      categories: formData.categories.filter((t) => t !== tag),
     });
   };
 
   const handleSaveRecipe = () => {
-    if (!formData.name.trim()) {
+    if (!formData.title?.trim() && !formData.name?.trim()) {
       alert('Please enter a recipe name');
       return;
     }
 
+    // Calculate total ingredient cost
+    const totalCost = (formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
+      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+      return sum + cost;
+    }, 0) || 0;
+
     if (isEditing) {
       setRecipes(
-        recipes.map((recipe) => (recipe.id === formData.id ? formData : recipe))
+        recipes.map((recipe) => 
+          recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
+        )
       );
     } else {
       const newRecipe: Recipe = {
         ...formData,
         id: Date.now().toString(),
+        title: formData.title || formData.name || '',
+        estimatedCost: totalCost,
       };
       setRecipes([...recipes, newRecipe]);
     }
 
     setShowModal(false);
+    setCustomTags([]);
+    setCustomTagInput('');
     setFormData({
       id: '',
+      title: '',
       name: '',
       description: '',
-      ingredients: [''],
+      ingredients: [{ name: '', cost: 0 }],
+      steps: [{ text: '' }],
       instructions: [''],
+      categories: [],
+      difficulty: 'Medium',
       servings: 4,
       prepTime: 15,
       cookTime: 30,
+      estimatedCost: 0,
+      heroImage: '',
       image: '',
     });
     setImagePreview('');
@@ -182,23 +389,31 @@ const RecipeManager: React.FC = () => {
 
       {/* Recipe Grid */}
       <div className="recipe-grid">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
+        {recipes.map((recipe) => {
+        // Calculate total ingredient cost
+        const totalIngredientCost = (recipe.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
+          const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+          return sum + cost;
+        }, 0) || 0;
+
+        return (
+          <div 
+            key={recipe.id} 
+            className="recipe-card"
+            onClick={() => handleViewRecipeDetail(recipe)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="recipe-image-container">
               <img
-                src={recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                alt={recipe.name}
+                src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
+                alt={recipe.title || recipe.name}
                 className="recipe-image"
               />
             </div>
             <div className="recipe-content">
-              <h2>{recipe.name}</h2>
+              <h2>{recipe.title || recipe.name}</h2>
               <p className="recipe-description">{recipe.description}</p>
               <div className="recipe-meta">
-                <div className="meta-item">
-                  <span className="meta-label">Servings:</span>
-                  <span>{recipe.servings}</span>
-                </div>
                 <div className="meta-item">
                   <span className="meta-label">Prep:</span>
                   <span>{recipe.prepTime} min</span>
@@ -207,9 +422,13 @@ const RecipeManager: React.FC = () => {
                   <span className="meta-label">Cook:</span>
                   <span>{recipe.cookTime} min</span>
                 </div>
+                <div className="meta-item">
+                  <span className="meta-label">Cost:</span>
+                  <span>${totalIngredientCost.toFixed(2)}</span>
+                </div>
               </div>
             </div>
-            <div className="recipe-actions">
+            <div className="recipe-actions" onClick={(e) => e.stopPropagation()}>
               <button
                 className="btn btn-edit"
                 onClick={() => handleEditRecipe(recipe)}
@@ -224,8 +443,79 @@ const RecipeManager: React.FC = () => {
               </button>
             </div>
           </div>
-        ))}
+        );
+      })}
       </div>
+
+      {/* Recipe Detail Modal */}
+      {showRecipeDetail && selectedRecipe && (
+        <div className="modal-overlay" onClick={() => setShowRecipeDetail(false)}>
+          <div className="modal-content recipe-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="recipe-detail-close">
+              <button
+                className="modal-close"
+                onClick={() => setShowRecipeDetail(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Recipe Hero Image */}
+            <div className="recipe-detail-hero">
+              <img
+                src={selectedRecipe.heroImage || selectedRecipe.image || 'https://via.placeholder.com/500x300?text=Recipe'}
+                alt={selectedRecipe.title || selectedRecipe.name}
+                className="recipe-detail-image"
+              />
+            </div>
+
+            {/* Recipe Title */}
+            <div className="recipe-detail-header">
+              <h1>{selectedRecipe.title || selectedRecipe.name}</h1>
+            </div>
+
+            {/* Recipe Meta - Stats */}
+            <div className="recipe-detail-stats">
+              <div className="stat-item">
+                <div className="stat-content">
+                  <div className="stat-label">Time</div>
+                  <div className="stat-value">{(selectedRecipe.prepTime || 0) + (selectedRecipe.cookTime || 0)} Min</div>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-content">
+                  <div className="stat-label">Ingredients</div>
+                  <div className="stat-value">
+                    {Array.isArray(selectedRecipe.ingredients) 
+                      ? selectedRecipe.ingredients.length 
+                      : 0}
+                  </div>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-content">
+                  <div className="stat-label">Cost</div>
+                  <div className="stat-value">${selectedRecipe.estimatedCost?.toFixed(2) || '0.00'}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recipe Categories/Tags */}
+            {selectedRecipe.categories && selectedRecipe.categories.length > 0 && (
+              <div className="recipe-detail-tags">
+                {selectedRecipe.categories.map((category, index) => (
+                  <span key={index} className="recipe-tag">{category}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Get Started Button */}
+            <div className="recipe-detail-actions">
+              <button className="btn btn-get-started">Get Started →</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recipe Modal */}
       {showModal && (
@@ -268,7 +558,6 @@ const RecipeManager: React.FC = () => {
                         document.getElementById('image-upload')?.click()
                       }
                     >
-                      <span className="upload-icon">📷</span>
                       <span>Click to upload image</span>
                     </div>
                   )}
@@ -362,36 +651,70 @@ const RecipeManager: React.FC = () => {
 
               {/* Ingredients */}
               <div className="form-group">
-                <label className="form-label">Ingredients</label>
+                <div className="form-label-row">
+                  <label className="form-label">Ingredients</label>
+                  <div className="ingredient-total-cost">
+                    Total: ${((formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
+                      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+                      return sum + cost;
+                    }, 0) || 0).toFixed(2)}
+                  </div>
+                </div>
                 <div className="array-fields">
-                  {formData.ingredients.map((ingredient, index) => (
-                    <div key={index} className="array-field-row">
-                      <input
-                        type="text"
-                        value={ingredient}
-                        onChange={(e) =>
-                          handleArrayFieldChange(
-                            index,
-                            'ingredients',
-                            e.target.value
-                          )
-                        }
-                        className="form-input"
-                        placeholder={`Ingredient ${index + 1}`}
-                      />
-                      {formData.ingredients.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn-remove"
-                          onClick={() =>
-                            handleRemoveArrayField(index, 'ingredients')
-                          }
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  {(formData.ingredients as (string | any)[])?.map((ingredient, index) => {
+                    const ingredientName = typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
+                    const ingredientCost = typeof ingredient === 'object' ? ingredient?.cost || 0 : 0;
+                    return (
+                      <div key={index} className="ingredient-row">
+                        <div className="ingredient-name-col">
+                          <input
+                            type="text"
+                            value={ingredientName}
+                            onChange={(e) =>
+                              handleArrayFieldChange(
+                                index,
+                                'ingredients',
+                                e.target.value,
+                                'name'
+                              )
+                            }
+                            className="form-input"
+                            placeholder={`Ingredient ${index + 1}`}
+                          />
+                        </div>
+                        <div className="ingredient-cost-col">
+                          <input
+                            type="number"
+                            value={ingredientCost}
+                            onChange={(e) =>
+                              handleArrayFieldChange(
+                                index,
+                                'ingredients',
+                                e.target.value,
+                                'cost'
+                              )
+                            }
+                            className="form-input"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                            inputMode="decimal"
+                          />
+                        </div>
+                        {(formData.ingredients as (string | any)[])?.length > 1 && (
+                          <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() =>
+                              handleRemoveArrayField(index, 'ingredients')
+                            }
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }) || []}
                   <button
                     type="button"
                     className="btn btn-add-field"
@@ -402,45 +725,163 @@ const RecipeManager: React.FC = () => {
                 </div>
               </div>
 
-              {/* Instructions */}
+              {/* Instructions / Steps */}
               <div className="form-group">
                 <label className="form-label">Instructions</label>
                 <div className="array-fields">
-                  {formData.instructions.map((instruction, index) => (
-                    <div key={index} className="array-field-row">
-                      <textarea
-                        value={instruction}
-                        onChange={(e) =>
-                          handleArrayFieldChange(
-                            index,
-                            'instructions',
-                            e.target.value
-                          )
-                        }
-                        className="form-input form-textarea"
-                        placeholder={`Step ${index + 1}`}
-                        rows={2}
-                      />
-                      {formData.instructions.length > 1 && (
-                        <button
-                          type="button"
-                          className="btn-remove"
-                          onClick={() =>
-                            handleRemoveArrayField(index, 'instructions')
-                          }
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  {(formData.steps || []).map((step, index) => {
+                    const stepText = typeof step === 'string' ? step : step?.text || '';
+                    const stepImage = typeof step === 'object' ? step?.image : undefined;
+                    const preview = stepImagePreviews[index] || stepImage;
+                    
+                    return (
+                      <div key={index} className="step-card">
+                        <div className="step-main">
+                          <textarea
+                            value={stepText}
+                            onChange={(e) =>
+                              handleArrayFieldChange(
+                                index,
+                                'steps',
+                                e.target.value,
+                                'text'
+                              )
+                            }
+                            className="form-input form-textarea"
+                            placeholder={`Step ${index + 1}`}
+                            rows={2}
+                          />
+                          {(formData.steps || []).length > 1 && (
+                            <button
+                              type="button"
+                              className="btn-remove"
+                              onClick={() =>
+                                handleRemoveArrayField(index, 'steps')
+                              }
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Step Image */}
+                        <div className="step-image-section">
+                          {preview ? (
+                            <div className="step-image-preview">
+                              <img src={preview} alt={`Step ${index + 1}`} />
+                              <button
+                                type="button"
+                                className="btn-change-image"
+                                onClick={() =>
+                                  document.getElementById(`step-image-${index}`)?.click()
+                                }
+                              >
+                                Change Image
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              className="step-image-placeholder"
+                              onClick={() =>
+                                document.getElementById(`step-image-${index}`)?.click()
+                              }
+                            >
+                              <span>Add Step Image</span>
+                            </div>
+                          )}
+                          <input
+                            id={`step-image-${index}`}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleStepImageUpload(index, e)}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                   <button
                     type="button"
                     className="btn btn-add-field"
-                    onClick={() => handleAddArrayField('instructions')}
+                    onClick={() => handleAddArrayField('steps')}
                   >
                     + Add Step
                   </button>
+                </div>
+              </div>
+
+              {/* Tags/Categories */}
+              <div className="form-group">
+                <label className="form-label">Tags</label>
+                
+                {/* Predefined Tags by Category */}
+                {Object.entries(tagCategories).map(([categoryKey, category]) => (
+                  <div key={categoryKey} className="tag-category">
+                    <h4 className="tag-category-title">{category.label}</h4>
+                    <div className="tags-container">
+                      {category.tags.map((tag) => {
+                        const isSelected = formData.categories.includes(tag);
+                        const isProfileTag = userProfileTags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            className={`tag-button ${isSelected ? 'selected' : ''} ${isProfileTag && isSelected ? 'profile-tag' : ''}`}
+                            onClick={() => handleToggleTag(tag)}
+                          >
+                            {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Custom Tags */}
+                <div className="custom-tags-section">
+                  <h4 className="tag-category-title">Custom Tags</h4>
+                  
+                  {/* Custom Tags Display */}
+                  {customTags.length > 0 && (
+                    <div className="custom-tags-list">
+                      {customTags.map((tag) => (
+                        <div key={tag} className="custom-tag">
+                          <span>{tag}</span>
+                          <button
+                            type="button"
+                            className="custom-tag-remove"
+                            onClick={() => handleRemoveCustomTag(tag)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Add Custom Tag Input */}
+                  <div className="custom-tag-input-group">
+                    <input
+                      type="text"
+                      value={customTagInput}
+                      onChange={(e) => setCustomTagInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomTag();
+                        }
+                      }}
+                      className="form-input"
+                      placeholder="Add custom tag"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-add-custom-tag"
+                      onClick={handleAddCustomTag}
+                    >
+                      + Add Tag
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
