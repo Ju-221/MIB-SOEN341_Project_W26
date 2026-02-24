@@ -290,7 +290,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: var(--shadow-heavy);
-  max-width: 600px;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease;
@@ -487,25 +487,55 @@
 /* Ingredient Row with Cost */
 .ingredient-row {
   display: grid;
-  grid-template-columns: 2fr 1fr auto;
-  gap: 0.75rem;
+  grid-template-columns: 1.5fr 0.65fr 0.75fr 0.75fr auto;
+  gap: 0.5rem;
   align-items: flex-start;
 }
 
 .ingredient-name-col {
-  flex: 2;
-}
-
-.ingredient-cost-col {
   flex: 1;
 }
 
-.ingredient-name-col .form-input {
+.ingredient-amount-col {
+  flex: 0.65;
+}
+
+.ingredient-unit-col {
+  flex: 0.75;
+}
+
+.ingredient-cost-col {
+  flex: 0.75;
+}
+
+.ingredient-name-col .form-input,
+.ingredient-amount-col .form-input,
+.ingredient-unit-col .form-input,
+.ingredient-cost-col .form-input {
   width: 100%;
 }
 
-.ingredient-cost-col .form-input {
+.ingredient-unit-col select {
   width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ingredient-unit-col input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: white;
+  transition: all 0.2s ease;
 }
 
 /* Form Label Row with Cost Total */
@@ -528,6 +558,43 @@
   white-space: nowrap;
 }
 
+.ingredient-stats {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ingredient-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  background-color: #ff8c00;
+  border-radius: 50%;
+}
+
+.ingredient-header-row {
+  display: grid;
+  grid-template-columns: 1.5fr 0.65fr 0.75fr 0.75fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.ingredient-header-row small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Recipe Detail Modal */
 .recipe-detail-modal {
   max-width: 600px;
@@ -538,6 +605,16 @@
   max-height: 90vh;
 }
 
+.label-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;            
+}
+
+.form-label {
+  margin-bottom: 0;    
+} 
 .recipe-detail-close {
   position: absolute;
   top: 1rem;

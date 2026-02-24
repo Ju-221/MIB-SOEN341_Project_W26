@@ -35,6 +35,28 @@ interface Recipe {
 }
 
 const RecipeManager: React.FC = () => {
+  // Unit options for ingredients
+  const unitOptions = [
+    'unit',
+    'ml',
+    'l',
+    'mg',
+    'g',
+    'kg',
+    'tsp',
+    'tbsp',
+    'cup',
+    'oz',
+    'lb',
+    'fl oz',
+    'gallon',
+    'pinch',
+    'slice',
+    'can',
+  ];
+
+
+
   // Available tags organized by category
   const tagCategories = {
     allergies: {
@@ -92,7 +114,7 @@ const RecipeManager: React.FC = () => {
     title: '',
     name: '',
     description: '',
-    ingredients: [{ name: '', cost: 0 }],
+    ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
     steps: [{ text: '' }],
     instructions: [''],
     categories: [],
@@ -111,7 +133,7 @@ const RecipeManager: React.FC = () => {
       title: '',
       name: '',
       description: '',
-      ingredients: [{ name: '', cost: 0 }],
+      ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
       steps: [{ text: '' }],
       instructions: [''],
       categories: [],
@@ -189,15 +211,14 @@ const RecipeManager: React.FC = () => {
   ) => {
     if (!formData[field]) return;
     const currentArray = Array.isArray(formData[field]) ? [...(formData[field] as (string | any)[])] : [];
-    
+
     if (field === 'ingredients') {
       const ingredient = currentArray[index];
       if (typeof ingredient === 'object') {
         if (subfield === 'cost') {
           // Allow empty string for user to clear field, otherwise parse as float
           if (value === '' || value === '-') {
-            // Allow user to clear or start typing negative (even though min=0 prevents saving)
-            currentArray[index] = { ...ingredient, cost: value === '' ? 0 : 0 };
+            currentArray[index] = { ...ingredient, cost: 0 };
           } else {
             const costValue = parseFloat(value);
             // Only update if it's a valid number
@@ -205,6 +226,12 @@ const RecipeManager: React.FC = () => {
               currentArray[index] = { ...ingredient, cost: costValue };
             }
           }
+        } else if (subfield === 'amount') {
+          // Handle amount separately - just store as string
+          currentArray[index] = { ...ingredient, amount: value };
+        } else if (subfield === 'unit') {
+          // Handle unit separately - just store as string
+          currentArray[index] = { ...ingredient, unit: value };
         } else if (subfield === 'name') {
           // Explicitly handle name to avoid confusion
           currentArray[index] = { ...ingredient, name: value };
@@ -212,7 +239,7 @@ const RecipeManager: React.FC = () => {
           currentArray[index] = { ...ingredient, [subfield || 'name']: value };
         }
       } else {
-        currentArray[index] = { name: value, cost: 0 };
+        currentArray[index] = { name: value, amount: '', unit: '', cost: 0 };
       }
     } else if (field === 'steps') {
       const step = currentArray[index];
@@ -224,7 +251,7 @@ const RecipeManager: React.FC = () => {
     } else {
       currentArray[index] = value;
     }
-    
+
     setFormData({ ...formData, [field]: currentArray });
   };
   const handleStepImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,7 +261,7 @@ const RecipeManager: React.FC = () => {
       reader.onloadend = () => {
         const result = reader.result as string;
         setStepImagePreviews({ ...stepImagePreviews, [index]: result });
-        
+
         const currentArray = Array.isArray(formData.steps) ? [...(formData.steps as (string | Step)[])] : [];
         const step = currentArray[index];
         if (typeof step === 'object') {
@@ -251,8 +278,8 @@ const RecipeManager: React.FC = () => {
   const handleAddArrayField = (field: 'ingredients' | 'steps') => {
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
-    
-    const newItem = field === 'ingredients' ? { name: '', cost: 0 } : { text: '' };
+
+    const newItem = field === 'ingredients' ? { name: '', amount: '', unit: '', cost: 0 } : { text: '' };
     setFormData({
       ...formData,
       [field]: [...currentArray, newItem],
@@ -275,11 +302,11 @@ const RecipeManager: React.FC = () => {
 
   const handleToggleTag = (tag: string) => {
     const isDifficultyTag = tagCategories.difficulty.tags.includes(tag);
-    
+
     if (isDifficultyTag) {
       // For difficulty tags, ensure only one can be selected
       const nonDifficultyCategories = formData.categories.filter(t => !tagCategories.difficulty.tags.includes(t));
-      
+
       if (formData.categories.includes(tag)) {
         // If already selected, deselect it
         setFormData({
@@ -338,7 +365,7 @@ const RecipeManager: React.FC = () => {
 
     if (isEditing) {
       setRecipes(
-        recipes.map((recipe) => 
+        recipes.map((recipe) =>
           recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
         )
       );
@@ -360,7 +387,7 @@ const RecipeManager: React.FC = () => {
       title: '',
       name: '',
       description: '',
-      ingredients: [{ name: '', cost: 0 }],
+      ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
       steps: [{ text: '' }],
       instructions: [''],
       categories: [],
@@ -390,61 +417,61 @@ const RecipeManager: React.FC = () => {
       {/* Recipe Grid */}
       <div className="recipe-grid">
         {recipes.map((recipe) => {
-        // Calculate total ingredient cost
-        const totalIngredientCost = (recipe.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
-          const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
-          return sum + cost;
-        }, 0) || 0;
+          // Calculate total ingredient cost
+          const totalIngredientCost = (recipe.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
+            const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+            return sum + cost;
+          }, 0) || 0;
 
-        return (
-          <div 
-            key={recipe.id} 
-            className="recipe-card"
-            onClick={() => handleViewRecipeDetail(recipe)}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="recipe-image-container">
-              <img
-                src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                alt={recipe.title || recipe.name}
-                className="recipe-image"
-              />
-            </div>
-            <div className="recipe-content">
-              <h2>{recipe.title || recipe.name}</h2>
-              <p className="recipe-description">{recipe.description}</p>
-              <div className="recipe-meta">
-                <div className="meta-item">
-                  <span className="meta-label">Prep:</span>
-                  <span>{recipe.prepTime} min</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Cook:</span>
-                  <span>{recipe.cookTime} min</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Cost:</span>
-                  <span>${totalIngredientCost.toFixed(2)}</span>
+          return (
+            <div
+              key={recipe.id}
+              className="recipe-card"
+              onClick={() => handleViewRecipeDetail(recipe)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="recipe-image-container">
+                <img
+                  src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
+                  alt={recipe.title || recipe.name}
+                  className="recipe-image"
+                />
+              </div>
+              <div className="recipe-content">
+                <h2>{recipe.title || recipe.name}</h2>
+                <p className="recipe-description">{recipe.description}</p>
+                <div className="recipe-meta">
+                  <div className="meta-item">
+                    <span className="meta-label">Prep:</span>
+                    <span>{recipe.prepTime} min</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Cook:</span>
+                    <span>{recipe.cookTime} min</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Cost:</span>
+                    <span>${totalIngredientCost.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
+              <div className="recipe-actions" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="btn btn-edit"
+                  onClick={() => handleEditRecipe(recipe)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-delete"
+                  onClick={() => handleDeleteRecipe(recipe.id)}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-            <div className="recipe-actions" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="btn btn-edit"
-                onClick={() => handleEditRecipe(recipe)}
-              >
-                Edit
-              </button>
-              <button
-                className="btn btn-delete"
-                onClick={() => handleDeleteRecipe(recipe.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
       </div>
 
       {/* Recipe Detail Modal */}
@@ -474,7 +501,7 @@ const RecipeManager: React.FC = () => {
               <h1>{selectedRecipe.title || selectedRecipe.name}</h1>
             </div>
 
-            {/* Recipe Meta - Stats */}
+            {/* Recipe Stats */}
             <div className="recipe-detail-stats">
               <div className="stat-item">
                 <div className="stat-content">
@@ -485,9 +512,10 @@ const RecipeManager: React.FC = () => {
               <div className="stat-item">
                 <div className="stat-content">
                   <div className="stat-label">Ingredients</div>
+
                   <div className="stat-value">
-                    {Array.isArray(selectedRecipe.ingredients) 
-                      ? selectedRecipe.ingredients.length 
+                    {Array.isArray(selectedRecipe.ingredients)
+                      ? selectedRecipe.ingredients.length
                       : 0}
                   </div>
                 </div>
@@ -509,7 +537,7 @@ const RecipeManager: React.FC = () => {
               </div>
             )}
 
-            {/* Get Started Button */}
+            {/* Get Started Button (Does not lead to anything for now) */}
             <div className="recipe-detail-actions">
               <button className="btn btn-get-started">Get Started →</button>
             </div>
@@ -652,17 +680,34 @@ const RecipeManager: React.FC = () => {
               {/* Ingredients */}
               <div className="form-group">
                 <div className="form-label-row">
-                  <label className="form-label">Ingredients</label>
-                  <div className="ingredient-total-cost">
-                    Total: ${((formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
-                      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
-                      return sum + cost;
-                    }, 0) || 0).toFixed(2)}
+                  {/* Added 'label-wrapper' class here */}
+                  <span className="label-wrapper">
+                    <label className="form-label">Ingredients</label>
+                    <span className="ingredient-count">
+                      {(formData.ingredients as (string | Ingredient)[])?.length || 0}
+                    </span>
+                  </span>
+
+                  <div className="ingredient-stats">
+                    <div className="ingredient-total-cost">
+                      Total: ${((formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
+                        const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+                        return sum + cost;
+                      }, 0) || 0).toFixed(2)}
+                    </div>
                   </div>
+                </div>
+                <div className="ingredient-header-row">
+                  <div className="ingredient-name-col"><small>Name</small></div>
+                  <div className="ingredient-amount-col"><small>Amount</small></div>
+                  <div className="ingredient-unit-col"><small>Unit</small></div>
+                  <div className="ingredient-cost-col"><small>Cost</small></div>
                 </div>
                 <div className="array-fields">
                   {(formData.ingredients as (string | any)[])?.map((ingredient, index) => {
                     const ingredientName = typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
+                    const ingredientAmount = typeof ingredient === 'object' ? ingredient?.amount || '' : '';
+                    const ingredientUnit = typeof ingredient === 'object' ? ingredient?.unit || '' : '';
                     const ingredientCost = typeof ingredient === 'object' ? ingredient?.cost || 0 : 0;
                     return (
                       <div key={index} className="ingredient-row">
@@ -681,6 +726,44 @@ const RecipeManager: React.FC = () => {
                             className="form-input"
                             placeholder={`Ingredient ${index + 1}`}
                           />
+                        </div>
+                        <div className="ingredient-amount-col">
+                          <input
+                            type="text"
+                            value={ingredientAmount}
+                            onChange={(e) =>
+                              handleArrayFieldChange(
+                                index,
+                                'ingredients',
+                                e.target.value,
+                                'amount'
+                              )
+                            }
+                            className="form-input"
+                            placeholder="Amount"
+                          />
+                        </div>
+                        <div className="ingredient-unit-col">
+                          <input
+                            type="text"
+                            value={ingredientUnit}
+                            onChange={(e) =>
+                              handleArrayFieldChange(
+                                index,
+                                'ingredients',
+                                e.target.value,
+                                'unit'
+                              )
+                            }
+                            className="form-input"
+                            placeholder="Unit"
+                            list={`unit-options-${index}`}
+                          />
+                          <datalist id={`unit-options-${index}`}>
+                            {unitOptions.map((unit) => (
+                              <option key={unit} value={unit} />
+                            ))}
+                          </datalist>
                         </div>
                         <div className="ingredient-cost-col">
                           <input
@@ -733,7 +816,7 @@ const RecipeManager: React.FC = () => {
                     const stepText = typeof step === 'string' ? step : step?.text || '';
                     const stepImage = typeof step === 'object' ? step?.image : undefined;
                     const preview = stepImagePreviews[index] || stepImage;
-                    
+
                     return (
                       <div key={index} className="step-card">
                         <div className="step-main">
@@ -763,7 +846,7 @@ const RecipeManager: React.FC = () => {
                             </button>
                           )}
                         </div>
-                        
+
                         {/* Step Image */}
                         <div className="step-image-section">
                           {preview ? (
@@ -813,7 +896,7 @@ const RecipeManager: React.FC = () => {
               {/* Tags/Categories */}
               <div className="form-group">
                 <label className="form-label">Tags</label>
-                
+
                 {/* Predefined Tags by Category */}
                 {Object.entries(tagCategories).map(([categoryKey, category]) => (
                   <div key={categoryKey} className="tag-category">
@@ -840,7 +923,7 @@ const RecipeManager: React.FC = () => {
                 {/* Custom Tags */}
                 <div className="custom-tags-section">
                   <h4 className="tag-category-title">Custom Tags</h4>
-                  
+
                   {/* Custom Tags Display */}
                   {customTags.length > 0 && (
                     <div className="custom-tags-list">
@@ -858,7 +941,7 @@ const RecipeManager: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   {/* Add Custom Tag Input */}
                   <div className="custom-tag-input-group">
                     <input
