@@ -3,9 +3,10 @@ import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
+import {Request, Response} from 'express'
 
 // SIGNUP
-export const signup = async (req, res) => {
+export const signup = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -27,7 +28,7 @@ export const signup = async (req, res) => {
     // Generate token
     const token = jwt.sign(
       { id: result.id, email: result.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
       { expiresIn: '24h' }
     );
 
@@ -42,7 +43,7 @@ export const signup = async (req, res) => {
 };
 
 // SIGNIN
-export const signin = async (req, res) => {
+export const signin = async (req : Request, res : Response) => {
   try {
     const { email, password } = req.body;
 
@@ -61,7 +62,7 @@ export const signin = async (req, res) => {
     // Generate token
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
       { expiresIn: '24h' }
     );
 
