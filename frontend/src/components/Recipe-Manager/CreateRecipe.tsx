@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CreateRecipe.css';
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 
 interface Ingredient {
   name: string;
@@ -13,7 +14,7 @@ interface Step {
   image?: string;
 }
 
-interface Recipe {
+export interface Recipe {
   id: string | number;
   title: string;
   description: string;
@@ -82,8 +83,9 @@ const RecipeManager: React.FC = () => {
   const [customTagInput, setCustomTagInput] = useState<string>('');
   const [stepImagePreviews, setStepImagePreviews] = useState<{ [key: number]: string }>({});
 
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+  const sampleRecipe: Recipe  = {
       id: '1',
       title: 'Sample Recipe',
       name: 'Sample Recipe',
@@ -98,8 +100,21 @@ const RecipeManager: React.FC = () => {
       estimatedCost: 0,
       heroImage: 'https://via.placeholder.com/300x200?text=Recipe',
       image: 'https://via.placeholder.com/300x200?text=Recipe',
-    },
-  ]);
+  }
+
+  useEffect(() => {
+    async function loadRecipes() {
+      try {
+        const data = await fetchRecipes();
+        const recipes: Recipe[] = [...data, sampleRecipe];    // TODO put sample in the db
+        setRecipes(recipes);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadRecipes();
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [showRecipeDetail, setShowRecipeDetail] = useState(false);
@@ -171,11 +186,32 @@ const RecipeManager: React.FC = () => {
     setShowDeleteConfirm(true);
   };
 
+  const getJwtToken = () => {
+    const jwt_token: string | null = localStorage.getItem('token');
+
+    if (!jwt_token) {
+        throw new Error("jwt token not found");
+    }
+
+    return jwt_token;
+  }
+
   const confirmDeleteRecipe = () => {
-    if (selectedRecipeId) {
-      setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
-      setShowDeleteConfirm(false);
-      setSelectedRecipeId(null);
+    try {
+      const jwt_token = getJwtToken()
+
+      if (!selectedRecipeId) {
+        throw new Error("Recipe ID for deletion is null");
+      }
+      
+      // API call
+        deleteRecipe(selectedRecipeId.toString(), jwt_token);
+
+        setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
+        setShowDeleteConfirm(false);
+        setSelectedRecipeId(null)
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -364,11 +400,18 @@ const RecipeManager: React.FC = () => {
     }, 0) || 0;
 
     if (isEditing) {
-      setRecipes(
-        recipes.map((recipe) =>
-          recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
-        )
-      );
+      try {
+        // API call
+        updateRecipe(formData.id.toString(), { ...formData, estimatedCost: totalCost }, getJwtToken());
+        
+        setRecipes(
+          recipes.map((recipe) =>
+            recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       const newRecipe: Recipe = {
         ...formData,
@@ -376,7 +419,14 @@ const RecipeManager: React.FC = () => {
         title: formData.title || formData.name || '',
         estimatedCost: totalCost,
       };
-      setRecipes([...recipes, newRecipe]);
+      try {
+        // API call 
+        createRecipe(newRecipe);
+        
+        setRecipes([...recipes, newRecipe]);
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     setShowModal(false);
