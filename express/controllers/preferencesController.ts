@@ -1,11 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { allergies, dietaryPreferences } from '../db/schema.js';
+import {Request, Response} from 'express';
 
 // SET PREFERENCES
-export const setPreferences = async (req, res) => {
+export const setPreferences = async (req:Request, res:Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { allergies: allergyData, dietaryPreferences: dietData } = req.body;
 
     //  allergies
@@ -34,9 +35,9 @@ export const setPreferences = async (req, res) => {
 };
 
 // GET PREFERENCES
-export const getPreferences = async (req, res) => {
+export const getPreferences = async (req:Request, res:Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     const userAllergies = db.select().from(allergies).where(eq(allergies.userId, userId)).get();
     const userDiet = db.select().from(dietaryPreferences).where(eq(dietaryPreferences.userId, userId)).get();

@@ -48,6 +48,8 @@ export const recipes = sqliteTable('recipes', {
   steps: text('steps').notNull(),             // JSON: ["Mix flour...", "Bake for 20 min..."]
   categories: text('categories').notNull(),   // JSON: ["breakfast", "quick"]
   createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  dietaryPreferences: text('dietary_preferences'), // json ['vege', 'vegan]
+  allergies: text('allergies') // json [....]
 });
 
 
