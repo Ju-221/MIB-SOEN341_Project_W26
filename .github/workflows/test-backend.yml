@@ -142,38 +142,9 @@ jobs:
             }
           "
       
-      - name: Generate test report
+      - name: Cleanup
         if: always()
         run: |
-          echo "╔════════════════════════════════════════════╗"
-          echo "║         BACKEND API TEST REPORT            ║"
-          echo "╠════════════════════════════════════════════╣"
-          echo ""
-          echo "✓ TESTS THAT PASSED:"
-          echo "  ✓ Node.js installation"
-          echo "  ✓ Root dependencies installed"
-          echo "  ✓ Backend dependencies installed"
-          echo "  ✓ Environment variables setup"
-          echo "  ✓ Database backup check"
-          echo "  ✓ Server startup"
-          echo "  ✓ Root endpoint (GET /)"
-          echo "  ✓ Signup endpoint (POST /api/auth/signup)"
-          echo "  ✓ Signin endpoint (POST /api/auth/signin)"
-          echo "  ✓ Database file created"
-          echo "  ✓ Database tables initialized"
-          echo ""
-          echo "SUMMARY:"
-          echo "────────────────────────────────────────────"
-          if [ $? -eq 0 ]; then
-            echo "All tests PASSED"
-          else
-            echo "Some tests FAILED"
-          fi
-          echo "────────────────────────────────────────────"
-          echo ""
-          echo "Test Environment:"
-          echo "  Node Version: ${{ matrix.node-version }}"
-          echo "  Runner: ubuntu-latest"
-          echo "  Backend Port used: 3000"
-          echo ""
-          echo "╚════════════════════════════════════════════╝"
+          echo "Cleaning up..."
+          pkill -f "npm run dev -w express" || true
+          echo "✓ Cleanup complete"
