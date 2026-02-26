@@ -1,5 +1,7 @@
 # Mealmajor
 
+[![Backend API Tests](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
+
 ## How to run
 
 Simply make sure to have a secret key (32 character long min,) in the backend/MealMajor.api/appsetting.json
