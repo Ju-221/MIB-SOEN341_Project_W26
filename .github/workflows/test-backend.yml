@@ -57,6 +57,12 @@ jobs:
           else
             echo "⚠ Database backup not found - will be created on first run"
           fi
+          
+          # Remove existing database to test backup restoration
+          if [ -f "db/mealmajor.db" ]; then
+            echo "Removing existing database to test backup restoration..."
+            rm db/mealmajor.db
+          fi
       
       - name: Start backend server
         run: |
