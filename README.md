@@ -1,4 +1,5 @@
 # Mealmajor
+[![Backend API Tests](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
 
 ## DEV_POST
 
