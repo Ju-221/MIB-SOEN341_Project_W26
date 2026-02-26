@@ -5,6 +5,8 @@ import {eq , like} from 'drizzle-orm';
 import {db} from '../db/index.js'
 import {allergies, dietaryPreferences, recipes} from '../db/schema.js';
 import {Request,Response} from 'express'
+import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
+
 // muter: temp-storeage, renamed after insert
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, './uploads/'),
@@ -47,9 +49,9 @@ export const getRecipeById = (req : Request,res: Response) => {
 };
 
 // POST. api/recipes
-export const createRecipe = (req: Request, res:Response) => {
+export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res:Response) => {
     try {
-        const {title, description, prepTime, cookTime, estimatedCost, ingredients, steps, categories} = req.body;
+        const {title, description, prepTime, cookTime, estimatedCost,difficulty  ,ingredients, steps, categories, allergies, dietaryPreferences} = req.body;
         const createdBy = req.user!.id;
 
         const result = db.insert(recipes).values({
@@ -58,6 +60,7 @@ export const createRecipe = (req: Request, res:Response) => {
             cookTime: Number(cookTime),
             estimatedCost: Number(estimatedCost),
             heroImage: null,
+            difficulty: difficulty,
             ingredients: typeof ingredients === 'string' ? ingredients : JSON.stringify(ingredients),
             steps: typeof steps === 'string' ? steps: JSON.stringify(steps),
             categories: typeof categories === 'string' ? categories : JSON.stringify(categories),
@@ -87,14 +90,14 @@ export const createRecipe = (req: Request, res:Response) => {
 };
 
 
-export const updateRecipe = (req:Request, res:Response) => {
+export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>, res:Response) => {
     try {
         
         const id = Number(req.params.id);
         const existing = db.select().from(recipes).where(eq(recipes.id, id)).get();
         if (!existing) return res.status(404).json({ message: 'Recipe not found'});
         
-        const { title, description, prepTime, cookTime, estimatedCost, ingredients, steps, categories, dietaryPreferences, allergies} = req.body;
+        const { title, description, prepTime, cookTime, estimatedCost,difficulty ,ingredients, steps, categories, dietaryPreferences, allergies} = req.body;
         const createdBy = req.user!.id;
         if (existing.createdBy !== createdBy) return res.status(403).json({message: 'Unauthorized'});
         
@@ -125,7 +128,7 @@ export const updateRecipe = (req:Request, res:Response) => {
       ...(categories !== undefined && { categories: typeof categories === 'string' ? categories : JSON.stringify(categories) }),
       ...(dietaryPreferences !== undefined && {dietaryPreferences: typeof dietaryPreferences === 'string' ? dietaryPreferences : JSON.stringify(dietaryPreferences)}),
       ...(allergies !== undefined && {allergies: typeof allergies === 'string' ? allergies : JSON.stringify(allergies)}),
-
+      ...(difficulty !== undefined && { difficulty }),
       heroImage,
     };
 
