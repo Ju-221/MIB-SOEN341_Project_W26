@@ -1,4 +1,6 @@
 import { sqliteTable, text, integer,real } from 'drizzle-orm/sqlite-core';
+import { Difficulty } from '../types/index.js';
+
 
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -42,6 +44,7 @@ export const recipes = sqliteTable('recipes', {
   description: text('description').notNull(),
   prepTime: integer('prep_time').notNull(),
   cookTime: integer('cook_time').notNull(),
+  difficulty: text('difficulty').$type<Difficulty>().default('Easy').notNull(),
   estimatedCost: real('estimated_cost').notNull(),
   heroImage: text('hero_image'),
   ingredients: text('ingredients').notNull(), // JSON: [{ name, amount, unit }]
