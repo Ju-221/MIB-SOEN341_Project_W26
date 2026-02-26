@@ -59,7 +59,10 @@ jobs:
           fi
       
       - name: Start backend server
-        run: npm run dev -w express &
+        run: |
+          echo "Starting backend server..."
+          npm run dev -w express > express/server.log 2>&1 &
+          echo $! > express/server.pid
         timeout-minutes: 2
       
       - name: Wait for server to start
@@ -74,6 +77,9 @@ jobs:
             sleep 1
           done
           echo "✗ Server failed to start"
+          echo "============ Server Logs ============"
+          cat express/server.log
+          echo "====================================="
           exit 1
       
       - name: Test root endpoint
@@ -85,35 +91,66 @@ jobs:
       - name: Create test user (signup)
         run: |
           echo "Testing POST /api/auth/signup"
-          RESPONSE=$(curl -s -X POST http://localhost:3000/api/auth/signup \
+          HTTP_CODE=$(curl -s -o /tmp/signup_response.json -w "%{http_code}" \
+            -X POST http://localhost:3000/api/auth/signup \
             -H "Content-Type: application/json" \
             -d '{
               "email": "test@example.com",
               "password": "TestPassword123!"
             }')
-          echo "$RESPONSE"
-          if echo "$RESPONSE" | grep -q "id\|email"; then
-            echo "✓ Signup endpoint working"
-          else
-            echo "✗ Signup endpoint failed"
+          RESPONSE=$(cat /tmp/signup_response.json)
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $RESPONSE"
+          
+          if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 201 ]; then
+            echo "✗ Signup failed: Expected HTTP 200/201, got $HTTP_CODE"
+            echo "============ Server Logs ============"
+            tail -50 express/server.log
+            echo "====================================="
             exit 1
           fi
+          
+          if ! echo "$RESPONSE" | grep -q "id\|email\|user"; then
+            echo "✗ Signup failed: Response missing expected fields (id/email/user)"
+            echo "============ Server Logs ============"
+            tail -50 express/server.log
+            echo "====================================="
+            exit 1
+          fi
+          
+          echo "✓ Signup endpoint working correctly"
       
       - name: Test signin endpoint
         run: |
           echo "Testing POST /api/auth/signin"
-          RESPONSE=$(curl -s -X POST http://localhost:3000/api/auth/signin \
+          HTTP_CODE=$(curl -s -o /tmp/signin_response.json -w "%{http_code}" \
+            -X POST http://localhost:3000/api/auth/signin \
             -H "Content-Type: application/json" \
             -d '{
               "email": "test@example.com",
               "password": "TestPassword123!"
             }')
-          echo "$RESPONSE"
-          if echo "$RESPONSE" | grep -q "token\|email"; then
-            echo "✓ Signin endpoint working"
-          else
-            echo "⚠ Signin response received (may need adjustment)"
+          RESPONSE=$(cat /tmp/signin_response.json)
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $RESPONSE"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "✗ Signin failed: Expected HTTP 200, got $HTTP_CODE"
+            echo "============ Server Logs ============"
+            tail -50 express/server.log
+            echo "====================================="
+            exit 1
           fi
+          
+          if ! echo "$RESPONSE" | grep -q "token\|email\|user"; then
+            echo "✗ Signin failed: Response missing expected fields (token/email/user)"
+            echo "============ Server Logs ============"
+            tail -50 express/server.log
+            echo "====================================="
+            exit 1
+          fi
+          
+          echo "✓ Signin endpoint working correctly"
       
       - name: Check database file was created
         run: |
