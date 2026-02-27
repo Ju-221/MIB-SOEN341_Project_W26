@@ -304,3 +304,53 @@
     flex-direction: column;
   }
 }
+
+/* Recipe Manager Modal Styles */
+.modal-overlay-profile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content-profile {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(46, 204, 113, 0.2);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.modal-close-profile {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: white;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #2ecc71;
+  transition: all 0.2s ease;
+  padding: 4px 10px;
+  z-index: 2001;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close-profile:hover {
+  background-color: #d5f4e6;
+}

@@ -265,3 +265,7 @@ dist/
 # logs
 *.log
 backend/MealMajor.API/appsettings.json
+
+# Database images
+express/uploads/*
+express/!uploads/.gitkeep
