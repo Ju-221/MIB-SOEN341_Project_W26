@@ -105,6 +105,16 @@ const RecipeManager: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [recipeSearchQuery, setRecipeSearchQuery] = useState('');
+  const [ingredientFilterQuery, setIngredientFilterQuery] = useState('');
+  const [maxPrepTimeFilter, setMaxPrepTimeFilter] = useState('');
+  const [maxCookTimeFilter, setMaxCookTimeFilter] = useState('');
+  const [maxTotalTimeFilter, setMaxTotalTimeFilter] = useState('');
+  const [maxCostFilter, setMaxCostFilter] = useState('');
+  const [selectedDietFilters, setSelectedDietFilters] = useState<string[]>([]);
+  const [selectedGoalFilters, setSelectedGoalFilters] = useState<string[]>([]);
+  const [selectedAllergyFilters, setSelectedAllergyFilters] = useState<string[]>([]);
+  const [selectedDifficultyFilters, setSelectedDifficultyFilters] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<Recipe>({
     id: '',
@@ -122,6 +132,144 @@ const RecipeManager: React.FC = () => {
     estimatedCost: 0,
     heroImage: '',
     image: '',
+  });
+
+  const normalizeText = (value: string = '') => value.trim().toLowerCase();
+
+  const parseFilterNumber = (value: string): number | null => {
+    if (!value.trim()) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const getRecipeIngredientNames = (recipe: Recipe): string[] =>
+    (recipe.ingredients || [])
+      .map((ingredient) => {
+        if (typeof ingredient === 'string') return ingredient;
+        return ingredient?.name || '';
+      })
+      .map((name) => name.trim())
+      .filter(Boolean);
+
+  const getRecipeStepTexts = (recipe: Recipe): string[] =>
+    (recipe.steps || [])
+      .map((step) => (typeof step === 'string' ? step : step?.text || ''))
+      .map((text) => text.trim())
+      .filter(Boolean);
+
+  const getRecipeDisplayCost = (recipe: Recipe): number => {
+    const ingredientCost = (recipe.ingredients || []).reduce((sum, ing) => {
+      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+      return sum + cost;
+    }, 0);
+    return ingredientCost > 0 ? ingredientCost : recipe.estimatedCost || 0;
+  };
+
+  const getRecipeDifficulty = (recipe: Recipe): string => {
+    const categoryDifficulty = (recipe.categories || []).find((tag) =>
+      tagCategories.difficulty.tags.includes(normalizeText(tag))
+    );
+
+    if (categoryDifficulty) return normalizeText(categoryDifficulty);
+    if (recipe.difficulty) return normalizeText(recipe.difficulty);
+    return '';
+  };
+
+  const toggleFilterTag = (
+    tag: string,
+    setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>,
+    singleSelect: boolean = false
+  ) => {
+    const normalizedTag = normalizeText(tag);
+
+    if (singleSelect) {
+      setSelectedTags((current) =>
+        current.includes(normalizedTag) ? [] : [normalizedTag]
+      );
+      return;
+    }
+
+    setSelectedTags((current) =>
+      current.includes(normalizedTag)
+        ? current.filter((item) => item !== normalizedTag)
+        : [...current, normalizedTag]
+    );
+  };
+
+  const clearRecipeFilters = () => {
+    setRecipeSearchQuery('');
+    setIngredientFilterQuery('');
+    setMaxPrepTimeFilter('');
+    setMaxCookTimeFilter('');
+    setMaxTotalTimeFilter('');
+    setMaxCostFilter('');
+    setSelectedDietFilters([]);
+    setSelectedGoalFilters([]);
+    setSelectedAllergyFilters([]);
+    setSelectedDifficultyFilters([]);
+  };
+
+  const filteredRecipes = recipes.filter((recipe) => {
+    const normalizedCategories = (recipe.categories || []).map((tag) => normalizeText(tag));
+    const ingredientNames = getRecipeIngredientNames(recipe).map((name) => normalizeText(name));
+    const stepTexts = getRecipeStepTexts(recipe).map((text) => normalizeText(text));
+    const recipeDifficulty = getRecipeDifficulty(recipe);
+    const totalCost = getRecipeDisplayCost(recipe);
+    const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+
+    const searchableText = [
+      recipe.title || '',
+      recipe.name || '',
+      recipe.description || '',
+      ...normalizedCategories,
+      ...ingredientNames,
+      ...stepTexts,
+      recipeDifficulty,
+    ]
+      .join(' ')
+      .toLowerCase();
+
+    const searchTokens = recipeSearchQuery
+      .split(',')
+      .flatMap((chunk) => chunk.split(/\s+/))
+      .map(normalizeText)
+      .filter(Boolean);
+
+    const ingredientTokens = ingredientFilterQuery
+      .split(',')
+      .map(normalizeText)
+      .filter(Boolean);
+
+    const maxPrepTime = parseFilterNumber(maxPrepTimeFilter);
+    const maxCookTime = parseFilterNumber(maxCookTimeFilter);
+    const maxTotalTime = parseFilterNumber(maxTotalTimeFilter);
+    const maxCost = parseFilterNumber(maxCostFilter);
+
+    if (searchTokens.some((token) => !searchableText.includes(token))) return false;
+    if (
+      ingredientTokens.some(
+        (token) => !ingredientNames.some((ingredient) => ingredient.includes(token))
+      )
+    ) {
+      return false;
+    }
+    if (maxPrepTime !== null && (recipe.prepTime || 0) > maxPrepTime) return false;
+    if (maxCookTime !== null && (recipe.cookTime || 0) > maxCookTime) return false;
+    if (maxTotalTime !== null && totalTime > maxTotalTime) return false;
+    if (maxCost !== null && totalCost > maxCost) return false;
+    if (selectedDietFilters.some((tag) => !normalizedCategories.includes(tag))) return false;
+    if (selectedGoalFilters.some((tag) => !normalizedCategories.includes(tag))) return false;
+    // Allergy/intolerance filters are exclusion filters:
+    // if a recipe contains any selected allergy tag, hide it.
+    if (selectedAllergyFilters.some((tag) => normalizedCategories.includes(tag))) return false;
+    if (
+      selectedDifficultyFilters.length > 0 &&
+      !selectedDifficultyFilters.includes(recipeDifficulty)
+    ) {
+      return false;
+    }
+
+    return true;
   });
 
   const handleCreateRecipe = () => {
@@ -452,14 +600,190 @@ const RecipeManager: React.FC = () => {
         </button>
       </div>
 
+      <div className="recipe-filters">
+        <div className="recipe-filters-header">
+          <h3>Filter Recipes</h3>
+          <div className="recipe-filters-actions">
+            <span className="recipe-filter-count">
+              Showing {filteredRecipes.length} of {recipes.length}
+            </span>
+            <button
+              type="button"
+              className="btn btn-filter-clear"
+              onClick={clearRecipeFilters}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        <div className="recipe-filters-grid">
+          <div className="filter-field wide">
+            <label className="form-label" htmlFor="recipe-search-query">
+              Search (title, description, tags, steps)
+            </label>
+            <input
+              id="recipe-search-query"
+              type="text"
+              className="form-input"
+              value={recipeSearchQuery}
+              onChange={(e) => setRecipeSearchQuery(e.target.value)}
+              placeholder="e.g. healthy quick pasta"
+            />
+          </div>
+
+          <div className="filter-field wide">
+            <label className="form-label" htmlFor="ingredient-filter-query">
+              Ingredients (comma separated)
+            </label>
+            <input
+              id="ingredient-filter-query"
+              type="text"
+              className="form-input"
+              value={ingredientFilterQuery}
+              onChange={(e) => setIngredientFilterQuery(e.target.value)}
+              placeholder="e.g. tomato, basil"
+            />
+          </div>
+
+          <div className="filter-field">
+            <label className="form-label" htmlFor="max-prep-time-filter">
+              Max Prep Time (min)
+            </label>
+            <input
+              id="max-prep-time-filter"
+              type="number"
+              min="0"
+              className="form-input"
+              value={maxPrepTimeFilter}
+              onChange={(e) => setMaxPrepTimeFilter(e.target.value)}
+              placeholder="Any"
+            />
+          </div>
+
+          <div className="filter-field">
+            <label className="form-label" htmlFor="max-cook-time-filter">
+              Max Cook Time (min)
+            </label>
+            <input
+              id="max-cook-time-filter"
+              type="number"
+              min="0"
+              className="form-input"
+              value={maxCookTimeFilter}
+              onChange={(e) => setMaxCookTimeFilter(e.target.value)}
+              placeholder="Any"
+            />
+          </div>
+
+          <div className="filter-field">
+            <label className="form-label" htmlFor="max-total-time-filter">
+              Max Total Time (min)
+            </label>
+            <input
+              id="max-total-time-filter"
+              type="number"
+              min="0"
+              className="form-input"
+              value={maxTotalTimeFilter}
+              onChange={(e) => setMaxTotalTimeFilter(e.target.value)}
+              placeholder="Any"
+            />
+          </div>
+
+          <div className="filter-field">
+            <label className="form-label" htmlFor="max-cost-filter">
+              Max Cost ($)
+            </label>
+            <input
+              id="max-cost-filter"
+              type="number"
+              min="0"
+              step="0.01"
+              className="form-input"
+              value={maxCostFilter}
+              onChange={(e) => setMaxCostFilter(e.target.value)}
+              placeholder="Any"
+            />
+          </div>
+        </div>
+
+        <div className="filter-tag-groups">
+          <div className="tag-category compact">
+            <h4 className="tag-category-title">Difficulty</h4>
+            <div className="tags-container">
+              {tagCategories.difficulty.tags.map((tag) => (
+                <button
+                  key={`filter-difficulty-${tag}`}
+                  type="button"
+                  className={`tag-button ${selectedDifficultyFilters.includes(tag) ? 'selected' : ''}`}
+                  onClick={() =>
+                    toggleFilterTag(tag, setSelectedDifficultyFilters, true)
+                  }
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="tag-category compact">
+            <h4 className="tag-category-title">Dietary Tags</h4>
+            <div className="tags-container">
+              {tagCategories.diet.tags.map((tag) => (
+                <button
+                  key={`filter-diet-${tag}`}
+                  type="button"
+                  className={`tag-button ${selectedDietFilters.includes(tag) ? 'selected' : ''}`}
+                  onClick={() => toggleFilterTag(tag, setSelectedDietFilters)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="tag-category compact">
+            <h4 className="tag-category-title">Goals & Attributes</h4>
+            <div className="tags-container">
+              {tagCategories.goals.tags.map((tag) => (
+                <button
+                  key={`filter-goal-${tag}`}
+                  type="button"
+                  className={`tag-button ${selectedGoalFilters.includes(tag) ? 'selected' : ''}`}
+                  onClick={() => toggleFilterTag(tag, setSelectedGoalFilters)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="tag-category compact">
+            <h4 className="tag-category-title">Allergies & Intolerances</h4>
+            <div className="tags-container">
+              {tagCategories.allergies.tags.map((tag) => (
+                <button
+                  key={`filter-allergy-${tag}`}
+                  type="button"
+                  className={`tag-button ${selectedAllergyFilters.includes(tag) ? 'selected' : ''}`}
+                  onClick={() =>
+                    toggleFilterTag(tag, setSelectedAllergyFilters)
+                  }
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Recipe Grid */}
       <div className="recipe-grid">
-        {recipes.map((recipe) => {
+        {filteredRecipes.map((recipe) => {
           // Calculate total ingredient cost
-          const totalIngredientCost = (recipe.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
-            const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
-            return sum + cost;
-          }, 0) || 0;
+          const totalIngredientCost = getRecipeDisplayCost(recipe);
 
           return (
             <div
@@ -511,6 +835,11 @@ const RecipeManager: React.FC = () => {
           );
         })}
       </div>
+      {filteredRecipes.length === 0 && (
+        <div className="recipe-empty-state">
+          No recipes match the current filters.
+        </div>
+      )}
 
       {/* Recipe Detail Modal */}
       {showRecipeDetail && selectedRecipe && (
