@@ -376,6 +376,7 @@ const RecipeManager: React.FC = () => {
     subfield?: string
   ) => {
     if (!formData[field]) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentArray = Array.isArray(formData[field]) ? [...(formData[field] as (string | any)[])] : [];
 
     if (field === 'ingredients') {
@@ -422,6 +423,7 @@ const RecipeManager: React.FC = () => {
   };
 
   const handleAddArrayField = (field: 'ingredients' | 'steps') => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
 
@@ -436,6 +438,7 @@ const RecipeManager: React.FC = () => {
     index: number,
     field: 'ingredients' | 'steps'
   ) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
     const updatedArray = currentArray.filter((_, i) => i !== index);
@@ -527,6 +530,7 @@ const RecipeManager: React.FC = () => {
     }, 0) || 0;
 
     // Use default image if no image is provided
+    // eslint-disable-next-line prefer-const
     let recipeData = { ...formData, estimatedCost: totalCost };
     if (!recipeData.heroImage && !recipeData.image) {
       console.log('No image provided, loading default image...');
@@ -1090,6 +1094,7 @@ const RecipeManager: React.FC = () => {
                   <div className="ingredient-cost-col"><small>Cost</small></div>
                 </div>
                 <div className="array-fields">
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {(formData.ingredients as (string | any)[])?.map((ingredient, index) => {
                     const ingredientName = typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
                     const ingredientAmount = typeof ingredient === 'object' ? ingredient?.amount || '' : '';
@@ -1170,6 +1175,7 @@ const RecipeManager: React.FC = () => {
                             inputMode="decimal"
                           />
                         </div>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {(formData.ingredients as (string | any)[])?.length > 1 && (
                           <button
                             type="button"

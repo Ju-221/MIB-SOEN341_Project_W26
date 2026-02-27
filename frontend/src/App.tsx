@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useHashNavigation } from './hooks/useHashNavigation'
 import { SignIn, SignUp } from './components/Auth'
 import Profile from './components/Profile/Profile'
@@ -51,10 +51,11 @@ function App() {
   }, [])
 
   // Redirect unauthenticated users to sign in
-  if (!isLoggedIn && currentPage !== 'signin' && currentPage !== 'signup') {
-    window.location.hash = '#signin'
-    return null
-  }
+  useEffect(() => {
+    if (!isLoggedIn && currentPage !== 'signin' && currentPage !== 'signup') {
+      window.location.hash = '#signin'
+    }
+  }, [isLoggedIn, currentPage])
 
   const renderPage = () => {
     switch (currentPage) {
