@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import './SignUp.css'
 
-function SignUp() {
+interface SignUpProps {
+  onSuccess?: () => void
+  onSwitchToSignIn?: () => void
+}
+
+function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -45,7 +50,7 @@ function SignUp() {
       setLoading(true)
 
       try {
-        const response = await fetch('http://localhost:5168/auth/signup', {
+        const response = await fetch('http://localhost:3000/api/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,9 +66,9 @@ function SignUp() {
 
         // Store the JWT token
         localStorage.setItem('token', data.token)
+        localStorage.setItem('userEmail', data.user?.email || email)
         
-        // Redirect to dashboard
-        window.location.hash = '#dashboard'
+        onSuccess?.()
       } catch (err) {
         setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
       } finally {
@@ -167,7 +172,11 @@ function SignUp() {
               href="#signin"
               onClick={(e) => {
                 e.preventDefault()
-                window.location.hash = '#signin'
+                if (onSwitchToSignIn) {
+                  onSwitchToSignIn()
+                } else {
+                  window.location.hash = '#signin'
+                }
               }}
             >
               Sign in

@@ -1,11 +1,17 @@
 # Mealmajor
-
 [![Backend API Tests](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
 
-## How to run
+## DEV_POST
 
-Simply make sure to have a secret key (32 character long min,) in the backend/MealMajor.api/appsetting.json
-then go to the frontend folder and run 'npm install && npm run dev'
+If you're seeing this, this is the main branch for testing new features, our nightly build if anything. This is branch is expected to be experimental while bugs are caught slowly. pull at your own risk, but this should be the most up to date in features developed branch. 
+
+# Major updates:
+
+31/1/2026 - added dot net 10 backend and supabase(postgre-db) as database. Initalization for more features like loggin to start soon...
+
+06/2/2026 - Sprint 1 finished and ready for testing! Dropped supabase in change for litesql and implemented JWT tokens, frontend mockup finished
+
+25/2/2026 - Sprint 2 almost finished, unit testing , CICD pipeline, new frontend features added. Transition to express backend succesfully done.
 
 ## Problem
 
