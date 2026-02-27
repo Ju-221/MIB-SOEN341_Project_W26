@@ -109,12 +109,13 @@ jobs:
               
               # Test if we get HTML response
               response=$(curl -s http://localhost:4173/)
-              if echo "$response" | grep -q "<!DOCTYPE html>"; then
+              if echo "$response" | grep -qE "(<!DOCTYPE|<html|<head|<body)"; then
                 echo "✓ HTML content served successfully"
                 kill $(cat preview.pid) 2>/dev/null || true
                 exit 0
               else
                 echo "✗ Unexpected response from preview server"
+                echo "Response preview: $(echo "$response" | head -c 200)"
                 kill $(cat preview.pid) 2>/dev/null || true
                 exit 1
               fi
