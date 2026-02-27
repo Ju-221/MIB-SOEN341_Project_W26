@@ -897,8 +897,8 @@ const RecipeManager: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Step Image */}
-                        <div className="step-image-section">
+                        {/* Step Image (put on hold for now) */}
+                       {/*  <div className="step-image-section">
                           {preview ? (
                             <div className="step-image-preview">
                               <img src={preview} alt={`Step ${index + 1}`} />
@@ -929,7 +929,7 @@ const RecipeManager: React.FC = () => {
                             onChange={(e) => handleStepImageUpload(index, e)}
                             style={{ display: 'none' }}
                           />
-                        </div>
+                        </div> */}
                       </div>
                     );
                   })}
