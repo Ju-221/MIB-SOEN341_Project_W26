@@ -1,14 +1,7 @@
 import { useState } from 'react'
 import './SignUp.css'
 
-interface SignUpProps {
-  isModal?: boolean
-  onSuccess?: () => void
-  onSwitchToSignIn?: () => void
-  onClose?: () => void
-}
-
-function SignUp({ isModal = false, onSuccess, onSwitchToSignIn, onClose }: SignUpProps) {
+function SignUp() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -66,13 +59,12 @@ function SignUp({ isModal = false, onSuccess, onSwitchToSignIn, onClose }: SignU
           throw new Error(data.message || 'Signup failed')
         }
 
+        // Store the JWT token
         localStorage.setItem('token', data.token)
-
-        if (isModal && onSuccess) {
-          onSuccess()
-        } else {
-          window.location.hash = '#home'
-        }
+        localStorage.setItem('userEmail', data.user?.email || email)
+        
+        // Redirect to profile
+        window.location.hash = '#profile'
       } catch (err) {
         setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
       } finally {
@@ -89,120 +81,101 @@ function SignUp({ isModal = false, onSuccess, onSwitchToSignIn, onClose }: SignU
     setShowConfirmPassword(!showConfirmPassword)
   }
 
-  const handleSignInLink = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (isModal && onSwitchToSignIn) {
-      onSwitchToSignIn()
-    } else {
-      window.location.hash = '#signin'
-    }
-  }
-
-  const cardContent = (
-    <div className="signup-card">
-      {isModal && onClose && (
-        <button type="button" className="modal-close-button" onClick={onClose} aria-label="Close">
-          X
-        </button>
-      )}
-      <div className="signup-header">
-        <h1>MealMajor</h1>
-      </div>
-
-      <form onSubmit={handleCreateAccount} className="signup-form">
-        {errors.general && <div className="error-message">{errors.general}</div>}
-
-        <div className="form-group">
-          <label htmlFor="signup-email">
-            Email Address <span className="required">*</span>
-          </label>
-          <input
-            type="email"
-            id="signup-email"
-            placeholder="john.doe@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {errors.email && <span className="error-message">{errors.email}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="signup-password">
-            Password <span className="required">*</span>
-          </label>
-          <div className="password-input-wrapper">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="signup-password"
-              placeholder="Create a strong password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={togglePasswordVisibility}
-              aria-label="Toggle password visibility"
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          <span className="help-text">Must be at least 6 characters</span>
-          {errors.password && <span className="error-message">{errors.password}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="signup-confirmPassword">
-            Confirm Password <span className="required">*</span>
-          </label>
-          <div className="password-input-wrapper">
-            <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="signup-confirmPassword"
-              placeholder="Re-enter your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={toggleConfirmPasswordVisibility}
-              aria-label="Toggle confirm password visibility"
-            >
-              {showConfirmPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <span className="error-message">{errors.confirmPassword}</span>
-          )}
-        </div>
-
-        <button type="submit" className="create-account-button" disabled={loading}>
-          {loading ? 'Creating Account...' : 'Create Account'}
-        </button>
-      </form>
-
-      <div className="signup-footer">
-        <p>
-          Already registered?{' '}
-          <a
-            href="#signin"
-            onClick={handleSignInLink}
-          >
-            Sign in
-          </a>
-        </p>
-      </div>
-    </div>
-  )
-
-  if (isModal) {
-    return cardContent
-  }
-
   return (
     <div className="signup-container">
-      {cardContent}
+      <div className="signup-card">
+        <div className="signup-header">
+          <h1>MealMajor</h1>
+        </div>
+
+        <form onSubmit={handleCreateAccount} className="signup-form">
+          {errors.general && <div className="error-message">{errors.general}</div>}
+          
+          <div className="form-group">
+            <label htmlFor="email">
+              Email Address <span className="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="john.doe@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {errors.email && <span className="error-message">{errors.email}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">
+              Password <span className="required">*</span>
+            </label>
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                placeholder="Create a strong password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={togglePasswordVisibility}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            <span className="help-text">Must be at least 6 characters</span>
+            {errors.password && <span className="error-message">{errors.password}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">
+              Confirm Password <span className="required">*</span>
+            </label>
+            <div className="password-input-wrapper">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={toggleConfirmPasswordVisibility}
+                aria-label="Toggle confirm password visibility"
+              >
+                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <span className="error-message">{errors.confirmPassword}</span>
+            )}
+          </div>
+
+          <button type="submit" className="create-account-button" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
+        </form>
+
+        <div className="signup-footer">
+          <p>
+            Already registered?{' '}
+            <a
+              href="#signin"
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.hash = '#signin'
+              }}
+            >
+              Sign in
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

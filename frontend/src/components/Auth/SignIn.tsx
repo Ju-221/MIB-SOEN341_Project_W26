@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react'
 import './SignIn.css'
 
-interface SignInProps {
-  isModal?: boolean
-  onSuccess?: () => void
-  onSwitchToSignUp?: () => void
-  onClose?: () => void
-}
-
-function SignIn({ isModal = false, onSuccess, onSwitchToSignUp, onClose }: SignInProps) {
+function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -17,14 +10,15 @@ function SignIn({ isModal = false, onSuccess, onSwitchToSignUp, onClose }: SignI
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (isModal) return
+    // Check if user has a valid token and "remember me" is enabled
     const token = localStorage.getItem('token')
     const isRemembered = localStorage.getItem('rememberMe') === 'true'
-
+    
     if (token && isRemembered) {
-      window.location.hash = '#home'
+      // Auto-login by redirecting to dashboard
+      window.location.hash = '#profile'
     }
-  }, [isModal])
+  }, [])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,19 +40,19 @@ function SignIn({ isModal = false, onSuccess, onSwitchToSignUp, onClose }: SignI
         throw new Error(data.message || 'Login failed')
       }
 
+      // Store the JWT token
       localStorage.setItem('token', data.token)
-
+      localStorage.setItem('userEmail', data.user?.email || email)
+      
+      // Store remember me preference
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true')
       } else {
         localStorage.removeItem('rememberMe')
       }
-
-      if (isModal && onSuccess) {
-        onSuccess()
-      } else {
-        window.location.hash = '#home'
-      }
+      
+      // Redirect to dashboard
+      window.location.hash = '#profile'
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -70,103 +64,84 @@ function SignIn({ isModal = false, onSuccess, onSwitchToSignUp, onClose }: SignI
     setShowPassword(!showPassword)
   }
 
-  const handleSignUpLink = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (isModal && onSwitchToSignUp) {
-      onSwitchToSignUp()
-    } else {
-      window.location.hash = '#signup'
-    }
-  }
-
-  const cardContent = (
-    <div className="signin-card">
-      {isModal && onClose && (
-        <button type="button" className="modal-close-button" onClick={onClose} aria-label="Close">
-          X
-        </button>
-      )}
-      <div className="signin-header">
-        <h1>MealMajor</h1>
-      </div>
-
-      <form onSubmit={handleSignIn} className="signin-form">
-        {error && <div className="error-message">{error}</div>}
-
-        <div className="form-group">
-          <label htmlFor="email">
-            Email Address <span className="required">*</span>
-          </label>
-          <input
-            type="email"
-            id="signin-email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">
-            Password <span className="required">*</span>
-          </label>
-          <div className="password-input-wrapper">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="signin-password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={togglePasswordVisibility}
-              aria-label="Toggle password visibility"
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-        </div>
-
-        <div className="checkbox-group">
-          <input
-            type="checkbox"
-            id="rememberMe"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-          />
-          <label htmlFor="rememberMe">Remember me</label>
-        </div>
-
-        <button type="submit" className="signin-button" disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-      </form>
-
-      <div className="signin-footer">
-        <p>
-          Don't have an account?{' '}
-          <a
-            href="#signup"
-            onClick={handleSignUpLink}
-          >
-            Create one now
-          </a>
-        </p>
-      </div>
-    </div>
-  )
-
-  if (isModal) {
-    return cardContent
-  }
-
   return (
     <div className="signin-container">
-      {cardContent}
+      <div className="signin-card">
+        <div className="signin-header">
+          <h1>MealMajor</h1>
+        </div>
+
+        <form onSubmit={handleSignIn} className="signin-form">
+          {error && <div className="error-message">{error}</div>}
+          
+          <div className="form-group">
+            <label htmlFor="email">
+              Email Address <span className="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">
+              Password <span className="required">*</span>
+            </label>
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={togglePasswordVisibility}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+          </div>
+
+          <div className="checkbox-group">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <label htmlFor="rememberMe">Remember me</label>
+          </div>
+
+          <button type="submit" className="signin-button" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="signin-footer">
+          <p>
+            Don't have an account?{' '}
+            <a
+              href="#signup"
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.hash = '#signup'
+              }}
+            >
+              Create one now
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

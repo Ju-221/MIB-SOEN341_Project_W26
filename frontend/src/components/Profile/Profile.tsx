@@ -1,11 +1,47 @@
 import { useState, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import RecipeManager from "../Recipe-Manager/CreateRecipe";
 
 import "./Profile.css";
 
 function Profile() {
+  const [profileEmail, setProfileEmail] = useState("");
+
+  const getEmailFromToken = (token: string): string => {
+    try {
+      const payloadPart = token.split(".")[1];
+      if (!payloadPart) return "";
+
+      const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+          .join(""),
+      );
+
+      const parsed = JSON.parse(jsonPayload) as { email?: string };
+      return parsed.email ?? "";
+    } catch {
+      return "";
+    }
+  };
+
   useEffect(() => {
     loadPreferences();
+
+    const token = localStorage.getItem("token");
+    const storedEmail = localStorage.getItem("userEmail") ?? "";
+
+    if (token) {
+      const tokenEmail = getEmailFromToken(token);
+      if (tokenEmail) {
+        setProfileEmail(tokenEmail);
+        return;
+      }
+    }
+
+    setProfileEmail(storedEmail);
   }, []);
   const loadPreferences = async () => {
     const token = localStorage.getItem("token");
@@ -21,7 +57,7 @@ function Profile() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
       }
     } catch (error) {
       console.error("Error loading preferences:", error);
@@ -113,6 +149,7 @@ function Profile() {
   const [customAllergies, setCustomAllergies] = useState<string[]>([]);
   const [customDietInput, setCustomDietInput] = useState("");
   const [customAllergyInput, setCustomAllergyInput] = useState("");
+  const [showRecipeManager, setShowRecipeManager] = useState(false);
 
   // The following function was drafted with the assistance of ChatGPT Codex.
   // Prompt: "Help me clean up and ensure the toggleSelection helper function works correctly for diet/allergy selection, This function should simply manage the selection state of either diets or allergies or both. Once a button is clicked, it should change colour and show that it is selected. ."
@@ -215,7 +252,7 @@ function Profile() {
                 <input
                   id="email"
                   type="email"
-                  defaultValue="final.test@example.com"
+                  value={profileEmail || "No email found"}
                   disabled
                 />
                 <p className="profile-hint">Email cannot be changed</p>
@@ -402,11 +439,37 @@ function Profile() {
           >
             Reset Changes
           </button>
+          <button
+            type="button"
+            className="profile-button secondary"
+            onClick={() => setShowRecipeManager(true)}
+          >
+             Manage Recipes
+          </button>
           <button type="button"  onClick={handleSave}className="profile-button primary">
             Save Changes
           </button>
         </div>
       </div>
+      {showRecipeManager && (
+        <div
+          className="modal-overlay-profile"
+          onClick={() => setShowRecipeManager(false)}
+        >
+          <div
+            className="modal-content-profile"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close-profile"
+              onClick={() => setShowRecipeManager(false)}
+            >
+              ×
+            </button>
+            <RecipeManager />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

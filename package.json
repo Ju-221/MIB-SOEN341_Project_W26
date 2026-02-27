@@ -1,0 +1,17 @@
+{
+  "name": "mealmajor",
+  "version": "1.0.0",
+  "description": "MealMajor - Recipe and preference management app",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w express\" \"npm run dev -w frontend\"",
+    "install-all": "npm install && npm install -w express && npm install -w frontend"
+  },
+  "workspaces": [
+    "express",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
