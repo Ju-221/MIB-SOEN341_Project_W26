@@ -1,18 +1,9 @@
-#Ashton Levine Time Contribution Sheet Sprint 2
+# Ashton Levine Time Contribution Sheet Sprint 2
 
 | Date | Activity | Issue | Time Spent (hours) |
 | --- | --- | --- | --- |
 | 2026-02-22 | clean up git repository by removing old branches. | Task 5.5 | 0.75 |
-| 2026-02-24 | Created filter for recipes. Users can now filter recipes based on various parameters such as:
-- the difficulty
-- the title
-- ingredients
-- cooking time
-- cost
-- ingredients
-- dietary tags
-- goals/attributes
-- allergies (filter out) | Task 6.4 | 3.0 |
+| 2026-02-24 | Created recipe filters: difficulty, title, ingredients, cooking time, cost, dietary tags, goals/attributes, and allergy exclusions. | Task 6.4 | 3.0 |
 | 2026-02-24 | Added search bar for recipes. | Task 6.3 | 1.0 |
 
 
