@@ -95,6 +95,24 @@
   border-color: var(--primary-green);
 }
 
+.btn-filter-toggle {
+  background: white;
+  color: var(--dark-green);
+  border: 2px solid var(--light-green);
+  padding: 0.55rem 0.9rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  min-width: 2.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filter-toggle:hover {
+  background: var(--light-green);
+  border-color: var(--primary-green);
+  transform: scale(1.05);
+}
+
 .recipe-filters-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
