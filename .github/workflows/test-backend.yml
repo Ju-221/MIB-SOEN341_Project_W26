@@ -190,4 +190,4 @@ jobs:
         run: |
           echo "Cleaning up..."
           pkill -f "npm run dev -w express" || true
-          echo "✓ Cleanup complete"
+          echo "✓ Cleanup complete!"

@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url';
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env') });
+
+// Load .env first, then .env.example as fallback
+dotenv.config({ path: path.join(__dirname, '.env.example') });
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,0 +1,259 @@
+.homepage {
+  min-height: 100%;
+  background: #f5f7fb;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ── Hero ── */
+
+.homepage-hero {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: #ffffff;
+  padding: 64px 32px;
+  text-align: center;
+  width: 100%;
+}
+
+.homepage-hero-content {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.homepage-hero h1 {
+  margin: 0 0 16px;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.homepage-hero p {
+  margin: 0 0 28px;
+  font-size: 17px;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.homepage-hero-cta {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #ffffff;
+  color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.homepage-hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  color: #45a049;
+}
+
+/* ── Main content ── */
+
+.homepage-main {
+  flex: 1;
+  width: 100%;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.homepage-section-title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ── Features ── */
+
+.homepage-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.homepage-feature-card {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 0px;
+  padding: 28px 24px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  text-align: center;
+}
+
+.homepage-feature-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.homepage-feature-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* ── Recipes grid ── */
+
+.homepage-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.homepage-recipe-card {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 0px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.homepage-recipe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.homepage-recipe-image {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.homepage-recipe-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.homepage-recipe-body {
+  padding: 16px 20px 20px;
+}
+
+.homepage-recipe-body h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.homepage-recipe-desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.homepage-recipe-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* ── Logged-in user section ── */
+
+.homepage-activity-card {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 0px;
+  padding: 28px 26px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.homepage-activity-welcome {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #111827;
+}
+
+.homepage-activity-hint {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.homepage-activity-hint a {
+  color: #4caf50;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.homepage-activity-hint a:hover {
+  color: #45a049;
+  text-decoration: underline;
+}
+
+/* ── Footer ── */
+
+.homepage-footer {
+  background: #ffffff;
+  border-top: 1px solid #eef2f7;
+  padding: 24px 32px;
+  text-align: center;
+  width: 100%;
+}
+
+.homepage-footer p {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 900px) {
+  .homepage-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .homepage-recipe-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .homepage-hero {
+    padding: 40px 16px;
+  }
+
+  .homepage-hero h1 {
+    font-size: 26px;
+  }
+
+  .homepage-hero p {
+    font-size: 15px;
+  }
+
+  .homepage-main {
+    padding: 24px 16px;
+    gap: 32px;
+  }
+
+  .homepage-recipe-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .homepage-footer {
+    padding: 24px 16px;
+  }
+}
