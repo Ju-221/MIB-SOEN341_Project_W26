@@ -85,23 +85,6 @@ const RecipeManager: React.FC = () => {
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
-  const sampleRecipe: Recipe  = {
-      id: '1',
-      title: 'Sample Recipe',
-      name: 'Sample Recipe',
-      description: 'A delicious sample recipe',
-      ingredients: ['Ingredient 1', 'Ingredient 2'],
-      steps: [{ text: 'Step 1' }, { text: 'Step 2' }],
-      instructions: ['Step 1', 'Step 2'],
-      categories: ['quick', 'easy'],
-      servings: 0,
-      prepTime: 0,
-      cookTime: 0,
-      estimatedCost: 0,
-      heroImage: 'https://via.placeholder.com/300x200?text=Recipe',
-      image: 'https://via.placeholder.com/300x200?text=Recipe',
-  }
-
   useEffect(() => {
     async function loadRecipes() {
       try {
