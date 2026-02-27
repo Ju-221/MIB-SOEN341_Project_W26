@@ -14,13 +14,18 @@ if (!fs.existsSync(dbPath) && fs.existsSync(backupPath)) {
   fs.copyFileSync(backupPath, dbPath);
   console.log('Database restored from backup.');
   
-  // Push schema to ensure tables are created
+  // Push schema to ensure tables are created (ignore errors if they already exist)
   try {
     console.log('Initializing database schema...');
     execSync('npx drizzle-kit push', { stdio: 'inherit' });
     console.log('Database schema initialized.');
-  } catch (error) {
-    console.error('Failed to initialize database schema:', error);
+  } catch (error: any) {
+    // Ignore "already exists" errors since backup already has the schema
+    if (error.stderr?.includes('already exists') || error.message?.includes('already exists')) {
+      console.log('Schema already exists in backup, skipping push');
+    } else {
+      console.error('Failed to initialize database schema:', error);
+    }
   }
 }
 
