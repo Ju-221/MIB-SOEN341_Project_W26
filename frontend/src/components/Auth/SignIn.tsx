@@ -42,6 +42,7 @@ function SignIn() {
 
       // Store the JWT token
       localStorage.setItem('token', data.token)
+      localStorage.setItem('userEmail', data.user?.email || email)
       
       // Store remember me preference
       if (rememberMe) {

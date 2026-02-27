@@ -5,8 +5,43 @@ import RecipeManager from "../Recipe-Manager/CreateRecipe";
 import "./Profile.css";
 
 function Profile() {
+  const [profileEmail, setProfileEmail] = useState("");
+
+  const getEmailFromToken = (token: string): string => {
+    try {
+      const payloadPart = token.split(".")[1];
+      if (!payloadPart) return "";
+
+      const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+          .join(""),
+      );
+
+      const parsed = JSON.parse(jsonPayload) as { email?: string };
+      return parsed.email ?? "";
+    } catch {
+      return "";
+    }
+  };
+
   useEffect(() => {
     loadPreferences();
+
+    const token = localStorage.getItem("token");
+    const storedEmail = localStorage.getItem("userEmail") ?? "";
+
+    if (token) {
+      const tokenEmail = getEmailFromToken(token);
+      if (tokenEmail) {
+        setProfileEmail(tokenEmail);
+        return;
+      }
+    }
+
+    setProfileEmail(storedEmail);
   }, []);
   const loadPreferences = async () => {
     const token = localStorage.getItem("token");
@@ -22,7 +57,7 @@ function Profile() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
       }
     } catch (error) {
       console.error("Error loading preferences:", error);
@@ -226,7 +261,7 @@ function Profile() {
                 <input
                   id="email"
                   type="email"
-                  defaultValue="final.test@example.com"
+                  value={profileEmail || "No email found"}
                   disabled
                 />
                 <p className="profile-hint">Email cannot be changed</p>

@@ -61,6 +61,7 @@ function SignUp() {
 
         // Store the JWT token
         localStorage.setItem('token', data.token)
+        localStorage.setItem('userEmail', data.user?.email || email)
         
         // Redirect to profile
         window.location.hash = '#profile'
