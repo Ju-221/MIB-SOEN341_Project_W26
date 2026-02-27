@@ -14,6 +14,8 @@ This log documents my contributions to the MealMajor project during Sprint 2, fo
 | 2026-02-21 | Implemented Recipe CRUD controller with image upload (multer)            | `63878a9`, `dbab6dd`| 1.5               |
 | 2026-02-21 | Added JWT-based ownership checks to update and delete routes             | `dbab6dd`           | 0.5               |
 | 2026-02-21 | Created recipe routes and registered them in the Express server          | `dbab6dd`           | 0.5               |
+| 2026-02-24 | Migrated Express backend from JavaScript to TypeScript; added `dietPrefs` and `allergies` fields to recipe schema | `afbbdd2` | 3.0 |
+| 2026-02-25 | Added `difficulty` tag field to recipe schema and types; fixed miscellaneous bugs | `c2b5e2c` | 1.0 |
 
 ---
 
@@ -74,7 +76,7 @@ This log documents my contributions to the MealMajor project during Sprint 2, fo
 
 ---
 
-## Total Time Spent: ~3.0 hours
+## Total Time Spent: ~7.0 hours
 
 ---
 
@@ -149,6 +151,29 @@ Updated `express/server.js` to:
 
 ---
 
+### 6. TypeScript Migration of Express Backend (`afbbdd2`)
+
+**Date:** 2026-02-24
+
+Migrated the entire Express backend from JavaScript to TypeScript:
+- Renamed all `.js` files to `.ts` (`server`, `schema`, `index`, `auth` middleware, `authController`, `routes/auth`, `routes/recipes`)
+- Installed TypeScript and related packages: `typescript`, `ts-node`, `@types/node`, `@types/express`, `@types/bcryptjs`, `@types/jsonwebtoken`, `@types/multer`
+- Created `tsconfig.json` with appropriate compiler options for a Node.js backend
+- Added `express/types/express.d.ts` to extend Express `Request` interface with `user` property (used by JWT middleware)
+- Extended the recipe schema (`express/db/schema.ts`) to include `dietPrefs` and `allergies` fields as JSON text columns
+
+---
+
+### 7. Difficulty Tags & Bug Fixes (`c2b5e2c`)
+
+**Date:** 2026-02-25
+
+- Added a `difficulty` field to the `recipes` table in `express/db/schema.ts`
+- Added the `difficulty` field to the TypeScript types in `express/types/index.ts`
+- Fixed miscellaneous bugs discovered during the TypeScript migration
+
+---
+
 ## Summary
 
-Delivered a fully functional Recipe backend including database schema, REST API (CRUD), image upload/management, and JWT-based ownership protection. All endpoints were tested using Postman.
+Delivered a fully functional Recipe backend including database schema, REST API (CRUD), image upload/management, and JWT-based ownership protection. All endpoints were tested using Postman. Subsequently migrated the entire Express backend to TypeScript, extended the recipe model with `dietPrefs`, `allergies`, and `difficulty` fields, and resolved related bugs.
