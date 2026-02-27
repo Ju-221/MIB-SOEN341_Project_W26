@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './CreateRecipe.css';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 
-interface Ingredient {
+export interface Ingredient {
   name: string;
   amount?: string;
   unit?: string;
   cost?: number;
 }
 
-interface Step {
+export interface Step {
   text: string;
   image?: string;
 }
@@ -106,7 +106,7 @@ const RecipeManager: React.FC = () => {
     async function loadRecipes() {
       try {
         const data = await fetchRecipes();
-        const recipes: Recipe[] = [...data, sampleRecipe];    // TODO put sample in the db
+        const recipes: Recipe[] = [...data];    // TODO put sample in the db
         setRecipes(recipes);
       } catch (error) {
         console.error(error);
@@ -387,7 +387,7 @@ const RecipeManager: React.FC = () => {
     });
   };
 
-  const handleSaveRecipe = () => {
+  const handleSaveRecipe = async () => {
     if (!formData.title?.trim() && !formData.name?.trim()) {
       alert('Please enter a recipe name');
       return;
@@ -413,7 +413,7 @@ const RecipeManager: React.FC = () => {
         console.error(error);
       }
     } else {
-      const newRecipe: Recipe = {
+      const tempNewRecipe: Recipe = {
         ...formData,
         id: Date.now().toString(),
         title: formData.title || formData.name || '',
@@ -421,9 +421,9 @@ const RecipeManager: React.FC = () => {
       };
       try {
         // API call 
-        createRecipe(newRecipe);
+        const returnedRecipe: Recipe = await createRecipe(tempNewRecipe, getJwtToken());
         
-        setRecipes([...recipes, newRecipe]);
+        setRecipes([...recipes, returnedRecipe]);
       } catch (error) {
         console.error(error)
       }
@@ -483,7 +483,7 @@ const RecipeManager: React.FC = () => {
               <div className="recipe-image-container">
                 <img
                   src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                  alt={recipe.title || recipe.name}
+                  alt={""}
                   className="recipe-image"
                 />
               </div>
@@ -651,14 +651,14 @@ const RecipeManager: React.FC = () => {
 
               {/* Recipe Name */}
               <div className="form-group">
-                <label htmlFor="name" className="form-label">
+                <label htmlFor="title" className="form-label">
                   Recipe Name *
                 </label>
                 <input
-                  id="name"
+                  id="title"
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="title"
+                  value={formData.title}
                   onChange={handleInputChange}
                   className="form-input"
                   placeholder="Enter recipe name"
