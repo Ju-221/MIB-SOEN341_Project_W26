@@ -26,9 +26,10 @@ export const signup = async (req: Request, res: Response) => {
     }).returning().get();
 
     // Generate token
+    const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
     const token = jwt.sign(
       { id: result.id, email: result.email },
-      process.env.JWT_SECRET!,
+      jwtSecret,
       { expiresIn: '24h' }
     );
 
@@ -60,12 +61,12 @@ export const signin = async (req : Request, res : Response) => {
     }
 
     // Generate token
+    const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET!,
+      jwtSecret,
       { expiresIn: '24h' }
     );
-
     res.json({ 
       user: { id: user.id, email: user.email }, 
       token 
