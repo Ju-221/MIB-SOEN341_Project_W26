@@ -7,7 +7,7 @@ import Navbar from './components/Navbar/Navbar'
 import './App.css'
 
 function App() {
-  const currentPage = useHashNavigation('home')
+  const currentPage = useHashNavigation('signin')
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null
@@ -15,16 +15,14 @@ function App() {
 
   const [userEmail, setUserEmail] = useState<string | null>(() => {
     const token = localStorage.getItem('token')
-    if (!token) return null
+    if (!token) return localStorage.getItem('userEmail')
     try {
       const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload.email || null
+      return payload.email || localStorage.getItem('userEmail')
     } catch {
-      return null
+      return localStorage.getItem('userEmail')
     }
   })
-
-  const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null)
 
   const handleAuthSuccess = useCallback(() => {
     const token = localStorage.getItem('token')
@@ -32,12 +30,11 @@ function App() {
       setIsLoggedIn(true)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
-        setUserEmail(payload.email || null)
+        setUserEmail(payload.email || localStorage.getItem('userEmail'))
       } catch {
-        setUserEmail(null)
+        setUserEmail(localStorage.getItem('userEmail'))
       }
     }
-    setShowAuthModal(null)
     window.location.hash = '#home'
   }, [])
 
@@ -46,20 +43,16 @@ function App() {
     localStorage.removeItem('rememberMe')
     setIsLoggedIn(false)
     setUserEmail(null)
-    window.location.hash = '#home'
+    window.location.hash = '#signin'
   }, [])
 
   const openLoginModal = useCallback(() => {
-    setShowAuthModal('signin')
+    window.location.hash = '#signin'
   }, [])
 
-  const closeModal = useCallback(() => {
-    setShowAuthModal(null)
-  }, [])
-
-  // Redirect unauthenticated users away from profile
-  if (currentPage === 'profile' && !isLoggedIn) {
-    window.location.hash = '#home'
+  // Redirect unauthenticated users to sign in
+  if (!isLoggedIn && currentPage !== 'signin' && currentPage !== 'signup') {
+    window.location.hash = '#signin'
     return null
   }
 
@@ -89,28 +82,6 @@ function App() {
       <div className="app-page-content">
         {renderPage()}
       </div>
-
-      {showAuthModal && (
-        <div className="auth-modal-overlay" onClick={(e) => {
-          if (e.target === e.currentTarget) closeModal()
-        }}>
-          {showAuthModal === 'signin' ? (
-            <SignIn
-              isModal
-              onSuccess={handleAuthSuccess}
-              onSwitchToSignUp={() => setShowAuthModal('signup')}
-              onClose={closeModal}
-            />
-          ) : (
-            <SignUp
-              isModal
-              onSuccess={handleAuthSuccess}
-              onSwitchToSignIn={() => setShowAuthModal('signin')}
-              onClose={closeModal}
-            />
-          )}
-        </div>
-      )}
     </div>
   )
 }

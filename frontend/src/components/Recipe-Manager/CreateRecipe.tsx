@@ -81,7 +81,6 @@ const RecipeManager: React.FC = () => {
   const userProfileTags = ['quick', 'easy', 'healthy', 'vegetarian'];
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState<string>('');
-  const [stepImagePreviews, setStepImagePreviews] = useState<{ [key: number]: string }>({});
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
@@ -420,26 +419,6 @@ const RecipeManager: React.FC = () => {
     }
 
     setFormData({ ...formData, [field]: currentArray });
-  };
-  const handleStepImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setStepImagePreviews({ ...stepImagePreviews, [index]: result });
-
-        const currentArray = Array.isArray(formData.steps) ? [...(formData.steps as (string | Step)[])] : [];
-        const step = currentArray[index];
-        if (typeof step === 'object') {
-          currentArray[index] = { ...step, image: result };
-        } else {
-          currentArray[index] = { text: step || '', image: result };
-        }
-        setFormData({ ...formData, steps: currentArray });
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleAddArrayField = (field: 'ingredients' | 'steps') => {
@@ -1221,8 +1200,6 @@ const RecipeManager: React.FC = () => {
                 <div className="array-fields">
                   {(formData.steps || []).map((step, index) => {
                     const stepText = typeof step === 'string' ? step : step?.text || '';
-                    const stepImage = typeof step === 'object' ? step?.image : undefined;
-                    const preview = stepImagePreviews[index] || stepImage;
 
                     return (
                       <div key={index} className="step-card">

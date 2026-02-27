@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import './SignIn.css'
 
-function SignIn() {
+interface SignInProps {
+  onSuccess?: () => void
+  onSwitchToSignUp?: () => void
+}
+
+function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -15,10 +20,9 @@ function SignIn() {
     const isRemembered = localStorage.getItem('rememberMe') === 'true'
     
     if (token && isRemembered) {
-      // Auto-login by redirecting to dashboard
-      window.location.hash = '#profile'
+      onSuccess?.()
     }
-  }, [])
+  }, [onSuccess])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,8 +55,7 @@ function SignIn() {
         localStorage.removeItem('rememberMe')
       }
       
-      // Redirect to dashboard
-      window.location.hash = '#profile'
+      onSuccess?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -134,7 +137,11 @@ function SignIn() {
               href="#signup"
               onClick={(e) => {
                 e.preventDefault()
-                window.location.hash = '#signup'
+                if (onSwitchToSignUp) {
+                  onSwitchToSignUp()
+                } else {
+                  window.location.hash = '#signup'
+                }
               }}
             >
               Create one now

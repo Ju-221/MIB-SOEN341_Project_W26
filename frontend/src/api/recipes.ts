@@ -26,7 +26,7 @@ export async function fetchRecipes() {
   return filesConverted;
 }
 
-export async function createRecipe(recipeObj: Recipe, jwt_token: string) {
+export async function createRecipe(recipeObj: Recipe, jwt_token: string): Promise<Recipe | Recipe[]> {
   if (recipeObj.title.toLowerCase() == "default") {
     console.log("Making defaults")
     return createDefaultRecipes(jwt_token);
@@ -160,10 +160,10 @@ async function filenameToBase64(imageName: string) {
   return imagePromise;
 }
 
-async function createDefaultRecipes(jwt_token: string) {
-  const returnedRecipes = defaultRecipes.map((recipe) => {
-    return createRecipe(recipe, jwt_token);
-  });
+async function createDefaultRecipes(jwt_token: string): Promise<Recipe[]> {
+  const returnedRecipes = await Promise.all(
+    defaultRecipes.map((recipe) => createRecipe(recipe, jwt_token) as Promise<Recipe>)
+  );
 
   return returnedRecipes;
 }
