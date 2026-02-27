@@ -50,6 +50,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm install -w frontend
       
+      - name: Run unit tests
+        run: |
+          echo "Running frontend unit tests..."
+          npm run test -w frontend
+      
       - name: Run ESLint
         run: |
           echo "Running ESLint checks..."
@@ -129,6 +134,7 @@ jobs:
         run: |
           echo "================================"
           echo "✓ All frontend UI checks passed!"
+          echo "  - Unit Tests: Passed"
           echo "  - ESLint: Passed"
           echo "  - TypeScript: Passed"
           echo "  - Build: Passed"
