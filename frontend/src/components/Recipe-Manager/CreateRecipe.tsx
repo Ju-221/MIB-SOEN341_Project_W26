@@ -523,20 +523,48 @@ const RecipeManager: React.FC = () => {
       return;
     }
 
+    // Load default image if no image is provided
+    const getDefaultImage = async (): Promise<string> => {
+      try {
+        const response = await fetch('/food-clipart.jpg');
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('Failed to load default image:', error);
+        return '';
+      }
+    };
+
     // Calculate total ingredient cost
     const totalCost = (formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
       const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
       return sum + cost;
     }, 0) || 0;
 
+    // Use default image if no image is provided
+    let recipeData = { ...formData, estimatedCost: totalCost };
+    if (!recipeData.heroImage && !recipeData.image) {
+      console.log('No image provided, loading default image...');
+      const defaultImage = await getDefaultImage();
+      console.log('Default image loaded:', defaultImage.substring(0, 50) + '...');
+      recipeData.heroImage = defaultImage;
+      recipeData.image = defaultImage;
+      setImagePreview(defaultImage); // Update preview so user sees it
+    }
+
     if (isEditing) {
       try {
         // API call
-        updateRecipe(formData.id.toString(), { ...formData, estimatedCost: totalCost }, getJwtToken());
+        updateRecipe(recipeData.id.toString(), recipeData, getJwtToken());
         
         setRecipes(
           recipes.map((recipe) =>
-            recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
+            recipe.id === recipeData.id ? recipeData : recipe
           )
         );
       } catch (error) {
@@ -544,10 +572,9 @@ const RecipeManager: React.FC = () => {
       }
     } else {
       const tempNewRecipe: Recipe = {
-        ...formData,
+        ...recipeData,
         id: Date.now().toString(),
-        title: formData.title || formData.name || '',
-        estimatedCost: totalCost,
+        title: recipeData.title || recipeData.name || '',
       };
       try {
         // API call 
