@@ -115,6 +115,7 @@ const RecipeManager: React.FC = () => {
   const [selectedGoalFilters, setSelectedGoalFilters] = useState<string[]>([]);
   const [selectedAllergyFilters, setSelectedAllergyFilters] = useState<string[]>([]);
   const [selectedDifficultyFilters, setSelectedDifficultyFilters] = useState<string[]>([]);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   const [formData, setFormData] = useState<Recipe>({
     id: '',
@@ -641,9 +642,19 @@ const RecipeManager: React.FC = () => {
             >
               Clear Filters
             </button>
+            <button
+              type="button"
+              className="btn btn-filter-toggle"
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              aria-label={filtersExpanded ? 'Collapse filters' : 'Expand filters'}
+            >
+              {filtersExpanded ? '−' : '+'}
+            </button>
           </div>
         </div>
 
+        {filtersExpanded && (
+          <>
         <div className="recipe-filters-grid">
           <div className="filter-field wide">
             <label className="form-label" htmlFor="recipe-search-query">
@@ -804,6 +815,8 @@ const RecipeManager: React.FC = () => {
             </div>
           </div>
         </div>
+          </>
+        )}
       </div>
 
       {/* Recipe Grid */}
