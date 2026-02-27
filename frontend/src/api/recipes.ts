@@ -28,8 +28,7 @@ export async function fetchRecipes() {
 export async function createRecipe(recipeObj: Recipe, jwt_token: string) {
   if (recipeObj.title.toLowerCase() == "default") {
     console.log("Making defaults")
-    createDefaultRecipes(jwt_token);
-    return null;
+    return createDefaultRecipes(jwt_token);
   }
   
   const response = await fetch(BASE_URL, {
@@ -159,14 +158,16 @@ async function filenameToBase64(imageName: string) {
 }
 
 async function createDefaultRecipes(jwt_token: string) {
-  defaultRecipes.map((recipe) => {
-    createRecipe(recipe, jwt_token)
-  })
+  const returnedRecipes = defaultRecipes.map((recipe) => {
+    return createRecipe(recipe, jwt_token);
+  });
+
+  return returnedRecipes;
 }
 
 const defaultRecipes: Recipe[] = [
     {
-    id: '1',
+    id: '1000000',
     title: 'Veggie Pasta Primavera',
     name: 'Veggie Pasta Primavera',
     description: 'A quick vegetarian pasta with tomatoes, basil, and sauteed vegetables.',
@@ -196,7 +197,7 @@ const defaultRecipes: Recipe[] = [
     // image: 'https://via.placeholder.com/300x200?text=Veggie+Pasta',
   },
   {
-    id: '2',
+    id: '1000001',
     title: 'Keto Salmon Bowl',
     name: 'Keto Salmon Bowl',
     description: 'High-protein salmon bowl with avocado, cucumber, and sesame-soy dressing.',
@@ -226,7 +227,7 @@ const defaultRecipes: Recipe[] = [
     // image: 'https://via.placeholder.com/300x200?text=Keto+Salmon+Bowl',
   },
   {
-    id: '3',
+    id: '1000002',
     title: 'Vegan Chickpea Curry',
     name: 'Vegan Chickpea Curry',
     description: 'A budget-friendly vegan curry with chickpeas, coconut milk, and spinach.',
@@ -257,7 +258,7 @@ const defaultRecipes: Recipe[] = [
     // image: 'https://via.placeholder.com/300x200?text=Vegan+Chickpea+Curry',
   },
   {
-    id: '4',
+    id: '1000003',
     title: 'Peanut Tofu Stir-Fry Noodles',
     name: 'Peanut Tofu Stir-Fry Noodles',
     description: 'A hearty stir-fry with tofu, noodles, peanuts, and a savory soy sauce.',

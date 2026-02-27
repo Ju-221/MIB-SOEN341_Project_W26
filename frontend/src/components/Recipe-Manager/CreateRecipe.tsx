@@ -403,9 +403,15 @@ const RecipeManager: React.FC = () => {
       };
       try {
         // API call 
-        const returnedRecipe: Recipe = await createRecipe(tempNewRecipe, getJwtToken());
-        
-        setRecipes([...recipes, returnedRecipe]);
+        const potentialArray = await createRecipe(tempNewRecipe, getJwtToken());
+        // Account for default recipe creation returning an array of recipes
+        if (Array.isArray(potentialArray)) {
+            const loadedRecipes = await Promise.all(potentialArray)
+            setRecipes([...recipes, ...loadedRecipes])
+        } else {
+          const returnedRecipe: Recipe = potentialArray
+          setRecipes([...recipes, returnedRecipe]);
+        } 
       } catch (error) {
         console.error(error)
       }
