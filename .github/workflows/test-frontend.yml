@@ -1,0 +1,150 @@
+name: Frontend UI Tests
+
+on:
+  # Run after backend tests complete successfully
+  workflow_run:
+    workflows: ["Backend API Tests"]
+    types:
+      - completed
+    branches: [main, Dev]
+  
+  # Also run on direct pushes/PRs to frontend
+  push:
+    branches: [ main, Dev ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/test-frontend.yml'
+  pull_request:
+    branches: [ main, Dev ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    # Only run if:
+    # 1. Triggered by workflow_run and backend tests passed, OR
+    # 2. Triggered by push/PR directly
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install root dependencies
+        run: npm install
+      
+      - name: Install frontend dependencies
+        run: npm install -w frontend
+      
+      - name: Run unit tests
+        run: |
+          echo "Running frontend unit tests..."
+          npm run test -w frontend
+      
+      - name: Run ESLint
+        run: |
+          echo "Running ESLint checks..."
+          npm run lint -w frontend
+      
+      - name: Run TypeScript type checking
+        run: |
+          echo "Running TypeScript type checks..."
+          cd frontend
+          npx tsc --noEmit
+      
+      - name: Build frontend
+        run: |
+          echo "Building frontend production bundle..."
+          npm run build -w frontend
+      
+      - name: Check build output
+        run: |
+          echo "Verifying build artifacts..."
+          if [ -d "frontend/dist" ]; then
+            echo "✓ Build successful - dist folder created"
+            ls -lh frontend/dist/
+            
+            # Check for essential files
+            if [ -f "frontend/dist/index.html" ]; then
+              echo "✓ index.html found"
+            else
+              echo "✗ index.html missing"
+              exit 1
+            fi
+            
+            # List all built assets
+            echo "Built assets:"
+            find frontend/dist -type f
+          else
+            echo "✗ Build failed - dist folder not found"
+            exit 1
+          fi
+      
+      - name: Preview server test
+        run: |
+          echo "Starting preview server..."
+          cd frontend
+          npm run preview > preview.log 2>&1 &
+          echo $! > preview.pid
+          
+          # Wait for preview server to start
+          echo "Waiting for preview server..."
+          for i in {1..15}; do
+            if curl -sf http://localhost:4173/ > /dev/null 2>&1; then
+              echo "✓ Preview server is running"
+              
+              # Test if we get HTML response
+              response=$(curl -s http://localhost:4173/)
+              if echo "$response" | grep -q "<!DOCTYPE html>"; then
+                echo "✓ HTML content served successfully"
+                kill $(cat preview.pid) 2>/dev/null || true
+                exit 0
+              else
+                echo "✗ Unexpected response from preview server"
+                kill $(cat preview.pid) 2>/dev/null || true
+                exit 1
+              fi
+            fi
+            echo "Attempt $i/15 - waiting..."
+            sleep 2
+          done
+          
+          echo "✗ Preview server failed to start"
+          echo "============ Preview Logs ============"
+          cat preview.log
+          echo "====================================="
+          exit 1
+      
+      - name: UI Check Summary
+        if: success()
+        run: |
+          echo "================================"
+          echo "✓ All frontend UI checks passed!"
+          echo "  - Unit Tests: Passed"
+          echo "  - ESLint: Passed"
+          echo "  - TypeScript: Passed"
+          echo "  - Build: Passed"
+          echo "  - Preview: Passed"
+          echo "================================"
+      
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: frontend/dist/
+          retention-days: 7
