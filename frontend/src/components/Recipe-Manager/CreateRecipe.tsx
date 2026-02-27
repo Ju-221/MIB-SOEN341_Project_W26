@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CreateRecipe.css';
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 
-interface Ingredient {
+export interface Ingredient {
   name: string;
   amount?: string;
   unit?: string;
   cost?: number;
 }
 
-interface Step {
+export interface Step {
   text: string;
   image?: string;
 }
 
-interface Recipe {
+export interface Recipe {
   id: string | number;
   title: string;
   description: string;
@@ -83,6 +84,19 @@ const RecipeManager: React.FC = () => {
   const [stepImagePreviews, setStepImagePreviews] = useState<{ [key: number]: string }>({});
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+  useEffect(() => {
+    async function loadRecipes() {
+      try {
+        const data = await fetchRecipes();
+        setRecipes(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadRecipes();
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [showRecipeDetail, setShowRecipeDetail] = useState(false);
@@ -302,11 +316,32 @@ const RecipeManager: React.FC = () => {
     setShowDeleteConfirm(true);
   };
 
+  const getJwtToken = () => {
+    const jwt_token: string | null = localStorage.getItem('token');
+
+    if (!jwt_token) {
+        throw new Error("jwt token not found");
+    }
+
+    return jwt_token;
+  }
+
   const confirmDeleteRecipe = () => {
-    if (selectedRecipeId) {
-      setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
-      setShowDeleteConfirm(false);
-      setSelectedRecipeId(null);
+    try {
+      const jwt_token = getJwtToken()
+
+      if (!selectedRecipeId) {
+        throw new Error("Recipe ID for deletion is null");
+      }
+      
+      // API call
+        deleteRecipe(selectedRecipeId.toString(), jwt_token);
+
+        setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
+        setShowDeleteConfirm(false);
+        setSelectedRecipeId(null)
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -482,7 +517,7 @@ const RecipeManager: React.FC = () => {
     });
   };
 
-  const handleSaveRecipe = () => {
+  const handleSaveRecipe = async () => {
     if (!formData.title?.trim() && !formData.name?.trim()) {
       alert('Please enter a recipe name');
       return;
@@ -495,19 +530,33 @@ const RecipeManager: React.FC = () => {
     }, 0) || 0;
 
     if (isEditing) {
-      setRecipes(
-        recipes.map((recipe) =>
-          recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
-        )
-      );
+      try {
+        // API call
+        updateRecipe(formData.id.toString(), { ...formData, estimatedCost: totalCost }, getJwtToken());
+        
+        setRecipes(
+          recipes.map((recipe) =>
+            recipe.id === formData.id ? { ...formData, estimatedCost: totalCost } : recipe
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
     } else {
-      const newRecipe: Recipe = {
+      const tempNewRecipe: Recipe = {
         ...formData,
         id: Date.now().toString(),
         title: formData.title || formData.name || '',
         estimatedCost: totalCost,
       };
-      setRecipes([...recipes, newRecipe]);
+      try {
+        // API call 
+        const returnedRecipe: Recipe = await createRecipe(tempNewRecipe, getJwtToken());
+        
+        setRecipes([...recipes, returnedRecipe]);
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     setShowModal(false);
@@ -740,7 +789,7 @@ const RecipeManager: React.FC = () => {
               <div className="recipe-image-container">
                 <img
                   src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                  alt={recipe.title || recipe.name}
+                  alt={" "}
                   className="recipe-image"
                 />
               </div>
@@ -913,14 +962,14 @@ const RecipeManager: React.FC = () => {
 
               {/* Recipe Name */}
               <div className="form-group">
-                <label htmlFor="name" className="form-label">
+                <label htmlFor="title" className="form-label">
                   Recipe Name *
                 </label>
                 <input
-                  id="name"
+                  id="title"
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="title"
+                  value={formData.title}
                   onChange={handleInputChange}
                   className="form-input"
                   placeholder="Enter recipe name"
@@ -1159,8 +1208,8 @@ const RecipeManager: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Step Image */}
-                        <div className="step-image-section">
+                        {/* Step Image (put on hold for now) */}
+                       {/*  <div className="step-image-section">
                           {preview ? (
                             <div className="step-image-preview">
                               <img src={preview} alt={`Step ${index + 1}`} />
@@ -1191,7 +1240,7 @@ const RecipeManager: React.FC = () => {
                             onChange={(e) => handleStepImageUpload(index, e)}
                             style={{ display: 'none' }}
                           />
-                        </div>
+                        </div> */}
                       </div>
                     );
                   })}

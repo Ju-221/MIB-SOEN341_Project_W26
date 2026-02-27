@@ -1,10 +1,13 @@
 import { sqliteTable, text, integer,real } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm'
+import { Difficulty } from '../types/index.js';
+
 
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
-  createdAt: text('created_at').default('CURRENT_TIMESTAMP')
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const allergies = sqliteTable('allergies', {
@@ -42,12 +45,15 @@ export const recipes = sqliteTable('recipes', {
   description: text('description').notNull(),
   prepTime: integer('prep_time').notNull(),
   cookTime: integer('cook_time').notNull(),
+  difficulty: text('difficulty').$type<Difficulty>().default('Easy').notNull(),
   estimatedCost: real('estimated_cost').notNull(),
   heroImage: text('hero_image'),
   ingredients: text('ingredients').notNull(), // JSON: [{ name, amount, unit }]
   steps: text('steps').notNull(),             // JSON: ["Mix flour...", "Bake for 20 min..."]
   categories: text('categories').notNull(),   // JSON: ["breakfast", "quick"]
-  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  dietaryPreferences: text('dietary_preferences'), // json ['vege', 'vegan]
+  allergies: text('allergies') // json [....]
 });
 
 
