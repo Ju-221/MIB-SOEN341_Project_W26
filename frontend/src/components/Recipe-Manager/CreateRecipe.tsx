@@ -106,8 +106,7 @@ const RecipeManager: React.FC = () => {
     async function loadRecipes() {
       try {
         const data = await fetchRecipes();
-        const recipes: Recipe[] = [...data];    // TODO put sample in the db
-        setRecipes(recipes);
+        setRecipes(data);
       } catch (error) {
         console.error(error);
       }
@@ -483,7 +482,7 @@ const RecipeManager: React.FC = () => {
               <div className="recipe-image-container">
                 <img
                   src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                  alt={""}
+                  alt={" "}
                   className="recipe-image"
                 />
               </div>
