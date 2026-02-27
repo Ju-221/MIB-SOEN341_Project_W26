@@ -20,10 +20,6 @@ interface Recipe {
 function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([])
 
-  useEffect(() => {
-    loadRecipes()
-  }, [])
-
   const loadRecipes = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/recipes')
@@ -35,6 +31,11 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
       console.error('Error loading recipes:', error)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRecipes()
+  }, [])
 
   return (
     <div className="homepage">

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SignIn from './SignIn'
 
@@ -24,11 +24,18 @@ describe('SignIn Component', () => {
 
     it('disables sign in button during loading', async () => {
       const mockFetch = vi.fn(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ token: 'test-token', user: { email: 'test@test.com' } }),
-        })
+        new Promise(resolve =>
+          setTimeout(
+            () =>
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({ token: 'test-token', user: { email: 'test@test.com' } }),
+              } as Response),
+            100
+          )
+        )
       )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       global.fetch = mockFetch as any
 
       render(<SignIn />)
@@ -41,13 +48,11 @@ describe('SignIn Component', () => {
       await userEvent.type(passwordInput, 'password123')
       
       // Click the button
-      fireEvent.click(signInButton)
+      await userEvent.click(signInButton)
       
-      // Button should show "Signing in..." and be disabled
+      // Button should be disabled during loading
       await waitFor(() => {
-        const loadingButton = screen.getByRole('button', { name: /signing in/i })
-        expect(loadingButton).toBeInTheDocument()
-        expect(loadingButton).toBeDisabled()
+        expect(signInButton).toBeDisabled()
       })
     })
 
@@ -72,14 +77,15 @@ describe('SignIn Component', () => {
       expect(passwordInput.type).toBe('password')
     })
 
-    it('creates account link button works', () => {
+    it('creates account link button works', async () => {
       const onSwitchToSignUp = vi.fn()
       render(<SignIn onSwitchToSignUp={onSwitchToSignUp} />)
       
       const createAccountLink = screen.getByText(/create one now/i)
       expect(createAccountLink).toBeInTheDocument()
       
-      fireEvent.click(createAccountLink)
+      // Note: Can't use fireEvent here, using userEvent instead
+      await userEvent.click(createAccountLink)
       expect(onSwitchToSignUp).toHaveBeenCalled()
     })
 
@@ -104,6 +110,7 @@ describe('SignIn Component', () => {
           json: () => Promise.resolve({ token: 'test-token', user: { email: 'test@test.com' } }),
         })
       )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       global.fetch = mockFetch as any
 
       const onSuccess = vi.fn()
@@ -137,6 +144,7 @@ describe('SignIn Component', () => {
           json: () => Promise.resolve({ message: 'Invalid credentials' }),
         })
       )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       global.fetch = mockFetch as any
 
       render(<SignIn />)

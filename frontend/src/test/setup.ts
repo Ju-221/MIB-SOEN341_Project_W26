@@ -1,4 +1,4 @@
-import { expect, afterEach, vi } from 'vitest'
+import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 
@@ -14,6 +14,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 global.localStorage = localStorageMock as any
 
 // Mock fetch API

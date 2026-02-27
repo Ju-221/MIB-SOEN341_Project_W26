@@ -27,22 +27,6 @@ function Profile() {
     }
   };
 
-  useEffect(() => {
-    loadPreferences();
-
-    const token = localStorage.getItem("token");
-    const storedEmail = localStorage.getItem("userEmail") ?? "";
-
-    if (token) {
-      const tokenEmail = getEmailFromToken(token);
-      if (tokenEmail) {
-        setProfileEmail(tokenEmail);
-        return;
-      }
-    }
-
-    setProfileEmail(storedEmail);
-  }, []);
   const loadPreferences = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -63,6 +47,24 @@ function Profile() {
       console.error("Error loading preferences:", error);
     }
   };
+
+  useEffect(() => {
+    loadPreferences();
+
+    const token = localStorage.getItem("token");
+    const storedEmail = localStorage.getItem("userEmail") ?? "";
+
+    if (token) {
+      const tokenEmail = getEmailFromToken(token);
+      if (tokenEmail) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setProfileEmail(tokenEmail);
+        return;
+      }
+    }
+
+    setProfileEmail(storedEmail);
+  }, []);
 
   const handleSave = async () => {
     const token = localStorage.getItem("token");
