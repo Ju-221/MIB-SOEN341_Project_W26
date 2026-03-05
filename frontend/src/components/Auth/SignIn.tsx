@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
 import './SignIn.css'
 
-function SignIn() {
+interface SignInProps {
+  isModal?: boolean
+  onSuccess?: () => void
+  onSwitchToSignUp?: () => void
+  onClose?: () => void
+}
+
+function SignIn({ isModal = false, onSuccess, onSwitchToSignUp, onClose }: SignInProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -51,8 +58,12 @@ function SignIn() {
         localStorage.removeItem('rememberMe')
       }
       
-      // Redirect to dashboard
-      window.location.hash = '#profile'
+      // Call onSuccess callback if provided, otherwise redirect
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        window.location.hash = '#profile'
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -134,12 +145,21 @@ function SignIn() {
               href="#signup"
               onClick={(e) => {
                 e.preventDefault()
-                window.location.hash = '#signup'
+                if (isModal && onSwitchToSignUp) {
+                  onSwitchToSignUp()
+                } else {
+                  window.location.hash = '#signup'
+                }
               }}
             >
               Create one now
             </a>
           </p>
+          {isModal && onClose && (
+            <button className="close-button" onClick={onClose}>
+              ✕
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import './SignUp.css'
 
-function SignUp() {
+interface SignUpProps {
+  isModal?: boolean
+  onSuccess?: () => void
+  onSwitchToSignIn?: () => void
+  onClose?: () => void
+}
+
+function SignUp({ isModal = false, onSuccess, onSwitchToSignIn, onClose }: SignUpProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -63,8 +70,12 @@ function SignUp() {
         localStorage.setItem('token', data.token)
         localStorage.setItem('userEmail', data.user?.email || email)
         
-        // Redirect to profile
-        window.location.hash = '#profile'
+        // Call onSuccess callback if provided, otherwise redirect
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          window.location.hash = '#profile'
+        }
       } catch (err) {
         setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
       } finally {
@@ -168,12 +179,21 @@ function SignUp() {
               href="#signin"
               onClick={(e) => {
                 e.preventDefault()
-                window.location.hash = '#signin'
+                if (isModal && onSwitchToSignIn) {
+                  onSwitchToSignIn()
+                } else {
+                  window.location.hash = '#signin'
+                }
               }}
             >
               Sign in
             </a>
           </p>
+          {isModal && onClose && (
+            <button className="close-button" onClick={onClose}>
+              ✕
+            </button>
+          )}
         </div>
       </div>
     </div>
