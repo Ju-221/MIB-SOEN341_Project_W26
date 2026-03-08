@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load .env first, then .env.example as fallback
-dotenv.config({ path: path.join(__dirname, '../.env.example') });
+//dotenv.config({ path: path.join(__dirname, '../.env.example') });
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const PORT = process.env.PORT || 3000;
@@ -31,6 +31,7 @@ import recipesRoutes from './routes/recipes.js';
 app.use('/api/recipes', recipesRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.get('/', (req, res) => {
     res.json({ message: 'MealMajor API is running...' });

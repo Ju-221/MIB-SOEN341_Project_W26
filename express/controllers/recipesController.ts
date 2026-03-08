@@ -188,6 +188,75 @@ const validateIngredients = (ing: Array<{name: string, amount: number , unit: st
 
 }
 
+import { GoogleGenerativeAI} from '@google/generative-ai';
+import { error } from 'console';
+
+export const generateRecipe = async (req: Request, res: Response) => {
+    try {
+        const {prompt} = req.body;
+        const createdBy = req.user!.id; // ! asserts that user object is non null
+
+        const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+        const model = genAi.getGenerativeModel({model: 'gemini-2.5-flash' });
+
+        const systemPrompt = `
+            Generate a recipe based on: "${prompt}".
+            Respond ONLY with valid JSON in this exact shape:
+            {
+              "title": string,
+              "description": string,
+              "prepTime": number (minutes),
+              "cookTime": number (minutes),
+              "estimatedCost": number (dollars),
+              "difficulty": "Easy" | "Medium" | "Hard",
+              "ingredients": [{ "name": string, "amount": number, "unit": string }],
+              "steps": [string],
+              "categories": [string]
+            }
+              all ingrdients must be part of this list : ${[...ingredients].join(', ')}, everythign lowe case
+        `;
+
+        const result = await model.generateContent(systemPrompt);
+        const text = result.response.text();
+
+        // strip away the markdown syntax 
+        const json = text.replace(/```json|```/g, '').trim();
+        const recipe = JSON.parse(json);
+
+        console.log(recipe)
+
+        
+        if (!validateIngredients(recipe.ingredients)){
+            throw error("invalid ingredients")
+        }
+
+        const saved = db.insert(recipes).values({
+            title: recipe.title,
+            description: recipe.description,
+            createdBy,
+            prepTime: recipe.prepTime,
+            cookTime: recipe.cookTime,
+            estimatedCost: recipe.estimatedCost,
+            difficulty: recipe.difficulty,
+            ingredients: JSON.stringify(recipe.ingredients),
+            steps: JSON.stringify(recipe.steps),
+            categories: JSON.stringify(recipe.categories),
+            dietaryPreferences: '[]',
+            allergies: '[]',
+            heroImage: null,
+        }).returning().get();
+
+
+        res.status(201).json(parseRecipe(saved));
+        
+            
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to generate recipe' });
+    }
+}
+
 // ingredients
 const ingredients = new Set([
   // Vegetables
@@ -457,6 +526,6 @@ const ingredients = new Set([
   "Aquafaba", "Vegetable stock", "Mushroom stock", "Shrimp stock",
   "Lobster stock", "Corn stock", "Smoked water", "Sparkling water",
   "Mineral water", "Rosewater concentrate", "Kewra water"
-]);
+].map(i => i.toLowerCase()));
 
 export default ingredients;
