@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer,real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer,real ,check} from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm'
 import { Difficulty } from '../types/index.js';
 
@@ -55,5 +55,19 @@ export const recipes = sqliteTable('recipes', {
   dietaryPreferences: text('dietary_preferences'), // json ['vege', 'vegan]
   allergies: text('allergies') // json [....]
 });
+
+
+export const calendar = sqliteTable('meal_calendar', 
+  {
+    userId : integer('user_id').primaryKey().notNull().references(() => users.id),
+    month: text('month').notNull(), 
+    year: integer('year').notNull(),
+    days: text('days').notNull(),
+    lastModified: text('last_modified').default(sql`CURRENT_TIMESTAMP`)
+  }
+  
+);
+
+
 
 

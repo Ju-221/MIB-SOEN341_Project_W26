@@ -30,8 +30,10 @@ app.use('/api/preferences', preferencesRoutes);
 import recipesRoutes from './routes/recipes.js';
 app.use('/api/recipes', recipesRoutes);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+import calendarRoutes from './routes/calendar.js';
+app.use('/api/calendar',calendarRoutes)
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
     res.json({ message: 'MealMajor API is running...' });
