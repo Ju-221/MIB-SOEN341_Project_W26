@@ -34,6 +34,12 @@ The app allows users to:
 In Sprint 1, we focus only on the core User Account Management features: 
 registration, login, and basic profile management (diet preferences, allergies).
 
+In Sprint 2, the main focus was to implement more advanced recipe management features. To do this, we added the ability to:
+- Create, Edit, and delete recipes.
+- Provide recipe with their own attributes such as the ingredients, the prep time, the cost, etc.
+- The ability to earch recipes by name
+- The ability to filter recipes based on their associated attributes.
+
 
 ## Sprint 1 – Scope
 
@@ -51,6 +57,21 @@ Deliverables for Sprint 1:
 - Meeting minutes
 - Detailed log of each team member's contribution
 - Working demo of at least one User Account Management functionality
+
+## Sprint 2 – Scope
+- Sprint 2 focuses on the "Recipe Management" feature set:
+- Create, edit, and delete recipes. 
+- Recipe attributes (ingredients, prep. time, prep. steps, cost, etc.)
+- Search recipes
+- Filter recipes (Time, difficulty, cost, dietary tag, etc.)
+
+Deliverables for Sprint 2:
+- README with project description and team information
+- User stories and task breakdown (as GitHub Issues)
+- Sprint plan table (Appendix A)
+- Meeting minutes
+- Detailed log of each team member's contribution
+- Working demo of Recipe Management functionality
 
 
 | Name              | Student ID | Role       | GitHub User Name |
