@@ -20,12 +20,21 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
           >
             Home
           </a>
+       
           {isLoggedIn && (
             <a
               href="#profile"
               className={`app-nav-link ${currentPage === 'profile' ? 'active' : ''}`}
             >
               Profile
+            </a>
+          )}
+           {isLoggedIn && (
+            <a
+              href="#unique"
+              className={`app-nav-link ${currentPage === 'unique' ? 'active' : ''}`}
+            >
+              Unique
             </a>
           )}
         </div>

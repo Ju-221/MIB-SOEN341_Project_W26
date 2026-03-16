@@ -1,0 +1,336 @@
+/* Recipe Flip Card Container */
+.recipe-flip-card {
+  background-color: transparent;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 300 / 500;
+  perspective: 1000px;
+  cursor: pointer;
+  position: relative;
+}
+ 
+/* Inner container for flip animation */
+.recipe-flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-style: preserve-3d;
+}
+ 
+.recipe-flip-card.flipped .recipe-flip-card-inner {
+  transform: rotateY(180deg);
+}
+ 
+/* Front and Back positioning */
+.recipe-flip-card-front,
+.recipe-flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+ 
+/* ========== FRONT SIDE ========== */
+.recipe-flip-card-front {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+ 
+.recipe-image-container {
+  position: relative;
+  width: 100%;
+  height: 55%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #b07741 0%, #754a2c 100%);
+}
+ 
+.recipe-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+ 
+.recipe-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+  pointer-events: none;
+}
+ 
+.recipe-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 10px;
+  justify-content: space-between;
+}
+ 
+/* Rating stars */
+.recipe-rating {
+  display: flex;
+  gap: 2px;
+  font-size: 16px;
+}
+ 
+.star {
+  color: #d4d4d8;
+  transition: color 0.2s ease;
+}
+ 
+.star.filled {
+  color: #8e4a18c9;
+}
+ 
+.star.empty {
+  color: #e4e4e7;
+}
+ 
+/* Recipe title */
+.recipe-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    sans-serif;
+}
+ 
+/* Meta information */
+.recipe-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  color: #6b7280;
+}
+ 
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+ 
+.meta-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+ 
+.meta-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+/* View Recipe Button */
+.view-recipe-btn {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    sans-serif;
+}
+ 
+.view-recipe-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+}
+ 
+.view-recipe-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+ 
+/* ========== BACK SIDE ========== */
+.recipe-flip-card-back {
+  background: linear-gradient(135deg, #846d5d 0%, #8b1c937b 100%);
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+ 
+.recipe-back-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px;
+  gap: 16px;
+}
+ 
+.back-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    sans-serif;
+}
+ 
+.ingredients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+ 
+.ingredient-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+}
+ 
+.ingredient-dot {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+ 
+.ingredients-more {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-style: italic;
+}
+ 
+.recipe-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 12px;
+}
+ 
+.back-footer {
+  text-align: center;
+  margin-top: auto;
+}
+ 
+.flip-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+ 
+/* Scrollbar styling for ingredients list */
+.ingredients-list::-webkit-scrollbar {
+  width: 4px;
+}
+ 
+.ingredients-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+ 
+.ingredients-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+ 
+.ingredients-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+ 
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .recipe-flip-card {
+    max-width: 100%;
+  }
+ 
+  .recipe-title {
+    font-size: 16px;
+  }
+ 
+  .recipe-meta {
+    font-size: 12px;
+    gap: 10px;
+  }
+ 
+  .recipe-content {
+    padding: 14px;
+    gap: 8px;
+  }
+ 
+  .recipe-back-content {
+    padding: 20px;
+  }
+}
+ 
+/* Animation for better feel */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+ 
+.recipe-flip-card {
+  animation: scaleIn 0.4s ease-out;
+}
+@keyframes floatSmooth {
+ 	0% {
+		box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
+		transform: translatey(0px);
+	}
+	50% {
+		box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2);
+		transform: translatey(-10px);
+	}
+	100% {
+		box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
+		transform: translatey(0px);
+	}
+}
+
+.recipe-flip-card {
+  animation: floatSmooth 4s ease-in-out infinite;
+}
+.recipe-flip-card:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.recipe-flip-card:nth-child(2) {
+  animation-delay: 1s;
+}
+

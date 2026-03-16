@@ -4,6 +4,7 @@ import { SignIn, SignUp } from './components/Auth'
 import Profile from './components/Profile/Profile'
 import Homepage from './components/Homepage/Homepage'
 import Navbar from './components/Navbar/Navbar'
+import Unique from './components/Unique/Unique'
 import './App.css'
 
 function App() {
@@ -57,14 +58,24 @@ function App() {
     }
   }, [isLoggedIn, currentPage])
 
+  useEffect(() => {
+  // On initial load, if user is logged in and there's no hash, go to home
+  if (isLoggedIn && !window.location.hash) {
+    window.location.hash = '#home'
+  }
+}, [isLoggedIn])
+
   const renderPage = () => {
     switch (currentPage) {
       case 'profile':
         return <Profile />
       case 'signin':
         return <SignIn onSuccess={handleAuthSuccess} />
+      case 'unique':
+        return <Unique  />
       case 'signup':
         return <SignUp onSuccess={handleAuthSuccess} />
+    
       default:
         return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />
     }
