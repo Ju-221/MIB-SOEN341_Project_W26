@@ -9,11 +9,12 @@
 /* ── Hero ── */
 
 .homepage-hero {
-  background: linear-gradient(135deg, #a48e61 0%, #d3a867 100%);
+  background: linear-gradient(135deg, #a5833f 0%, #a79d90 100%);
   color: #ffffff;
-  padding: 64px 32px;
+  padding: 14px 32px;
   text-align: center;
   width: 100%;
+  overflow: hidden; /* prevent chopstick and SVG labels from causing horizontal scroll */
 }
 
 .homepage-hero-content {
@@ -58,7 +59,7 @@
   font-weight: 900;
   line-height: 0.8;
   margin: 0;
-  color: #ffffffb1;
+  color: #5c2020b1;
   text-transform: uppercase;
 }
 

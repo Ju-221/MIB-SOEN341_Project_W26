@@ -1,9 +1,10 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
 import roundPlate from '../../assets/uploads/round-plate.png';
+import chopsticks from '../../assets/uploads/chopsticks.png';
 import '../../styles/fonts.css'; // Import Google fonts
 
 gsap.registerPlugin(SplitText);
@@ -18,22 +19,22 @@ interface CalloutLine {
 
 interface RotatingImageWithCalloutsProps {
   callouts?: CalloutLine[];
-} 
+}
 
 // 1. Simple animation (basic square rotating and moving)
 const SquareAnimation = () => {
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    
-    gsap.to(".box", { 
-      x: 200, 
-      rotation: 360, 
+
+    gsap.to(".box", {
+      x: 200,
+      rotation: 360,
       duration: 2,
       repeat: -1,
-      yoyo: true 
+      yoyo: true
     });
-  }, { scope: container }); 
+  }, { scope: container });
 
   return (
     <div ref={container} style={{ padding: '20px' }}>
@@ -47,14 +48,13 @@ const TextAnimation = () => {
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // FIX: Change ".title" to ".meal-major-title"
     const split = new SplitText(".meal-major-title", { type: "chars, words" });
 
     gsap.from(split.chars, {
       opacity: 0,
-      y: 50, // Increased movement for better visibility
+      y: 50,
       stagger: 0.05,
-      duration: 1.5, // Reduced from 7s for a punchier entrance
+      duration: 1.5,
       ease: "back.out"
     });
   }, { scope: container });
@@ -68,17 +68,20 @@ const TextAnimation = () => {
 
 /**
  * RotatingImageWithCallouts Component
- * 
+ *
  * Creates animated callout lines emerging from the center of a circular image.
  * Each line travels diagonally outward, then elbows to horizontal, with a tip circle.
  * Uses GSAP for smooth strokeDashoffset animation.
+ *
+ * SVG viewBox is 350×100 (3.5:1) so the bowl sits in the center third
+ * and labels have room on both sides without overflowing.
  */
 const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   callouts = [
     { id: '1', angle: 315, label: 'Filter your meals' },
-    { id: '2', angle: 45, label: 'Write recipes' },
+    { id: '2', angle: 45,  label: 'Write recipes' },
     { id: '3', angle: 135, label: 'Add tags' },
-    { id: '4', angle: 225, label: 'Be the healthiest you can be!' },
+    { id: '4', angle: 225, label: 'Be the healthiest\nyou can be!' },
   ],
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -86,10 +89,12 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const circleRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const chopstickRef = useRef<HTMLImageElement>(null);
+
+
 
   /**
    * Convert polar coordinates (angle, distance) to Cartesian (x, y)
-   * Center is at (100, 100) in new SVG viewBox
    */
   const polarToCartesian = (
     centerX: number,
@@ -138,6 +143,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   useGSAP(() => {
     if (!svgRef.current) return;
 
+    // Rotate bowl
     if (imageRef.current) {
       gsap.to(imageRef.current, {
         rotation: 360,
@@ -147,6 +153,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
       });
     }
 
+    // Animate callout lines, circles and labels
     pathRefs.current.forEach((path, index) => {
       if (!path) return;
       const length = path.getTotalLength();
@@ -184,6 +191,15 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         });
       }
     });
+
+    // Chopstick: slide up from below and fade in
+    if (chopstickRef.current) {
+      gsap.fromTo(
+        chopstickRef.current,
+        { y: 500, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.5, delay: 0.4, ease: 'power3.out' }
+      );
+    }
   }, { scope: containerRef });
 
   // SVG parameters
@@ -264,10 +280,10 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
       </svg>
 
       {/* Central Rotating Image */}
-        <img
-          ref={imageRef}
-          src={roundPlate}
-          alt="Rotating center"
+      <img
+        ref={imageRef}
+        src={roundPlate}
+        alt="Rotating center"
         style={{
           width: '100%',
           height: '100%',
@@ -277,13 +293,39 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
           userSelect: 'none',
           zIndex: 20,
         }}
+        onDragStart={(e) => e.preventDefault()}
+      />
+
+      {/* Chopsticks wrapper — right edge flush with the screen's right edge,
+          vertically centred alongside the bowl. The wrapper handles positioning;
+          the img is what GSAP animates so there are no CSS-transform conflicts. */}
+      <div
+        style={{
+          position: 'absolute',
+          /* Pull right edge all the way to the viewport's right edge:
+             right = (containerWidth - 100vw) / 2  (negative → extends rightward) */
+          right: 'calc((100% - 100vw) / 2)',
+          top: '30%',
+          transform: 'translateY(-50%)',
+          width: '42vw',
+          zIndex: 25,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      >
+        <img
+          ref={chopstickRef}
+          src={chopsticks}
+          alt="chopsticks"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
           onDragStart={(e) => e.preventDefault()}
         />
+      </div>
     </div>
   );
 };
 
-// Alias for backwards compatibility - RotatingImage is now the enhanced version with callouts
+// Alias for backwards compatibility
 const RotatingImage = RotatingImageWithCallouts;
 
 export { SquareAnimation, TextAnimation, RotatingImage, RotatingImageWithCallouts };
