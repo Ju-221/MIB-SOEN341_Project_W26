@@ -216,7 +216,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        maxWidth: '600px',
+        maxWidth: '480px',
         aspectRatio: '1',
       }}
     >

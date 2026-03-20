@@ -68,9 +68,9 @@
   justify-content: center;
   align-items: center;
   z-index: 20;
-  width: 40vw;
-  max-width: 600px;
-  margin-top: -5.2vw; /* Overlap the bottom of the title */
+  width: 32vw;
+  max-width: 480px;
+  margin-top: -4vw; /* Overlap the bottom of the title */
 }
 .homepage-hero h1 {
   margin: 0 0 16px;
