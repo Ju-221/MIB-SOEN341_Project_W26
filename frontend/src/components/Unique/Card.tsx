@@ -52,14 +52,12 @@ const Card: React.FC<Recipe> = ({
         {/* Front side */}
         <div className="recipe-flip-card-front">
           <div className="recipe-image-container">
-              {heroImage && (
-                    <div className="recipe-image">
-                      <img
-                        src={`http://localhost:3000/uploads/${heroImage}`}
-                        alt={title}
-                      />
-                    </div>
-                  )}
+            <div className="recipe-image">
+              <img
+                src={heroImage ? `http://localhost:3000/uploads/${heroImage}` : 'http://localhost:3000/uploads/1.jpeg'}
+                alt={title}
+              />
+            </div>
             <div className="recipe-image-overlay"></div>
           </div>
  
@@ -81,10 +79,7 @@ const Card: React.FC<Recipe> = ({
                 <span className="meta-text">{estimatedCost.toFixed(2)}</span>
               </div>
             </div>
-                  {/* TODO: Implement handleFlip */}
-            <button className="view-recipe-btn" onClick={handleFlip}>
-              Choose
-            </button>
+            
           </div>
         </div>
  
