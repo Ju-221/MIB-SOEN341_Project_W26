@@ -540,6 +540,16 @@ function Calendar() {
                 </div>
 
                 <div className="cal-choices-grid">
+                  <button className="cal-choice-card browse" onClick={() => { closeModal(); setShowRecipeManager(true) }}>
+                    <div className="cal-choice-icon browse">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <span className="cal-choice-label">Manage Recipes</span>
+                    <span className="cal-choice-desc">Create, edit, and then come back to assign one</span>
+                  </button>
+
                   <button className="cal-choice-card browse" onClick={() => setModalView('picker')}>
                     <div className="cal-choice-icon browse">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -558,16 +568,6 @@ function Calendar() {
                     </div>
                     <span className="cal-choice-label">Generate with AI</span>
                     <span className="cal-choice-desc">Let Gemini create a recipe for you</span>
-                  </button>
-
-                  <button className="cal-choice-card browse" onClick={() => { closeModal(); setShowRecipeManager(true) }}>
-                    <div className="cal-choice-icon browse">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
-                    </div>
-                    <span className="cal-choice-label">Manage Recipes</span>
-                    <span className="cal-choice-desc">Create, edit, and then come back to assign one</span>
                   </button>
                 </div>
               </div>
