@@ -43,6 +43,7 @@ function Calendar() {
 
   const [animating, setAnimating] = useState(false)
   const [showRecipeManager, setShowRecipeManager] = useState(false)
+  const [recipeManagerInitialEditId, setRecipeManagerInitialEditId] = useState<number | null>(null)
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -104,6 +105,45 @@ function Calendar() {
     } catch { /* silent */ }
   }, [month, year])
 
+  const syncDaysWithRecipes = useCallback((calendarDays: CalendarDay[], recipeList: Recipe[]) => {
+    if (calendarDays.length === 0 || recipeList.length === 0) {
+      return { updatedDays: calendarDays, changed: false }
+    }
+
+    let changed = false
+    const updatedDays = calendarDays.map(day => {
+      let dayChanged = false
+      const updatedMeals = { ...day.meals }
+
+      for (const mealType of MEAL_TYPES) {
+        const slot = day.meals[mealType]
+        if (slot.recipeId === null) continue
+
+        const matchingRecipe = recipeList.find(recipe => {
+          const recipeId = typeof recipe.id === 'string' ? parseInt(recipe.id) : recipe.id
+          return recipeId === slot.recipeId
+        })
+
+        if (matchingRecipe && slot.recipeTitle !== matchingRecipe.title) {
+          updatedMeals[mealType] = {
+            ...slot,
+            recipeTitle: matchingRecipe.title,
+          }
+          dayChanged = true
+        }
+      }
+
+      if (!dayChanged) return day
+      changed = true
+      return {
+        ...day,
+        meals: updatedMeals,
+      }
+    })
+
+    return { updatedDays, changed }
+  }, [])
+
   // Navigation
   const navigate = (direction: number) => {
     setAnimating(true)
@@ -133,6 +173,25 @@ function Calendar() {
     setAiPrompt('')
     setAiError('')
     setAiLoading(false)
+  }
+
+  const closeRecipeManager = () => {
+    setShowRecipeManager(false)
+    setRecipeManagerInitialEditId(null)
+    fetchRecipes()
+  }
+
+  const handleRecipeSaved = (savedRecipe: Recipe) => {
+    setRecipes(currentRecipes => {
+      const existingIndex = currentRecipes.findIndex(recipe => recipe.id.toString() === savedRecipe.id.toString())
+      if (existingIndex === -1) {
+        return [...currentRecipes, savedRecipe]
+      }
+
+      const nextRecipes = [...currentRecipes]
+      nextRecipes[existingIndex] = savedRecipe
+      return nextRecipes
+    })
   }
 
   // Meal slot click — open choices modal
@@ -187,6 +246,13 @@ function Calendar() {
     setDays(updated)
     saveCalendar(updated)
     closeModal()
+  }
+
+  const handleEditCurrentRecipe = () => {
+    if (!currentSlot?.recipeId) return
+    closeModal()
+    setRecipeManagerInitialEditId(currentSlot.recipeId)
+    setShowRecipeManager(true)
   }
 
   // AI generate recipe
@@ -307,6 +373,14 @@ function Calendar() {
     r.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  useEffect(() => {
+    const { updatedDays, changed } = syncDaysWithRecipes(days, recipes)
+    if (!changed) return
+
+    setDays(updatedDays)
+    saveCalendar(updatedDays)
+  }, [days, recipes, saveCalendar, syncDaysWithRecipes])
+
   const currentSlot = pickerDay !== null && pickerMeal !== null
     ? days.find(d => d.date === pickerDay)?.meals[pickerMeal]
     : null
@@ -317,6 +391,11 @@ function Calendar() {
       const rid = typeof r.id === 'string' ? parseInt(r.id) : r.id
       return rid === recipeId
     })
+  }
+
+  const getSlotDisplayTitle = (recipeId: number | null, fallbackTitle: string | null) => {
+    const recipe = getRecipeDetail(recipeId)
+    return recipe?.title || fallbackTitle
   }
 
   if (loading) {
@@ -392,28 +471,34 @@ function Calendar() {
                 const slot = cell.day.meals[mealType]
                 const filled = slot.recipeId !== null
                 const recipe = viewMode === 'week' ? getRecipeDetail(slot.recipeId) : undefined
+                const displayTitle = getSlotDisplayTitle(slot.recipeId, slot.recipeTitle)
                 return (
                   <button
                     key={mealType}
                     className={`cal-meal-slot ${mealType} ${filled ? 'filled' : ''} ${viewMode}`}
                     onClick={() => cell.currentMonth ? handleSlotClick(cell.day.date, mealType) : undefined}
                     disabled={!cell.currentMonth}
-                    title={filled ? slot.recipeTitle! : `Add ${MEAL_LABELS[mealType]}`}
+                    title={filled ? displayTitle || '' : `Add ${MEAL_LABELS[mealType]}`}
                   >
                     <span className="cal-meal-label">{MEAL_LABELS[mealType]}</span>
                     {filled ? (
                       <div className="cal-meal-content">
-                        <span className="cal-meal-title">{slot.recipeTitle}</span>
+                        <span className="cal-meal-title">{displayTitle}</span>
                         {viewMode === 'week' && recipe && (
-                          <div className="cal-meal-detail">
-                            <span>{recipe.prepTime + recipe.cookTime} min</span>
-                            <span className="cal-meal-dot">&middot;</span>
-                            <span>${recipe.estimatedCost.toFixed(2)}</span>
+                          <div className="cal-meal-detail week">
+                            <div className="cal-meal-metric">
+                              <span className="cal-meal-metric-label">Time</span>
+                              <span className="cal-meal-metric-value">{recipe.prepTime + recipe.cookTime} min</span>
+                            </div>
+                            <div className="cal-meal-metric">
+                              <span className="cal-meal-metric-label">Cost</span>
+                              <span className="cal-meal-metric-value">${recipe.estimatedCost.toFixed(2)}</span>
+                            </div>
                             {recipe.difficulty && (
-                              <>
-                                <span className="cal-meal-dot">&middot;</span>
-                                <span>{recipe.difficulty}</span>
-                              </>
+                              <div className="cal-meal-metric">
+                                <span className="cal-meal-metric-label">Difficulty</span>
+                                <span className="cal-meal-metric-value">{recipe.difficulty}</span>
+                              </div>
                             )}
                           </div>
                         )}
@@ -455,6 +540,16 @@ function Calendar() {
                 </div>
 
                 <div className="cal-choices-grid">
+                  <button className="cal-choice-card browse" onClick={() => setModalView('picker')}>
+                    <div className="cal-choice-icon browse">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 7h14M5 12h14M5 17h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <span className="cal-choice-label">Choose from Recipes</span>
+                    <span className="cal-choice-desc">Pick one from your existing recipe list</span>
+                  </button>
+
                   <button className="cal-choice-card ai" onClick={() => setModalView('ai')}>
                     <div className="cal-choice-icon ai">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -472,7 +567,7 @@ function Calendar() {
                       </svg>
                     </div>
                     <span className="cal-choice-label">Manage Recipes</span>
-                    <span className="cal-choice-desc">Create, edit and manage your recipes</span>
+                    <span className="cal-choice-desc">Create, edit, and then come back to assign one</span>
                   </button>
                 </div>
               </div>
@@ -552,8 +647,11 @@ function Calendar() {
 
                 {currentSlot?.recipeId && (
                   <div className="cal-picker-current">
-                    <span>Current: <strong>{currentSlot.recipeTitle}</strong></span>
-                    <button className="cal-picker-remove" onClick={handleRemoveMeal}>Remove</button>
+                    <span>Current: <strong>{getSlotDisplayTitle(currentSlot.recipeId, currentSlot.recipeTitle)}</strong></span>
+                    <div className="cal-picker-current-actions">
+                      <button className="cal-picker-edit" onClick={handleEditCurrentRecipe}>Edit</button>
+                      <button className="cal-picker-remove" onClick={handleRemoveMeal}>Remove</button>
+                    </div>
                   </div>
                 )}
 
@@ -600,7 +698,7 @@ function Calendar() {
       {showRecipeManager && (
         <div
           className="cal-modal-overlay"
-          onClick={() => { setShowRecipeManager(false); fetchRecipes() }}
+          onClick={closeRecipeManager}
         >
           <div
             className="cal-recipe-manager-modal"
@@ -608,14 +706,17 @@ function Calendar() {
           >
             <button
               className="cal-modal-close"
-              onClick={() => { setShowRecipeManager(false); fetchRecipes() }}
+              onClick={closeRecipeManager}
               aria-label="Close"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
-            <RecipeManager />
+            <RecipeManager
+              initialEditRecipeId={recipeManagerInitialEditId}
+              onRecipeSaved={handleRecipeSaved}
+            />
           </div>
         </div>
       )}

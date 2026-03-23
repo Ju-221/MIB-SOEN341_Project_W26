@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './CreateRecipe.css';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 
@@ -35,7 +35,15 @@ export interface Recipe {
   instructions?: string[];
 }
 
-const RecipeManager: React.FC = () => {
+interface RecipeManagerProps {
+  initialEditRecipeId?: string | number | null;
+  onRecipeSaved?: (recipe: Recipe) => void;
+}
+
+const RecipeManager: React.FC<RecipeManagerProps> = ({
+  initialEditRecipeId = null,
+  onRecipeSaved,
+}) => {
   // Unit options for ingredients
   const unitOptions = [
     'unit',
@@ -83,6 +91,7 @@ const RecipeManager: React.FC = () => {
   const [customTagInput, setCustomTagInput] = useState<string>('');
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const hasHandledInitialEdit = useRef(false);
 
   useEffect(() => {
     async function loadRecipes() {
@@ -96,6 +105,18 @@ const RecipeManager: React.FC = () => {
 
     loadRecipes();
   }, []);
+
+  useEffect(() => {
+    if (hasHandledInitialEdit.current || initialEditRecipeId === null) return;
+    if (recipes.length === 0) return;
+
+    const matchedRecipe = recipes.find((recipe) => recipe.id.toString() === initialEditRecipeId.toString());
+    hasHandledInitialEdit.current = true;
+
+    if (matchedRecipe) {
+      handleEditRecipe(matchedRecipe);
+    }
+  }, [initialEditRecipeId, recipes]);
 
   const [showModal, setShowModal] = useState(false);
   const [showRecipeDetail, setShowRecipeDetail] = useState(false);
@@ -175,6 +196,12 @@ const RecipeManager: React.FC = () => {
     if (recipe.difficulty) return normalizeText(recipe.difficulty);
     return '';
   };
+
+  const getIngredientCostTotal = (recipe: Recipe): number =>
+    (recipe.ingredients as (string | Ingredient)[] | undefined)?.reduce((sum, ing) => {
+      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+      return sum + cost;
+    }, 0) || 0;
 
   const toggleFilterTag = (
     tag: string,
@@ -365,7 +392,8 @@ const RecipeManager: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     if (name === 'servings' || name === 'prepTime' || name === 'cookTime') {
-      setFormData({ ...formData, [name]: parseInt(value) });
+      const parsedValue = value === '' ? 0 : parseInt(value, 10);
+      setFormData({ ...formData, [name]: Number.isNaN(parsedValue) ? 0 : parsedValue });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -527,11 +555,9 @@ const RecipeManager: React.FC = () => {
       }
     };
 
-    // Calculate total ingredient cost
-    const totalCost = (formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
-      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
-      return sum + cost;
-    }, 0) || 0;
+    // Preserve the previously saved total for legacy recipes whose per-ingredient costs were not stored.
+    const ingredientCostTotal = getIngredientCostTotal(formData);
+    const totalCost = ingredientCostTotal > 0 ? ingredientCostTotal : (formData.estimatedCost || 0);
 
     const cleanedIngredients = (formData.ingredients as (string | Ingredient)[])
       .map((ingredient) => {
@@ -602,6 +628,10 @@ const RecipeManager: React.FC = () => {
             recipe.id === recipeData.id ? updatedRecipe : recipe
           )
         );
+        setSelectedRecipe((currentRecipe) =>
+          currentRecipe && currentRecipe.id === recipeData.id ? updatedRecipe : currentRecipe
+        );
+        onRecipeSaved?.(updatedRecipe);
       } catch (error) {
         console.error(error);
         setSaveError(error instanceof Error ? error.message : 'Failed to update recipe.');
@@ -620,9 +650,11 @@ const RecipeManager: React.FC = () => {
         if (Array.isArray(potentialArray)) {
             const loadedRecipes = await Promise.all(potentialArray)
             setRecipes([...recipes, ...loadedRecipes])
+            loadedRecipes.forEach((recipe) => onRecipeSaved?.(recipe))
         } else {
           const returnedRecipe: Recipe = potentialArray
           setRecipes([...recipes, returnedRecipe]);
+          onRecipeSaved?.(returnedRecipe);
         } 
       } catch (error) {
         console.error(error)
@@ -968,7 +1000,7 @@ const RecipeManager: React.FC = () => {
               <div className="stat-item">
                 <div className="stat-content">
                   <div className="stat-label">Cost</div>
-                  <div className="stat-value">${selectedRecipe.estimatedCost?.toFixed(2) || '0.00'}</div>
+                  <div className="stat-value">${getRecipeDisplayCost(selectedRecipe).toFixed(2)}</div>
                 </div>
               </div>
             </div>
@@ -1135,10 +1167,10 @@ const RecipeManager: React.FC = () => {
 
                   <div className="ingredient-stats">
                     <div className="ingredient-total-cost">
-                      Total: ${((formData.ingredients as (string | Ingredient)[])?.reduce((sum, ing) => {
-                        const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
-                        return sum + cost;
-                      }, 0) || 0).toFixed(2)}
+                      Total: ${(getIngredientCostTotal(formData) > 0
+                        ? getIngredientCostTotal(formData)
+                        : (formData.estimatedCost || 0)
+                      ).toFixed(2)}
                     </div>
                   </div>
                 </div>

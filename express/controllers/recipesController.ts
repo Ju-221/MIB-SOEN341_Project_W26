@@ -7,7 +7,7 @@ import {allergies, dietaryPreferences, recipes} from '../db/schema.js';
 import {Request,Response} from 'express'
 import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
 
-type RecipeIngredient = {name: string; amount: number | string; unit: string};
+type RecipeIngredient = {name: string; amount: number | string; unit: string; cost?: number};
 
 // muter: temp-storeage, renamed after insert
 const storage = multer.diskStorage({

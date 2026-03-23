@@ -103,7 +103,7 @@ function serializeRecipe(recipe: Recipe) {
     formData.append('difficulty', recipe.difficulty.toString());
   }
   
-  formData.append('ingredients', JSON.stringify(recipe.ingredients, ['name', 'amount', 'unit'])); // Assuming no ingredient cost
+  formData.append('ingredients', JSON.stringify(recipe.ingredients, ['name', 'amount', 'unit', 'cost']));
   formData.append('steps', JSON.stringify(recipe.steps, ['text'])); // Assuming no image for steps
   formData.append('categories', JSON.stringify(recipe.categories));
 
