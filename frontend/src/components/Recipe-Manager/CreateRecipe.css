@@ -495,11 +495,21 @@
 
 .modal-footer {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem 1.5rem;
   border-top: 2px solid var(--light-green);
   background-color: var(--background-light);
   justify-content: flex-end;
+}
+
+.form-error-message {
+  color: #b42318;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1 1 100%;
 }
 
 .modal-footer .btn {

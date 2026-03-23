@@ -104,6 +104,7 @@ const RecipeManager: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [saveError, setSaveError] = useState('');
   const [recipeSearchQuery, setRecipeSearchQuery] = useState('');
   const [ingredientFilterQuery, setIngredientFilterQuery] = useState('');
   const [maxPrepTimeFilter, setMaxPrepTimeFilter] = useState('');
@@ -273,6 +274,7 @@ const RecipeManager: React.FC = () => {
   });
 
   const handleCreateRecipe = () => {
+    setSaveError('');
     setFormData({
       id: '',
       title: '',
@@ -296,6 +298,7 @@ const RecipeManager: React.FC = () => {
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
+    setSaveError('');
     setFormData(recipe);
     // Extract custom tags that aren't in the predefined categories
     const allPredefinedTags = Object.values(tagCategories).flatMap(cat => cat.tags);
@@ -326,7 +329,7 @@ const RecipeManager: React.FC = () => {
     return jwt_token;
   }
 
-  const confirmDeleteRecipe = () => {
+  const confirmDeleteRecipe = async () => {
     try {
       const jwt_token = getJwtToken()
 
@@ -334,12 +337,11 @@ const RecipeManager: React.FC = () => {
         throw new Error("Recipe ID for deletion is null");
       }
       
-      // API call
-        deleteRecipe(selectedRecipeId.toString(), jwt_token);
+      await deleteRecipe(selectedRecipeId.toString(), jwt_token);
 
-        setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
-        setShowDeleteConfirm(false);
-        setSelectedRecipeId(null)
+      setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
+      setShowDeleteConfirm(false);
+      setSelectedRecipeId(null)
     } catch (error) {
       console.error(error);
     }
@@ -501,6 +503,8 @@ const RecipeManager: React.FC = () => {
   };
 
   const handleSaveRecipe = async () => {
+    setSaveError('');
+
     if (!formData.title?.trim() && !formData.name?.trim()) {
       alert('Please enter a recipe name');
       return;
@@ -529,9 +533,57 @@ const RecipeManager: React.FC = () => {
       return sum + cost;
     }, 0) || 0;
 
+    const cleanedIngredients = (formData.ingredients as (string | Ingredient)[])
+      .map((ingredient) => {
+        if (typeof ingredient === 'string') {
+          const name = ingredient.trim();
+          return name ? { name, amount: '', unit: '', cost: 0 } : null;
+        }
+
+        const name = ingredient?.name?.trim() || '';
+        if (!name) return null;
+
+        return {
+          ...ingredient,
+          name,
+          amount: ingredient?.amount || '',
+          unit: ingredient?.unit || '',
+          cost: ingredient?.cost || 0,
+        };
+      })
+      .filter((ingredient) => ingredient !== null) as Ingredient[];
+
+    const cleanedSteps = (formData.steps as (string | Step)[])
+      .map((step) => {
+        if (typeof step === 'string') {
+          const text = step.trim();
+          return text ? { text } : null;
+        }
+
+        const text = step?.text?.trim() || '';
+        return text ? { ...step, text } : null;
+      })
+      .filter((step) => step !== null) as Step[];
+
+    if (cleanedIngredients.length === 0) {
+      setSaveError('Add at least one ingredient before saving.');
+      return;
+    }
+
+    if (cleanedSteps.length === 0) {
+      setSaveError('Add at least one instruction before saving.');
+      return;
+    }
+
     // Use default image if no image is provided
-    // eslint-disable-next-line prefer-const
-    let recipeData = { ...formData, estimatedCost: totalCost };
+    let recipeData: Recipe = {
+      ...formData,
+      title: (formData.title || formData.name || '').trim(),
+      name: (formData.name || formData.title || '').trim(),
+      ingredients: cleanedIngredients,
+      steps: cleanedSteps,
+      estimatedCost: totalCost,
+    };
     if (!recipeData.heroImage && !recipeData.image) {
       console.log('No image provided, loading default image...');
       const defaultImage = await getDefaultImage();
@@ -543,16 +595,17 @@ const RecipeManager: React.FC = () => {
 
     if (isEditing) {
       try {
-        // API call
-        updateRecipe(recipeData.id.toString(), recipeData, getJwtToken());
+        const updatedRecipe = await updateRecipe(recipeData.id.toString(), recipeData, getJwtToken());
         
         setRecipes(
           recipes.map((recipe) =>
-            recipe.id === recipeData.id ? recipeData : recipe
+            recipe.id === recipeData.id ? updatedRecipe : recipe
           )
         );
       } catch (error) {
         console.error(error);
+        setSaveError(error instanceof Error ? error.message : 'Failed to update recipe.');
+        return;
       }
     } else {
       const tempNewRecipe: Recipe = {
@@ -573,6 +626,8 @@ const RecipeManager: React.FC = () => {
         } 
       } catch (error) {
         console.error(error)
+        setSaveError(error instanceof Error ? error.message : 'Failed to create recipe.');
+        return;
       }
     }
 
@@ -1360,6 +1415,7 @@ const RecipeManager: React.FC = () => {
             </div>
 
             <div className="modal-footer">
+              {saveError && <p className="form-error-message">{saveError}</p>}
               <button
                 className="btn btn-cancel"
                 onClick={() => setShowModal(false)}
