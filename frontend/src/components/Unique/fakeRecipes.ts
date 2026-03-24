@@ -7,6 +7,7 @@ interface Recipe {
   estimatedCost: number
   heroImage: string | null
   categories: string[]
+  ingredients: string[]
 }
 
 const fakeRecipes: Recipe[] = [
@@ -19,6 +20,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 4.5,
     heroImage: null,
     categories: ['quick', 'vegetarian', 'easy'],
+    ingredients: ['pasta', 'garlic', 'butter', 'parmesan', 'parsley'],
   },
   {
     id: 2,
@@ -29,6 +31,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 3.0,
     heroImage: null,
     categories: ['vegetarian', 'comfort', 'easy'],
+    ingredients: ['tomato', 'garlic', 'onion', 'cream'],
   },
   {
     id: 3,
@@ -39,6 +42,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 2.0,
     heroImage: null,
     categories: ['breakfast', 'quick', 'easy'],
+    ingredients: ['eggs', 'butter', 'bread'],
   },
   {
     id: 4,
@@ -49,6 +53,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 5.5,
     heroImage: null,
     categories: ['quick', 'high-protein', 'dairy-free'],
+    ingredients: ['chicken', 'rice', 'eggs', 'soy sauce', 'scallions'],
   },
   {
     id: 5,
@@ -59,6 +64,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 2.5,
     heroImage: null,
     categories: ['breakfast', 'vegetarian', 'quick'],
+    ingredients: ['eggs', 'onion', 'cheddar'],
   },
   {
     id: 6,
@@ -69,6 +75,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 7.0,
     heroImage: null,
     categories: ['high-protein', 'dairy-free', 'gluten-free'],
+    ingredients: ['chicken', 'lemon', 'garlic', 'herbs', 'olive oil'],
   },
   {
     id: 7,
@@ -79,6 +86,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 4.0,
     heroImage: null,
     categories: ['vegetarian', 'comfort', 'gluten-free'],
+    ingredients: ['potatoes', 'leeks', 'butter', 'onion'],
   },
   {
     id: 8,
@@ -89,6 +97,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 4.0,
     heroImage: null,
     categories: ['quick', 'budget-friendly', 'high-protein'],
+    ingredients: ['pasta', 'tuna', 'mayo', 'celery', 'lemon'],
   },
   {
     id: 9,
@@ -99,6 +108,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 3.5,
     heroImage: null,
     categories: ['vegan', 'quick', 'budget-friendly'],
+    ingredients: ['black beans', 'tortillas', 'salsa', 'cabbage'],
   },
   {
     id: 10,
@@ -109,6 +119,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 4.5,
     heroImage: null,
     categories: ['vegan', 'quick', 'healthy', 'soy', 'sesame'],
+    ingredients: ['broccoli', 'carrots', 'bell pepper', 'soy sauce', 'sesame oil'],
   },
   {
     id: 11,
@@ -119,6 +130,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 3.5,
     heroImage: null,
     categories: ['breakfast', 'vegan', 'quick'],
+    ingredients: ['avocado', 'bread', 'lemon'],
   },
   {
     id: 12,
@@ -129,6 +141,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 9.0,
     heroImage: null,
     categories: ['comfort', 'high-protein', 'dairy-free'],
+    ingredients: ['beef', 'potatoes', 'carrots', 'tomato', 'onion'],
   },
   {
     id: 13,
@@ -139,6 +152,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 5.0,
     heroImage: null,
     categories: ['vegetarian', 'no-cook', 'easy'],
+    ingredients: ['mozzarella', 'tomato', 'basil', 'olive oil'],
   },
   {
     id: 14,
@@ -149,6 +163,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 6.0,
     heroImage: null,
     categories: ['comfort', 'vegetarian'],
+    ingredients: ['onion', 'bread', 'butter', 'gruyère'],
   },
   {
     id: 15,
@@ -159,6 +174,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 2.5,
     heroImage: null,
     categories: ['breakfast', 'vegetarian', 'easy'],
+    ingredients: ['flour', 'eggs', 'milk', 'butter'],
   },
   {
     id: 16,
@@ -169,6 +185,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 5.5,
     heroImage: null,
     categories: ['vegetarian', 'no-cook', 'healthy', 'gluten-free'],
+    ingredients: ['cucumber', 'tomato', 'onion', 'olives', 'feta', 'olive oil'],
   },
   {
     id: 17,
@@ -179,6 +196,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 3.0,
     heroImage: null,
     categories: ['vegetarian', 'quick', 'easy'],
+    ingredients: ['bread', 'tomato', 'garlic', 'basil', 'olive oil'],
   },
   {
     id: 18,
@@ -189,6 +207,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 8.0,
     heroImage: null,
     categories: ['comfort', 'high-protein'],
+    ingredients: ['pasta', 'beef', 'tomato', 'onion', 'garlic'],
   },
   {
     id: 19,
@@ -199,6 +218,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 2.0,
     heroImage: null,
     categories: ['breakfast', 'vegetarian', 'no-cook', 'quick'],
+    ingredients: ['banana', 'oats', 'milk', 'honey'],
   },
   {
     id: 20,
@@ -209,6 +229,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 8.5,
     heroImage: null,
     categories: ['high-protein', 'gluten-free', 'healthy', 'fish'],
+    ingredients: ['salmon', 'lemon', 'garlic', 'olive oil'],
   },
   {
     id: 21,
@@ -219,6 +240,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 2.5,
     heroImage: null,
     categories: ['vegetarian', 'quick', 'easy'],
+    ingredients: ['tortillas', 'cheddar', 'butter'],
   },
   {
     id: 22,
@@ -229,6 +251,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 3.5,
     heroImage: null,
     categories: ['vegan', 'budget-friendly', 'healthy', 'gluten-free'],
+    ingredients: ['lentils', 'cumin', 'tomato', 'onion', 'lemon'],
   },
   {
     id: 23,
@@ -239,6 +262,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 5.0,
     heroImage: null,
     categories: ['vegetarian', 'no-cook', 'easy'],
+    ingredients: ['romaine lettuce', 'parmesan', 'bread', 'eggs'],
   },
   {
     id: 24,
@@ -249,6 +273,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 7.0,
     heroImage: null,
     categories: ['quick', 'high-protein'],
+    ingredients: ['beef', 'tortillas', 'cumin', 'onion', 'tomato'],
   },
   {
     id: 25,
@@ -259,6 +284,7 @@ const fakeRecipes: Recipe[] = [
     estimatedCost: 7.5,
     heroImage: null,
     categories: ['vegetarian', 'comfort'],
+    ingredients: ['rice', 'mushrooms', 'garlic', 'parmesan', 'butter'],
   },
 ]
 

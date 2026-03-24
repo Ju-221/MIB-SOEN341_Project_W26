@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import confetti from 'canvas-confetti'
 import Card from './Card'
 import Aurora from './Background'
 import fakeRecipes from './fakeRecipes' // Remove this when real API is available
+import './Unique.css'
 
 interface Recipe {
   id: number
@@ -13,7 +14,10 @@ interface Recipe {
   estimatedCost: number
   heroImage: string | null
   categories: string[]
+  ingredients: string[]
 }
+
+type Phase = 'intro' | 'picker' | 'game'
 
 const fireConfetti = () => {
   const end = Date.now() + 3 * 1000
@@ -28,20 +32,45 @@ const fireConfetti = () => {
 }
 
 const Unique: React.FC = () => {
+  const [phase, setPhase] = useState<Phase>('intro')
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
   const [pool, setPool] = useState<Recipe[]>([])
   const [slots, setSlots] = useState<[Recipe | null, Recipe | null]>([null, null])
   const [fadingSlot, setFadingSlot] = useState<0 | 1 | null>(null)
   const [winner, setWinner] = useState<Recipe | null>(null)
 
-  useEffect(() => {
-    // loadRecipes() // Uncomment this when real API is available
-    const shuffled = [...(fakeRecipes as Recipe[])].sort(() => Math.random() - 0.5)
-    setSlots([shuffled[0], shuffled[1]])
-    setPool(shuffled.slice(2))
+  const allIngredients = useMemo(() => {
+    const set = new Set<string>()
+    ;(fakeRecipes as Recipe[]).forEach(r => r.ingredients.forEach(i => set.add(i)))
+    return [...set].sort()
   }, [])
 
+  const toggleIngredient = (ing: string) => {
+    setSelectedIngredients(prev =>
+      prev.includes(ing) ? prev.filter(i => i !== ing) : [...prev, ing]
+    )
+  }
+
+  const startGame = () => {
+    let pool: Recipe[]
+    if (selectedIngredients.length === 0) {
+      pool = fakeRecipes as Recipe[]
+    } else {
+      // Keep only recipes that contain ALL selected ingredients
+      const filtered = (fakeRecipes as Recipe[]).filter(r =>
+        selectedIngredients.every(ing => r.ingredients.includes(ing))
+      )
+      // Fall back to all recipes if the selection is too narrow
+      pool = filtered.length >= 4 ? filtered : (fakeRecipes as Recipe[])
+    }
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    setSlots([shuffled[0], shuffled[1]])
+    setPool(shuffled.slice(2))
+    setPhase('game')
+  }
+
   const handleChoose = (chosenIndex: 0 | 1) => {
-    if (fadingSlot !== null) return // block clicks during animation
+    if (fadingSlot !== null) return
 
     const discardIndex = (1 - chosenIndex) as 0 | 1
 
@@ -74,6 +103,50 @@ const Unique: React.FC = () => {
       <Aurora colorStops={['#7cff67', '#B19EEF', '#5227FF']} blend={0.5} amplitude={1.5} speed={0.5} />
     </div>
   )
+
+  if (phase === 'intro') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+        {aurora}
+        <div className="intro-overlay" onClick={() => setPhase('picker')}>
+          <p className="intro-text">
+            Can't decide what to eat? Play our new game to discover what you've been craving!
+          </p>
+          <span className="intro-hint">click anywhere to continue</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (phase === 'picker') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+        {aurora}
+        <div className="picker-wrapper">
+          <p className="picker-dialogue">
+            Before, let's define the ingredients you have in your hands
+          </p>
+          <p className="picker-tip">
+            psssst.... the less ingredients you pick, the more options you will have!
+          </p>
+          <div className="ingredients-grid">
+            {allIngredients.map(ing => (
+              <button
+                key={ing}
+                className={`ingredient-chip${selectedIngredients.includes(ing) ? ' selected' : ''}`}
+                onClick={() => toggleIngredient(ing)}
+              >
+                {ing}
+              </button>
+            ))}
+          </div>
+          <button className="picker-start-btn" onClick={startGame}>
+            Let's play!
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (winner) {
     return (
