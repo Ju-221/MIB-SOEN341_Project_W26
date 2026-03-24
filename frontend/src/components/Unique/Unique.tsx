@@ -183,7 +183,7 @@ const Unique: React.FC = () => {
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {aurora}
         <div className="no-results-container">
-          <p className="no-results-icon">🍽️</p>
+          <p className="no-results-icon">X</p>
           <h2 className="no-results-title">No recipe found</h2>
           <p className="no-results-body">
             None of our recipes use all of{' '}
