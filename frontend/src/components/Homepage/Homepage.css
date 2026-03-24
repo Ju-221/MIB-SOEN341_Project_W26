@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  overflow-x: clip; /* prevents side-items causing scroll but allows visible overflow on hero */
 }
 
 /* ── Hero ── */
@@ -11,10 +12,12 @@
 .homepage-hero {
   background: linear-gradient(135deg, #a5833f 0%, #a79d90 100%);
   color: #ffffff;
-  padding: 14px 32px;
+  padding: -40px 32px 48px;
   text-align: center;
   width: 100%;
-  overflow: hidden; /* prevent chopstick and SVG labels from causing horizontal scroll */
+  overflow: hidden;
+  border-bottom-left-radius: 100% 1000px;
+  border-bottom-right-radius: 100% 1000px;
 }
 
 .homepage-hero-content {

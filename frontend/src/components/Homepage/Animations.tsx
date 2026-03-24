@@ -5,6 +5,9 @@ import { SplitText } from 'gsap/SplitText';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
 import roundPlate from '../../assets/uploads/round-plate.png';
 import chopsticks from '../../assets/uploads/chopsticks.png';
+import olives from '../../assets/uploads/olives.png';
+import mint from '../../assets/uploads/mint.png';
+import tomato from '../../assets/uploads/tomato.png';
 import '../../styles/fonts.css'; // Import Google fonts
 
 gsap.registerPlugin(SplitText);
@@ -81,7 +84,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
     { id: '1', angle: 315, label: 'Filter your meals' },
     { id: '2', angle: 45,  label: 'Write recipes' },
     { id: '3', angle: 135, label: 'Add tags' },
-    { id: '4', angle: 225, label: 'Be the healthiest\nyou can be!' },
+    { id: '4', angle: 225, label: 'Be organized' },
   ],
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +93,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const circleRefs = useRef<(SVGCircleElement | null)[]>([]);
   const chopstickRef = useRef<HTMLImageElement>(null);
+  const olivesRef = useRef<HTMLImageElement>(null);
+  const mintRef = useRef<HTMLImageElement>(null);
+  const tomatoRef = useRef<HTMLImageElement>(null);
 
 
 
