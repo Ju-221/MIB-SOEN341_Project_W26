@@ -53,9 +53,10 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res:Respons
     try {
         const {title, description, prepTime, cookTime, estimatedCost,difficulty  ,ingredients, steps, categories, allergies, dietaryPreferences} = req.body;
         const createdBy = req.user!.id;
-        if (!validateIngredients(ingredients)){
+        /*if (!validateIngredients(ingredients)){
             return res.status(400).json({message: "invalid ingredients"})
         }
+            */
 
         const result = db.insert(recipes).values({
             title, description, createdBy,
