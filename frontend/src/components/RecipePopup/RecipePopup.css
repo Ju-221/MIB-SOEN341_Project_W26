@@ -1,0 +1,314 @@
+/* ── Overlay ─────────────────────────────────────────────── */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.popup-card {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  animation: cardIn 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+  color: #111827;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+/* ── Hero image ──────────────────────────────────────────── */
+.popup-hero {
+  position: relative;
+  width: 100%;
+  height: 210px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #c8a882 0%, #8c5e38 100%);
+}
+
+.popup-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.popup-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.28) 100%);
+}
+
+.popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.popup-close:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* ── Scrollable body ─────────────────────────────────────── */
+.popup-body {
+  overflow-y: auto;
+  padding: 22px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #111827;
+}
+
+.popup-body::-webkit-scrollbar { width: 5px; }
+.popup-body::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 3px; }
+.popup-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* ── Title row ───────────────────────────────────────────── */
+.popup-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.popup-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.25;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.popup-difficulty {
+  flex-shrink: 0;
+  padding: 3px 12px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ── Meta bar ────────────────────────────────────────────── */
+.popup-meta {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 18px;
+  justify-content: space-between;
+}
+
+.popup-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popup-meta-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.popup-meta-label {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.popup-meta-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.popup-meta-divider {
+  width: 1px;
+  height: 36px;
+  background: #e5e7eb;
+}
+
+/* ── Sections ────────────────────────────────────────────── */
+.popup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popup-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.popup-description {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #4b5563;
+  margin: 0;
+}
+
+/* ── Ingredients ─────────────────────────────────────────── */
+.popup-ingredients {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popup-ingredient {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+  text-transform: capitalize;
+}
+
+.popup-ingredient-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7c3aed;
+  flex-shrink: 0;
+}
+
+/* ── Steps ───────────────────────────────────────────────── */
+.popup-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popup-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #374151;
+}
+
+.popup-step-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #5227FF;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* ── Tags ────────────────────────────────────────────────── */
+.popup-tags-section {
+  gap: 14px;
+}
+
+.popup-tag-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-tag-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.popup-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.popup-tag {
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.popup-tag--category {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.popup-tag--diet {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.popup-tag--allergy {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 540px) {
+  .popup-overlay  { padding: 12px; }
+  .popup-hero     { height: 170px; }
+  .popup-body     { padding: 18px 18px 24px; }
+  .popup-title    { font-size: 19px; }
+  .popup-meta     { padding: 10px 14px; gap: 0; }
+  .popup-meta-icon { font-size: 17px; }
+}

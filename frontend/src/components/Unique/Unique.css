@@ -1,3 +1,107 @@
+/* ── Winner generate link ────────────────────────────────── */
+.winner-generate-link {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+  animation: fadeInFloat 1s ease 0.8s both;
+}
+
+.winner-generate-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* ── No-results screen ───────────────────────────────────── */
+.no-results-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 480px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  background: rgba(90, 50, 180, 0.55);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  animation: fadeInFloat 0.7s ease both;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.no-results-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.no-results-body {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.no-results-body strong {
+  color: #ffffff;
+}
+
+.no-results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.no-results-generate-btn {
+  padding: 12px 0;
+  width: 100%;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #5227FF;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.no-results-generate-btn:hover {
+  opacity: 0.88;
+}
+
+.no-results-back-btn {
+  padding: 10px 0;
+  width: 100%;
+  border-radius: 10px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.no-results-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
 /* ── Intro phase ─────────────────────────────────────────── */
 .intro-overlay {
   position: relative;
@@ -72,6 +176,45 @@
   font-style: italic;
   margin-bottom: 2rem;
   animation: fadeInFloat 1.3s ease forwards;
+}
+
+.filter-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+  animation: fadeInFloat 1.45s ease forwards;
+}
+
+.toggle-option {
+  padding: 6px 20px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.toggle-option:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.toggle-option.toggle-active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #5227FF;
+}
+
+.filter-toggle-hint {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.78rem;
+  font-style: italic;
+  margin: 0 0 0.5rem;
+  animation: fadeInFloat 1.55s ease forwards;
 }
 
 .ingredients-grid {

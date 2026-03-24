@@ -2,22 +2,10 @@ import React, { useState, useMemo } from 'react'
 import confetti from 'canvas-confetti'
 import Card from './Card'
 import Aurora from './Background'
-import fakeRecipes from './fakeRecipes' // Remove this when real API is available
+import fakeRecipes, { type Recipe } from './fakeRecipes' // Remove this when real API is available
 import './Unique.css'
 
-interface Recipe {
-  id: number
-  title: string
-  description: string
-  prepTime: number
-  cookTime: number
-  estimatedCost: number
-  heroImage: string | null
-  categories: string[]
-  ingredients: string[]
-}
-
-type Phase = 'intro' | 'picker' | 'game'
+type Phase = 'intro' | 'picker' | 'no-results' | 'game'
 
 const fireConfetti = () => {
   const end = Date.now() + 3 * 1000
@@ -34,15 +22,19 @@ const fireConfetti = () => {
 const Unique: React.FC = () => {
   const [phase, setPhase] = useState<Phase>('intro')
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
+  const [filterMode, setFilterMode] = useState<'all' | 'any'>('all')
   const [pool, setPool] = useState<Recipe[]>([])
   const [slots, setSlots] = useState<[Recipe | null, Recipe | null]>([null, null])
   const [fadingSlot, setFadingSlot] = useState<0 | 1 | null>(null)
   const [winner, setWinner] = useState<Recipe | null>(null)
 
+  const getIngredientName = (ing: Recipe['ingredients'][number]): string =>
+    typeof ing === 'string' ? ing : ing.name
+
   const allIngredients = useMemo(() => {
     const set = new Set<string>()
-    ;(fakeRecipes as Recipe[]).forEach(r => r.ingredients.forEach(i => set.add(i)))
-    return [...set].sort()
+    fakeRecipes.forEach(r => r.ingredients.forEach(i => set.add(getIngredientName(i))))
+    return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
   }, [])
 
   const toggleIngredient = (ing: string) => {
@@ -51,18 +43,35 @@ const Unique: React.FC = () => {
     )
   }
 
+  const getFiltered = (mode: 'all' | 'any'): Recipe[] => {
+    if (selectedIngredients.length === 0) return fakeRecipes
+    return fakeRecipes.filter(r => {
+      const names = r.ingredients.map(getIngredientName)
+      return mode === 'all'
+        ? selectedIngredients.every(ing => names.includes(ing))
+        : selectedIngredients.some(ing => names.includes(ing))
+    })
+  }
+
   const startGame = () => {
-    let pool: Recipe[]
-    if (selectedIngredients.length === 0) {
-      pool = fakeRecipes as Recipe[]
-    } else {
-      // Keep only recipes that contain ALL selected ingredients
-      const filtered = (fakeRecipes as Recipe[]).filter(r =>
-        selectedIngredients.every(ing => r.ingredients.includes(ing))
-      )
-      // Fall back to all recipes if the selection is too narrow
-      pool = filtered.length >= 4 ? filtered : (fakeRecipes as Recipe[])
+    const filtered = getFiltered(filterMode)
+
+    // Common mode: strict handling of 0 or 1 result
+    if (filterMode === 'all') {
+      if (filtered.length === 0) {
+        setPhase('no-results')
+        return
+      }
+      if (filtered.length === 1) {
+        setWinner(filtered[0])
+        fireConfetti()
+        setPhase('game') // winner render is inside game phase check
+        return
+      }
     }
+
+    // Uncommon mode or common with enough results: fall back if too few
+    const pool = (filterMode === 'any' && filtered.length < 4) ? fakeRecipes : filtered
     const shuffled = [...pool].sort(() => Math.random() - 0.5)
     setSlots([shuffled[0], shuffled[1]])
     setPool(shuffled.slice(2))
@@ -129,6 +138,27 @@ const Unique: React.FC = () => {
           <p className="picker-tip">
             psssst.... the less ingredients you pick, the more options you will have!
           </p>
+
+          <div className="filter-toggle">
+            <button
+              className={`toggle-option${filterMode === 'all' ? ' toggle-active' : ''}`}
+              onClick={() => setFilterMode('all')}
+            >
+              Common
+            </button>
+            <button
+              className={`toggle-option${filterMode === 'any' ? ' toggle-active' : ''}`}
+              onClick={() => setFilterMode('any')}
+            >
+              Uncommon
+            </button>
+          </div>
+          <p className="filter-toggle-hint">
+            {filterMode === 'all'
+              ? 'Each recipe shown will include all of your ingredients'
+              : 'Each recipe shown will include at least one of your ingredients'}
+          </p>
+
           <div className="ingredients-grid">
             {allIngredients.map(ing => (
               <button
@@ -148,6 +178,30 @@ const Unique: React.FC = () => {
     )
   }
 
+  if (phase === 'no-results') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {aurora}
+        <div className="no-results-container">
+          <p className="no-results-icon">🍽️</p>
+          <h2 className="no-results-title">No recipe found</h2>
+          <p className="no-results-body">
+            None of our recipes use all of{' '}
+            <strong>{selectedIngredients.join(', ')}</strong> together.
+          </p>
+          <div className="no-results-actions">
+            <a href="#home" className="no-results-generate-btn">
+              Generate one from scratch with AI →
+            </a>
+            <button className="no-results-back-btn" onClick={() => setPhase('picker')}>
+              ← Change my ingredients
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (winner) {
     return (
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -160,6 +214,9 @@ const Unique: React.FC = () => {
             It looks like you've been craving <strong>{winner.title}</strong>... Time to cook!
           </p>
         </div>
+        <a href="#home" className="winner-generate-link">
+          Still not satisfied? Generate a recipe from scratch!
+        </a>
       </div>
     )
   }
@@ -179,8 +236,8 @@ const Unique: React.FC = () => {
         }}
       >
         {([0, 1] as const).map(i => (
-          <div key={i} className={`card-slot${fadingSlot === i ? ' fading' : ''}`}>
-            <div style={{ height: '70vh' }}>
+          <div key={i} className="card-slot">
+            <div className={`card-wrapper${fadingSlot === i ? ' card-fading' : ''}`} style={{ height: '70vh' }}>
               {slots[i] && <Card {...slots[i]!} />}
             </div>
             <button
