@@ -133,6 +133,7 @@ const Unique: React.FC = () => {
     }
 
     const poolCopy = [...pool]
+    // eslint-disable-next-line react-hooks/purity
     const replaceIdx = Math.floor(Math.random() * poolCopy.length)
     const replacement = poolCopy[replaceIdx]
     const newPool = poolCopy.filter((_, i) => i !== replaceIdx)
