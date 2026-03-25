@@ -225,6 +225,9 @@ const Unique: React.FC = () => {
           <button className="picker-start-btn" onClick={startGame}>
             Let's play!
           </button>
+          <a href="#aichat" className="picker-aichat-link">
+            Not feeling like choosing from your own recipes? Generate a brand new recipe from scratch here →
+          </a>
         </div>
       </div>
     )
@@ -266,8 +269,8 @@ const Unique: React.FC = () => {
             It looks like you've been craving <strong>{winner.title}</strong>... Time to cook!
           </p>
         </div>
-        <a href="#home" className="winner-generate-link">
-          Still not satisfied? Generate a recipe from scratch!
+        <a href="#aichat" className="winner-generate-link">
+          Still not satisfied? Generate a brand new recipe from scratch with AI →
         </a>
       </div>
     )

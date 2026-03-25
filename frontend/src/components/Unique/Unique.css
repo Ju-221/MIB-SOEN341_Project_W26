@@ -270,3 +270,21 @@
   transform: scale(1.06);
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
 }
+
+.picker-aichat-link {
+  margin-top: 1.4rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  font-style: italic;
+  text-decoration: none;
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.5;
+  transition: color 0.2s;
+  animation: fadeInFloat 2.1s ease forwards;
+}
+
+.picker-aichat-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}

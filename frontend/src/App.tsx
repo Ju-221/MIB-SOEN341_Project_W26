@@ -5,6 +5,7 @@ import Profile from './components/Profile/Profile'
 import Homepage from './components/Homepage/Homepage'
 import Navbar from './components/Navbar/Navbar'
 import Unique from './components/Unique/Unique'
+import AIChat from './components/AIChat/AIChat'
 import './App.css'
 
 function App() {
@@ -53,7 +54,8 @@ function App() {
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    if (!isLoggedIn && currentPage !== 'signin' && currentPage !== 'signup') {
+    const requiresAuth = currentPage === 'profile' || currentPage === 'unique'
+    if (!isLoggedIn && requiresAuth) {
       window.location.hash = '#signin'
     }
   }, [isLoggedIn, currentPage])
@@ -72,7 +74,9 @@ function App() {
       case 'signin':
         return <SignIn onSuccess={handleAuthSuccess} />
       case 'unique':
-        return <Unique  />
+        return <Unique />
+      case 'aichat':
+        return <AIChat />
       case 'signup':
         return <SignUp onSuccess={handleAuthSuccess} />
     

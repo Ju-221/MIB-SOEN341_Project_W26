@@ -37,6 +37,12 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
               Unique
             </a>
           )}
+          <a
+            href="#aichat"
+            className={`app-nav-link ${currentPage === 'aichat' ? 'active' : ''}`}
+          >
+            Recipe Generation
+          </a>
         </div>
         <div className="app-nav-actions">
           {isLoggedIn ? (
