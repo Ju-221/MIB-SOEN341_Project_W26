@@ -22,6 +22,14 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
           </a>
           {isLoggedIn && (
             <a
+              href="#calendar"
+              className={`app-nav-link ${currentPage === 'calendar' ? 'active' : ''}`}
+            >
+              Calendar
+            </a>
+          )}
+          {isLoggedIn && (
+            <a
               href="#profile"
               className={`app-nav-link ${currentPage === 'profile' ? 'active' : ''}`}
             >
