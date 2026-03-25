@@ -89,7 +89,7 @@ const Card: React.FC<Recipe> = (recipe) => {
               <div className="recipe-image">
                 <img
                   src={heroImage
-                    ? `http://localhost:3000/uploads/${heroImage}`
+                    ? (heroImage.startsWith('data:') ? heroImage : `http://localhost:3000/uploads/${heroImage}`)
                     : 'http://localhost:3000/uploads/1.jpeg'}
                   alt={title}
                 />

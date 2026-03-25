@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 import Card from './Card'
 import Aurora from './Background'
-import fakeRecipes, { type Recipe } from './fakeRecipes' // Remove this when real API is available
+import { type Recipe } from './fakeRecipes'
+import { fetchRecipes } from '../../api/recipes'
 import './Unique.css'
 
 type Phase = 'intro' | 'picker' | 'no-results' | 'game'
@@ -19,6 +20,20 @@ const fireConfetti = () => {
   frame()
 }
 
+const getUserIdFromToken = (): number | null => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(decodeURIComponent(
+      atob(base64).split('').map(c => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`).join('')
+    )) as { id?: number }
+    return payload.id ?? null
+  } catch {
+    return null
+  }
+}
+
 const Unique: React.FC = () => {
   const [phase, setPhase] = useState<Phase>('intro')
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
@@ -27,15 +42,43 @@ const Unique: React.FC = () => {
   const [slots, setSlots] = useState<[Recipe | null, Recipe | null]>([null, null])
   const [fadingSlot, setFadingSlot] = useState<0 | 1 | null>(null)
   const [winner, setWinner] = useState<Recipe | null>(null)
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const userId = getUserIdFromToken()
+    fetchRecipes()
+      .then(data => {
+        const userRecipes = userId !== null ? data.filter(r => r.createdBy === userId) : data
+        const normalized: Recipe[] = userRecipes.map(r => ({
+          id: typeof r.id === 'string' ? parseInt(r.id, 10) : (r.id as number),
+          title: r.title,
+          description: r.description,
+          prepTime: r.prepTime,
+          cookTime: r.cookTime,
+          difficulty: (r.difficulty as Recipe['difficulty']) ?? 'Easy',
+          estimatedCost: r.estimatedCost,
+          heroImage: r.heroImage ?? null,
+          categories: r.categories,
+          ingredients: r.ingredients,
+          steps: r.steps.map(s => typeof s === 'string' ? s : (s as { text: string }).text),
+          createdBy: r.createdBy,
+          createdAt: r.createdAt,
+        }))
+        setRecipes(normalized)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
 
   const getIngredientName = (ing: Recipe['ingredients'][number]): string =>
     typeof ing === 'string' ? ing : ing.name
 
   const allIngredients = useMemo(() => {
     const set = new Set<string>()
-    fakeRecipes.forEach(r => r.ingredients.forEach(i => set.add(getIngredientName(i))))
+    recipes.forEach(r => r.ingredients.forEach(i => set.add(getIngredientName(i))))
     return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-  }, [])
+  }, [recipes])
 
   const toggleIngredient = (ing: string) => {
     setSelectedIngredients(prev =>
@@ -44,8 +87,8 @@ const Unique: React.FC = () => {
   }
 
   const getFiltered = (mode: 'all' | 'any'): Recipe[] => {
-    if (selectedIngredients.length === 0) return fakeRecipes
-    return fakeRecipes.filter(r => {
+    if (selectedIngredients.length === 0) return recipes
+    return recipes.filter(r => {
       const names = r.ingredients.map(getIngredientName)
       return mode === 'all'
         ? selectedIngredients.every(ing => names.includes(ing))
@@ -71,7 +114,7 @@ const Unique: React.FC = () => {
     }
 
     // Uncommon mode or common with enough results: fall back if too few
-    const pool = (filterMode === 'any' && filtered.length < 4) ? fakeRecipes : filtered
+    const pool = (filterMode === 'any' && filtered.length < 4) ? recipes : filtered
     const shuffled = [...pool].sort(() => Math.random() - 0.5)
     setSlots([shuffled[0], shuffled[1]])
     setPool(shuffled.slice(2))
@@ -112,6 +155,15 @@ const Unique: React.FC = () => {
       <Aurora colorStops={['#7cff67', '#B19EEF', '#5227FF']} blend={0.5} amplitude={1.5} speed={0.5} />
     </div>
   )
+
+  if (loading) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {aurora}
+        <p style={{ color: 'white', fontSize: '1.5rem', position: 'relative', zIndex: 1 }}>Loading recipes...</p>
+      </div>
+    )
+  }
 
   if (phase === 'intro') {
     return (
@@ -186,7 +238,7 @@ const Unique: React.FC = () => {
           <p className="no-results-icon">X</p>
           <h2 className="no-results-title">No recipe found</h2>
           <p className="no-results-body">
-            None of our recipes use all of{' '}
+            None of your recipes use all of{' '}
             <strong>{selectedIngredients.join(', ')}</strong> together.
           </p>
           <div className="no-results-actions">
