@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import Aurora from '../Unique/Background'
 import './AIChat.css'
 
 interface Message {
@@ -56,50 +57,51 @@ const AIChat: React.FC = () => {
   }
 
   return (
-    <div className="aichat-page">
-      <div className="aichat-container">
-        <div className="aichat-header">
-          <span className="aichat-header-icon">✦</span>
-          <h2 className="aichat-header-title">AI Recipe Chef</h2>
-          <p className="aichat-header-sub">Generate a brand new recipe from scratch</p>
-        </div>
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Shared Aurora background — same component as Unique feature */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        <Aurora colorStops={['#7cff67', '#B19EEF', '#5227FF']} blend={0.5} amplitude={1.5} speed={0.5} />
+      </div>
 
-        <div className="aichat-messages">
-          {messages.map((msg, i) => (
-            <div key={i} className={`aichat-bubble-row ${msg.role === 'user' ? 'aichat-bubble-row--user' : 'aichat-bubble-row--model'}`}>
-              <div className={`aichat-bubble ${msg.role === 'user' ? 'aichat-bubble--user' : 'aichat-bubble--model'}`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div className="aichat-bubble-row aichat-bubble-row--model">
-              <div className="aichat-bubble aichat-bubble--model aichat-bubble--typing">
-                <span /><span /><span />
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+      <p className="aichat-title">✦ AI Recipe Chef</p>
 
-        <div className="aichat-input-row">
-          <textarea
-            className="aichat-input"
-            placeholder="Describe what you're craving or list your ingredients..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={2}
-            disabled={loading}
-          />
-          <button
-            className="aichat-send-btn"
-            onClick={handleSend}
-            disabled={loading || !input.trim()}
-          >
-            Send
-          </button>
-        </div>
+      <div className="aichat-messages">
+        {messages.map((msg, i) => (
+          <div key={i} className={`aichat-bubble-row aichat-bubble-row--${msg.role}`}>
+            <div className={`aichat-bubble aichat-bubble--${msg.role}`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="aichat-bubble-row aichat-bubble-row--model">
+            <div className="aichat-bubble aichat-bubble--model aichat-bubble--typing">
+              <span /><span /><span />
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      <div className="aichat-input-row">
+        <textarea
+          className="aichat-input"
+          placeholder="Describe what you're craving or list your ingredients..."
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          disabled={loading}
+        />
+        <button
+          className="aichat-send-btn"
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+        >
+          Send
+        </button>
+      </div>
       </div>
     </div>
   )
