@@ -9,6 +9,12 @@ export interface Ingredient {
   cost?: number;
 }
 
+type FormNumberValue = number | '';
+
+interface FormIngredient extends Omit<Ingredient, 'cost'> {
+  cost?: FormNumberValue;
+}
+
 export interface Step {
   text: string;
   image?: string;
@@ -33,6 +39,14 @@ export interface Recipe {
   servings?: number;
   image?: string;
   instructions?: string[];
+}
+
+interface RecipeFormData extends Omit<Recipe, 'ingredients' | 'prepTime' | 'cookTime' | 'estimatedCost' | 'servings'> {
+  ingredients: (string | FormIngredient)[];
+  prepTime: FormNumberValue;
+  cookTime: FormNumberValue;
+  estimatedCost: FormNumberValue;
+  servings?: FormNumberValue;
 }
 
 interface RecipeManagerProps {
@@ -60,6 +74,24 @@ const tagCategories = {
 };
 
 const predefinedTags = Object.values(tagCategories).flatMap((category) => category.tags);
+
+const createEmptyFormData = (): RecipeFormData => ({
+  id: '',
+  title: '',
+  name: '',
+  description: '',
+  ingredients: [{ name: '', amount: '', unit: '', cost: '' }],
+  steps: [{ text: '' }],
+  instructions: [''],
+  categories: [],
+  difficulty: 'Medium',
+  servings: '',
+  prepTime: '',
+  cookTime: '',
+  estimatedCost: 0,
+  heroImage: '',
+  image: '',
+});
 
 const RecipeManager: React.FC<RecipeManagerProps> = ({
   initialEditRecipeId = null,
@@ -124,23 +156,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
   const [selectedDifficultyFilters, setSelectedDifficultyFilters] = useState<string[]>([]);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
 
-  const [formData, setFormData] = useState<Recipe>({
-    id: '',
-    title: '',
-    name: '',
-    description: '',
-    ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
-    steps: [{ text: '' }],
-    instructions: [''],
-    categories: [],
-    difficulty: 'Medium',
-    servings: 4,
-    prepTime: 15,
-    cookTime: 30,
-    estimatedCost: 0,
-    heroImage: '',
-    image: '',
-  });
+  const [formData, setFormData] = useState<RecipeFormData>(createEmptyFormData());
 
   const normalizeText = (value: string = '') => value.trim().toLowerCase();
 
@@ -183,9 +199,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     return '';
   };
 
-  const getIngredientCostTotal = (recipe: Recipe): number =>
-    (recipe.ingredients as (string | Ingredient)[] | undefined)?.reduce((sum, ing) => {
-      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+  const getIngredientCostTotal = (recipe: Pick<RecipeFormData, 'ingredients'>): number =>
+    (recipe.ingredients as (string | FormIngredient)[] | undefined)?.reduce((sum, ing) => {
+      const cost = typeof ing === 'object' ? Number(ing.cost) || 0 : 0;
       return sum + cost;
     }, 0) || 0;
 
@@ -288,23 +304,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
   const handleCreateRecipe = () => {
     setSaveError('');
-    setFormData({
-      id: '',
-      title: '',
-      name: '',
-      description: '',
-      ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
-      steps: [{ text: '' }],
-      instructions: [''],
-      categories: [],
-      difficulty: 'Medium',
-      servings: 0,
-      prepTime: 0,
-      cookTime: 30,
-      estimatedCost: 0,
-      heroImage: '',
-      image: '',
-    });
+    setFormData(createEmptyFormData());
     setImagePreview('');
     setIsEditing(false);
     setShowModal(true);
@@ -312,7 +312,23 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
   const handleEditRecipe = useCallback((recipe: Recipe) => {
     setSaveError('');
-    setFormData(recipe);
+    setFormData({
+      ...recipe,
+      ingredients: (recipe.ingredients || []).map((ingredient) =>
+        typeof ingredient === 'string'
+          ? ingredient
+          : {
+            ...ingredient,
+            amount: ingredient.amount || '',
+            unit: ingredient.unit || '',
+            cost: ingredient.cost ?? '',
+          }
+      ),
+      servings: recipe.servings ?? '',
+      prepTime: recipe.prepTime ?? '',
+      cookTime: recipe.cookTime ?? '',
+      estimatedCost: recipe.estimatedCost ?? 0,
+    });
     const customRecipeTags = recipe.categories.filter(tag => !predefinedTags.includes(tag));
     setCustomTags(customRecipeTags);
     setImagePreview(recipe.heroImage || recipe.image || '');
@@ -388,8 +404,15 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
   ) => {
     const { name, value } = e.target;
     if (name === 'servings' || name === 'prepTime' || name === 'cookTime') {
-      const parsedValue = value === '' ? 0 : parseInt(value, 10);
-      setFormData({ ...formData, [name]: Number.isNaN(parsedValue) ? 0 : parsedValue });
+      if (value === '') {
+        setFormData({ ...formData, [name]: '' });
+        return;
+      }
+
+      const parsedValue = parseInt(value, 10);
+      if (!Number.isNaN(parsedValue)) {
+        setFormData({ ...formData, [name]: parsedValue });
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -409,12 +432,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       const ingredient = currentArray[index];
       if (typeof ingredient === 'object') {
         if (subfield === 'cost') {
-          // Allow empty string for user to clear field, otherwise parse as float
           if (value === '' || value === '-') {
-            currentArray[index] = { ...ingredient, cost: 0 };
+            currentArray[index] = { ...ingredient, cost: '' };
           } else {
             const costValue = parseFloat(value);
-            // Only update if it's a valid number
             if (!isNaN(costValue) && costValue >= 0) {
               currentArray[index] = { ...ingredient, cost: costValue };
             }
@@ -432,7 +453,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           currentArray[index] = { ...ingredient, [subfield || 'name']: value };
         }
       } else {
-        currentArray[index] = { name: value, amount: '', unit: '', cost: 0 };
+        currentArray[index] = { name: value, amount: '', unit: '', cost: '' };
       }
     } else if (field === 'steps') {
       const step = currentArray[index];
@@ -453,7 +474,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
 
-    const newItem = field === 'ingredients' ? { name: '', amount: '', unit: '', cost: 0 } : { text: '' };
+    const newItem = field === 'ingredients' ? { name: '', amount: '', unit: '', cost: '' } : { text: '' };
     setFormData({
       ...formData,
       [field]: [...currentArray, newItem],
@@ -555,7 +576,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     const ingredientCostTotal = getIngredientCostTotal(formData);
     const totalCost = ingredientCostTotal > 0 ? ingredientCostTotal : (formData.estimatedCost || 0);
 
-    const cleanedIngredients = (formData.ingredients as (string | Ingredient)[])
+    const cleanedIngredients = (formData.ingredients as (string | FormIngredient)[])
       .map((ingredient) => {
         if (typeof ingredient === 'string') {
           const name = ingredient.trim();
@@ -570,7 +591,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           name,
           amount: ingredient?.amount || '',
           unit: ingredient?.unit || '',
-          cost: ingredient?.cost || 0,
+          cost: ingredient?.cost === '' || ingredient?.cost === undefined ? 0 : ingredient.cost,
         };
       })
       .filter((ingredient) => ingredient !== null) as Ingredient[];
@@ -603,6 +624,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       name: (formData.name || formData.title || '').trim(),
       ingredients: cleanedIngredients,
       steps: cleanedSteps,
+      servings: formData.servings === '' ? 0 : formData.servings,
+      prepTime: formData.prepTime === '' ? 0 : formData.prepTime,
+      cookTime: formData.cookTime === '' ? 0 : formData.cookTime,
       estimatedCost: totalCost,
     };
     const defaultImage = !baseRecipeData.heroImage && !baseRecipeData.image
@@ -665,23 +689,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     setShowModal(false);
     setCustomTags([]);
     setCustomTagInput('');
-    setFormData({
-      id: '',
-      title: '',
-      name: '',
-      description: '',
-      ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
-      steps: [{ text: '' }],
-      instructions: [''],
-      categories: [],
-      difficulty: 'Medium',
-      servings: 4,
-      prepTime: 15,
-      cookTime: 30,
-      estimatedCost: 0,
-      heroImage: '',
-      image: '',
-    });
+    setFormData(createEmptyFormData());
     setImagePreview('');
   };
 
@@ -1185,7 +1193,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                     const ingredientName = typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
                     const ingredientAmount = typeof ingredient === 'object' ? ingredient?.amount || '' : '';
                     const ingredientUnit = typeof ingredient === 'object' ? ingredient?.unit || '' : '';
-                    const ingredientCost = typeof ingredient === 'object' ? ingredient?.cost || 0 : 0;
+                    const ingredientCost = typeof ingredient === 'object' ? ingredient?.cost ?? '' : '';
                     return (
                       <div key={index} className="ingredient-row">
                         <div className="ingredient-name-col">
@@ -1221,8 +1229,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                           />
                         </div>
                         <div className="ingredient-unit-col">
-                          <input
-                            type="text"
+                          <select
                             value={ingredientUnit}
                             onChange={(e) =>
                               handleArrayFieldChange(
@@ -1233,14 +1240,13 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                               )
                             }
                             className="form-input"
-                            placeholder="Unit"
-                            list={`unit-options-${index}`}
-                          />
-                          <datalist id={`unit-options-${index}`}>
+                            aria-label={`Ingredient ${index + 1} unit`}
+                          >
+                            <option value="">Unit</option>
                             {unitOptions.map((unit) => (
-                              <option key={unit} value={unit} />
+                              <option key={unit} value={unit}>{unit}</option>
                             ))}
-                          </datalist>
+                          </select>
                         </div>
                         <div className="ingredient-cost-col">
                           <input
