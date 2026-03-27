@@ -173,10 +173,12 @@ const Unique: React.FC = () => {
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
         {aurora}
         <div className="intro-overlay" onClick={() => setPhase('picker')}>
-          <p className="intro-text">
-            Can't decide what to eat? Play our new game to discover what you've been craving!
-          </p>
-          <span className="intro-hint">click anywhere to continue</span>
+          <div className="intro-card">
+            <p className="intro-text">
+              Can't decide what to eat? Play our new game to discover what you've been craving!
+            </p>
+            <span className="intro-hint">click anywhere to continue</span>
+          </div>
         </div>
       </div>
     )
@@ -187,12 +189,14 @@ const Unique: React.FC = () => {
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
         {aurora}
         <div className="picker-wrapper">
-          <p className="picker-dialogue">
-            Before, let's define the ingredients you have in your hands
-          </p>
-          <p className="picker-tip">
-            psssst.... the less ingredients you pick, the more options you will have!
-          </p>
+          <div className="picker-card">
+            <p className="picker-dialogue">
+              Before, let's define the ingredients you have in your hands
+            </p>
+            <p className="picker-tip">
+              psssst.... the less ingredients you pick, the more options you will have!
+            </p>
+          </div>
 
           <div className="filter-toggle">
             <button
@@ -248,7 +252,7 @@ const Unique: React.FC = () => {
             <strong>{selectedIngredients.join(', ')}</strong> together.
           </p>
           <div className="no-results-actions">
-            <a href="#home" className="no-results-generate-btn">
+            <a href="#aichat" className="no-results-generate-btn">
               Generate one from scratch with AI →
             </a>
             <button className="no-results-back-btn" onClick={() => setPhase('picker')}>
