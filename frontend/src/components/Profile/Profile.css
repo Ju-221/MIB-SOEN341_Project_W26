@@ -317,7 +317,7 @@
   color: #2ecc71;
   transition: all 0.2s ease;
   padding: 4px 10px;
-  z-index: 2001;
+  z-index: 200;
   border-radius: 50%;
   width: 40px;
   height: 40px;

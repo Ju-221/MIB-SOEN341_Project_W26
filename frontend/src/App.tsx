@@ -4,6 +4,10 @@ import { SignIn, SignUp } from './components/Auth'
 import Profile from './components/Profile/Profile'
 import Homepage from './components/Homepage/Homepage'
 import Navbar from './components/Navbar/Navbar'
+import Unique from './components/Unique/Unique'
+import AIChat from './components/AIChat/AIChat'
+import LoadingScreen from './components/LoadingScreen/LoadingScreen'
+import Calendar from './components/Calendar/Calendar'
 import './App.css'
 
 function App() {
@@ -12,6 +16,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null
   })
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [userEmail, setUserEmail] = useState<string | null>(() => {
     const token = localStorage.getItem('token')
@@ -24,10 +30,15 @@ function App() {
     }
   })
 
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false)
+  }, [])
+
   const handleAuthSuccess = useCallback(() => {
     const token = localStorage.getItem('token')
     if (token) {
       setIsLoggedIn(true)
+      setIsLoading(true)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
         setUserEmail(payload.email || localStorage.getItem('userEmail'))
@@ -41,6 +52,7 @@ function App() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('rememberMe')
+    sessionStorage.removeItem('aichat_messages')
     setIsLoggedIn(false)
     setUserEmail(null)
     window.location.hash = '#signin'
@@ -52,22 +64,41 @@ function App() {
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    if (!isLoggedIn && currentPage !== 'signin' && currentPage !== 'signup') {
+    const requiresAuth = currentPage === 'profile' || currentPage === 'unique'
+    if (!isLoggedIn && requiresAuth) {
       window.location.hash = '#signin'
     }
   }, [isLoggedIn, currentPage])
 
+  useEffect(() => {
+  // On initial load, if user is logged in and there's no hash, go to home
+  if (isLoggedIn && !window.location.hash) {
+    window.location.hash = '#home'
+  }
+}, [isLoggedIn])
+
   const renderPage = () => {
     switch (currentPage) {
+      case 'calendar':
+        return <Calendar />
       case 'profile':
         return <Profile />
       case 'signin':
         return <SignIn onSuccess={handleAuthSuccess} />
+      case 'unique':
+        return <Unique />
+      case 'aichat':
+        return <AIChat />
       case 'signup':
         return <SignUp onSuccess={handleAuthSuccess} />
+    
       default:
         return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />
     }
+  }
+
+  if (isLoading) {
+    return <LoadingScreen onReady={handleLoadingComplete} />
   }
 
   return (
