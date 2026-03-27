@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 
@@ -40,6 +40,27 @@ interface RecipeManagerProps {
   onRecipeSaved?: (recipe: Recipe) => void;
 }
 
+const tagCategories = {
+  allergies: {
+    label: 'Allergies & Intolerances',
+    tags: ['peanuts', 'tree-nuts', 'eggs', 'milk', 'fish', 'crustaceans', 'soy', 'wheat', 'sesame', 'mustard', 'lactose', 'gluten']
+  },
+  difficulty: {
+    label: 'Difficulty Level',
+    tags: ['easy', 'medium', 'hard']
+  },
+  diet: {
+    label: 'Diet Preferences',
+    tags: ['vegetarian', 'vegan', 'keto', 'low-carb', 'high-protein', 'pescetarian', 'halal', 'kosher']
+  },
+  goals: {
+    label: 'Goals & Attributes',
+    tags: ['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free']
+  }
+};
+
+const predefinedTags = Object.values(tagCategories).flatMap((category) => category.tags);
+
 const RecipeManager: React.FC<RecipeManagerProps> = ({
   initialEditRecipeId = null,
   onRecipeSaved,
@@ -63,29 +84,6 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     'slice',
     'can',
   ];
-
-
-
-  // Available tags organized by category
-  const tagCategories = {
-    allergies: {
-      label: 'Allergies & Intolerances',
-      tags: ['peanuts', 'tree-nuts', 'eggs', 'milk', 'fish', 'crustaceans', 'soy', 'wheat', 'sesame', 'mustard', 'lactose', 'gluten']
-    },
-    difficulty: {
-      label: 'Difficulty Level',
-      tags: ['easy', 'medium', 'hard']
-    },
-    diet: {
-      label: 'Diet Preferences',
-      tags: ['vegetarian', 'vegan', 'keto', 'low-carb', 'high-protein', 'pescetarian', 'halal', 'kosher']
-    },
-    goals: {
-      label: 'Goals & Attributes',
-      tags: ['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free']
-    }
-  };
-
   const userProfileTags = ['quick', 'easy', 'healthy', 'vegetarian'];
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState<string>('');
@@ -105,18 +103,6 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
     loadRecipes();
   }, []);
-
-  useEffect(() => {
-    if (hasHandledInitialEdit.current || initialEditRecipeId === null) return;
-    if (recipes.length === 0) return;
-
-    const matchedRecipe = recipes.find((recipe) => recipe.id.toString() === initialEditRecipeId.toString());
-    hasHandledInitialEdit.current = true;
-
-    if (matchedRecipe) {
-      handleEditRecipe(matchedRecipe);
-    }
-  }, [initialEditRecipeId, recipes]);
 
   const [showModal, setShowModal] = useState(false);
   const [showRecipeDetail, setShowRecipeDetail] = useState(false);
@@ -324,17 +310,27 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     setShowModal(true);
   };
 
-  const handleEditRecipe = (recipe: Recipe) => {
+  const handleEditRecipe = useCallback((recipe: Recipe) => {
     setSaveError('');
     setFormData(recipe);
-    // Extract custom tags that aren't in the predefined categories
-    const allPredefinedTags = Object.values(tagCategories).flatMap(cat => cat.tags);
-    const customRecipeTags = recipe.categories.filter(tag => !allPredefinedTags.includes(tag));
+    const customRecipeTags = recipe.categories.filter(tag => !predefinedTags.includes(tag));
     setCustomTags(customRecipeTags);
     setImagePreview(recipe.heroImage || recipe.image || '');
     setIsEditing(true);
     setShowModal(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (hasHandledInitialEdit.current || initialEditRecipeId === null) return;
+    if (recipes.length === 0) return;
+
+    const matchedRecipe = recipes.find((recipe) => recipe.id.toString() === initialEditRecipeId.toString());
+    hasHandledInitialEdit.current = true;
+
+    if (matchedRecipe) {
+      handleEditRecipe(matchedRecipe);
+    }
+  }, [handleEditRecipe, initialEditRecipeId, recipes]);
 
   const handleViewRecipeDetail = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -601,8 +597,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       return;
     }
 
-    // Use default image if no image is provided
-    let recipeData: Recipe = {
+    const baseRecipeData: Recipe = {
       ...formData,
       title: (formData.title || formData.name || '').trim(),
       name: (formData.name || formData.title || '').trim(),
@@ -610,13 +605,17 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       steps: cleanedSteps,
       estimatedCost: totalCost,
     };
-    if (!recipeData.heroImage && !recipeData.image) {
-      console.log('No image provided, loading default image...');
-      const defaultImage = await getDefaultImage();
-      console.log('Default image loaded:', defaultImage.substring(0, 50) + '...');
-      recipeData.heroImage = defaultImage;
-      recipeData.image = defaultImage;
-      setImagePreview(defaultImage); // Update preview so user sees it
+    const defaultImage = !baseRecipeData.heroImage && !baseRecipeData.image
+      ? await getDefaultImage()
+      : null;
+    const recipeData: Recipe = {
+      ...baseRecipeData,
+      heroImage: baseRecipeData.heroImage || defaultImage || undefined,
+      image: baseRecipeData.image || defaultImage || undefined,
+    };
+
+    if (defaultImage) {
+      setImagePreview(defaultImage);
     }
 
     if (isEditing) {

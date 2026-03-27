@@ -59,7 +59,7 @@ const Card: React.FC<Recipe> = (recipe) => {
       setStepLimit(Math.max(1, Math.floor(steps.length * ratio)))
       setHasEllipsis(true)
     }
-  })
+  }, [ingredients.length, steps.length])
 
   const ingredientNames = ingredients.map(ing =>
     typeof ing === 'string' ? ing : ing.name
