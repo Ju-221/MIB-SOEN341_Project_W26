@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
+import RecipePopup from '../RecipePopup/RecipePopup';
 
 export interface Ingredient {
   name: string;
@@ -141,6 +142,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [saveError, setSaveError] = useState('');
@@ -1021,12 +1023,30 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               </div>
             )}
 
-            {/* Get Started Button (Does not lead to anything for now) */}
             <div className="recipe-detail-actions">
-              <button className="btn btn-get-started">Get Started →</button>
+              <button className="btn btn-get-started" onClick={() => setShowPopup(true)}>View Details →</button>
             </div>
           </div>
         </div>
+      )}
+
+      {showPopup && selectedRecipe && (
+        <RecipePopup
+          recipe={{
+            id: typeof selectedRecipe.id === 'string' ? parseInt(selectedRecipe.id, 10) : selectedRecipe.id as number,
+            title: selectedRecipe.title || selectedRecipe.name || '',
+            description: selectedRecipe.description,
+            prepTime: selectedRecipe.prepTime as number,
+            cookTime: selectedRecipe.cookTime as number,
+            difficulty: (selectedRecipe.difficulty as 'Easy' | 'Medium' | 'Hard') || 'Easy',
+            estimatedCost: selectedRecipe.estimatedCost as number,
+            heroImage: selectedRecipe.heroImage || selectedRecipe.image || null,
+            categories: selectedRecipe.categories,
+            ingredients: selectedRecipe.ingredients,
+            steps: selectedRecipe.steps.map(s => typeof s === 'string' ? s : s.text),
+          }}
+          onClose={() => setShowPopup(false)}
+        />
       )}
 
       {/* Recipe Modal */}

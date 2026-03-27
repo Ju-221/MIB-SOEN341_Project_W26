@@ -59,8 +59,8 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
         <div className="popup-hero">
           <img
             src={recipe.heroImage
-              ? `http://localhost:3000/uploads/${recipe.heroImage}`
-              : 'http://localhost:3000/uploads/1.jpeg'}
+              ? (recipe.heroImage.startsWith('data:') ? recipe.heroImage : `http://localhost:3000/uploads/${recipe.heroImage}`)
+              : 'http://localhost:3000/uploads/temp-1774310819405.jpeg'}
             alt={recipe.title}
           />
           <div className="popup-hero-overlay" />
