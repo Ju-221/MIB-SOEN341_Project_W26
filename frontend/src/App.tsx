@@ -6,6 +6,8 @@ import Homepage from './components/Homepage/Homepage'
 import Navbar from './components/Navbar/Navbar'
 import Unique from './components/Unique/Unique'
 import AIChat from './components/AIChat/AIChat'
+import LoadingScreen from './components/LoadingScreen/LoadingScreen'
+import Calendar from './components/Calendar/Calendar'
 import './App.css'
 
 function App() {
@@ -14,6 +16,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null
   })
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [userEmail, setUserEmail] = useState<string | null>(() => {
     const token = localStorage.getItem('token')
@@ -26,10 +30,15 @@ function App() {
     }
   })
 
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false)
+  }, [])
+
   const handleAuthSuccess = useCallback(() => {
     const token = localStorage.getItem('token')
     if (token) {
       setIsLoggedIn(true)
+      setIsLoading(true)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
         setUserEmail(payload.email || localStorage.getItem('userEmail'))
@@ -69,6 +78,8 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'calendar':
+        return <Calendar />
       case 'profile':
         return <Profile />
       case 'signin':
@@ -83,6 +94,10 @@ function App() {
       default:
         return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />
     }
+  }
+
+  if (isLoading) {
+    return <LoadingScreen onReady={handleLoadingComplete} />
   }
 
   return (
