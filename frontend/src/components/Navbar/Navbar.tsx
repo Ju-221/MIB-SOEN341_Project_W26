@@ -20,6 +20,7 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
           >
             Home
           </a>
+       
           {isLoggedIn && (
             <a
               href="#calendar"
@@ -36,6 +37,20 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
               Profile
             </a>
           )}
+           {isLoggedIn && (
+            <a
+              href="#unique"
+              className={`app-nav-link ${currentPage === 'unique' ? 'active' : ''}`}
+            >
+              Unique
+            </a>
+          )}
+          <a
+            href="#aichat"
+            className={`app-nav-link ${currentPage === 'aichat' ? 'active' : ''}`}
+          >
+            Recipe Generation
+          </a>
         </div>
         <div className="app-nav-actions">
           {isLoggedIn ? (

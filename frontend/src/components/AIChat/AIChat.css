@@ -1,0 +1,143 @@
+/* ── Title ───────────────────────────────────────────────── */
+.aichat-title {
+  margin: 0;
+  padding: 1.6rem 0 0.4rem;
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  animation: fadeInDown 0.8s ease both;
+}
+
+@keyframes fadeInDown {
+  0%   { opacity: 0; transform: translateY(-16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Messages ────────────────────────────────────────────── */
+.aichat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 10vw 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: none;
+}
+
+.aichat-messages::-webkit-scrollbar { display: none; }
+
+.aichat-bubble-row { display: flex; }
+.aichat-bubble-row--user  { justify-content: flex-end; }
+.aichat-bubble-row--model { justify-content: flex-start; }
+
+.aichat-bubble {
+  max-width: 62%;
+  padding: 0.8rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: bubbleIn 0.25s ease both;
+}
+
+@keyframes bubbleIn {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.aichat-bubble--user {
+  background: rgba(255, 255, 255, 0.88);
+  color: #3b1fa0;
+  border-bottom-right-radius: 5px;
+  font-weight: 500;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+}
+
+.aichat-bubble--model {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-bottom-left-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Typing indicator ────────────────────────────────────── */
+.aichat-bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.9rem 1.1rem;
+}
+
+.aichat-bubble--typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.aichat-bubble--typing span:nth-child(2) { animation-delay: 0.2s; }
+.aichat-bubble--typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30%           { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ── Floating input bar ──────────────────────────────────── */
+.aichat-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 0.9rem 10vw 1.4rem;
+  flex-shrink: 0;
+}
+
+.aichat-input {
+  flex: 1;
+  resize: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 0.92rem;
+  padding: 0.75rem 1.3rem;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+}
+
+.aichat-input::placeholder { color: rgba(255, 255, 255, 0.38); }
+.aichat-input:focus {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.aichat-send-btn {
+  padding: 0.72rem 1.5rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5227FF;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.aichat-send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+.aichat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
