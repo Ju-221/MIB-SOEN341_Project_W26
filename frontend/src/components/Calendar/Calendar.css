@@ -398,13 +398,48 @@
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 13px;
-  gap: 10px;
+  gap: 8px;
   align-items: flex-start;
+  flex-direction: column;
+}
+
+.cal-meal-slot.week .cal-meal-content {
+  width: 100%;
+  gap: 8px;
 }
 
 .cal-meal-slot.week .cal-meal-title {
   font-size: 14px;
   white-space: normal;
+}
+
+.cal-meal-slot.week .cal-meal-detail {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+
+.cal-meal-slot.week .cal-meal-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cal-meal-slot.week .cal-meal-metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.65;
+  text-transform: uppercase;
+}
+
+.cal-meal-slot.week .cal-meal-metric-value {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 /* ── Recipe Manager Modal (from calendar) ── */
@@ -554,7 +589,7 @@
 
 .cal-choices-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
   margin-bottom: 20px;
@@ -758,6 +793,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin: 0 24px 10px;
   padding: 10px 14px;
   background: #f0fdf4;
@@ -766,16 +802,34 @@
   color: #374151;
 }
 
+.cal-picker-current-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cal-picker-edit,
 .cal-picker-remove {
   font-size: 13px;
   font-weight: 600;
-  color: #ef4444;
   background: none;
   border: none;
   cursor: pointer;
   padding: 4px 10px;
   border-radius: 6px;
   transition: background 0.15s;
+}
+
+.cal-picker-edit {
+  color: #2563eb;
+}
+
+.cal-picker-remove {
+  color: #ef4444;
+}
+
+.cal-picker-edit:hover {
+  background: #eff6ff;
 }
 
 .cal-picker-remove:hover {

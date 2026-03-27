@@ -7,7 +7,7 @@ export interface CreateRecipeBody {
   cookTime: number;
   estimatedCost: number;
   difficulty: Difficulty;
-  ingredients: Array<{name: string; amount: number, unit:string}>;
+  ingredients: Array<{name: string; amount: number, unit:string, cost?: number}>;
   steps: string | unknown[];
   categories: string | unknown[];
   dietaryPreferences?: string | unknown[];
@@ -21,7 +21,7 @@ export interface UpdateRecipeBody {
   cookTime?: number;
   estimatedCost?: number;
   difficulty?: Difficulty;
-  ingredients?: Array<{name: string; amount: number, unit:string}>;
+  ingredients?: Array<{name: string; amount: number, unit:string, cost?: number}>;
   steps?: string | unknown[];
   categories?: string | unknown[];
   dietaryPreferences?: string | unknown[];

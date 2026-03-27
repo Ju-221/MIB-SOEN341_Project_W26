@@ -7,6 +7,8 @@ import {allergies, dietaryPreferences, recipes} from '../db/schema.js';
 import {Request,Response} from 'express'
 import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
 
+type RecipeIngredient = {name: string; amount: number | string; unit: string; cost?: number};
+
 // muter: temp-storeage, renamed after insert
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, './uploads/'),
@@ -53,10 +55,16 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res:Respons
     try {
         const {title, description, prepTime, cookTime, estimatedCost,difficulty  ,ingredients, steps, categories, allergies, dietaryPreferences} = req.body;
         const createdBy = req.user!.id;
-        /*if (!validateIngredients(ingredients)){
+        const parsedIngredients = parseJsonArrayField<RecipeIngredient>(ingredients);
+        const parsedSteps = parseJsonArrayField(steps);
+        const parsedCategories = parseJsonArrayField<string>(categories);
+        const parsedDietaryPreferences = parseJsonArrayField<string>(dietaryPreferences);
+        const parsedAllergies = parseJsonArrayField<string>(allergies);
+
+        if (!validateIngredients(parsedIngredients)){
             return res.status(400).json({message: "invalid ingredients"})
         }
-            */
+            
 
         const result = db.insert(recipes).values({
             title, description, createdBy,
@@ -65,11 +73,11 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res:Respons
             estimatedCost: Number(estimatedCost),
             heroImage: null,
             difficulty: difficulty,
-            ingredients: typeof ingredients === 'string' ? ingredients : JSON.stringify(ingredients),
-            steps: typeof steps === 'string' ? steps: JSON.stringify(steps),
-            categories: typeof categories === 'string' ? categories : JSON.stringify(categories),
-            dietaryPreferences: typeof dietaryPreferences === 'string' ? dietaryPreferences : JSON.stringify(dietaryPreferences),
-            allergies: typeof allergies === 'string' ? allergies: JSON.stringify(allergies)
+            ingredients: JSON.stringify(parsedIngredients),
+            steps: JSON.stringify(parsedSteps),
+            categories: JSON.stringify(parsedCategories),
+            dietaryPreferences: JSON.stringify(parsedDietaryPreferences),
+            allergies: JSON.stringify(parsedAllergies)
         }).returning().get();
     
 
@@ -104,6 +112,16 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
         const { title, description, prepTime, cookTime, estimatedCost,difficulty ,ingredients, steps, categories, dietaryPreferences, allergies} = req.body;
         const createdBy = req.user!.id;
         if (existing.createdBy !== createdBy) return res.status(403).json({message: 'Unauthorized'});
+
+        const parsedIngredients = ingredients !== undefined ? parseJsonArrayField<RecipeIngredient>(ingredients) : undefined;
+        const parsedSteps = steps !== undefined ? parseJsonArrayField(steps) : undefined;
+        const parsedCategories = categories !== undefined ? parseJsonArrayField<string>(categories) : undefined;
+        const parsedDietaryPreferences = dietaryPreferences !== undefined ? parseJsonArrayField<string>(dietaryPreferences) : undefined;
+        const parsedAllergies = allergies !== undefined ? parseJsonArrayField<string>(allergies) : undefined;
+
+        if (parsedIngredients !== undefined && !validateIngredients(parsedIngredients)) {
+            return res.status(400).json({message: 'invalid ingredients'});
+        }
         
 
         let heroImage = existing.heroImage;
@@ -127,11 +145,11 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
       ...(prepTime !== undefined && { prepTime: Number(prepTime) }),
       ...(cookTime !== undefined && { cookTime: Number(cookTime) }),
       ...(estimatedCost !== undefined && { estimatedCost: Number(estimatedCost) }),
-      ...(ingredients !== undefined && { ingredients: typeof ingredients === 'string' ? ingredients : JSON.stringify(ingredients) }),
-      ...(steps !== undefined && { steps: typeof steps === 'string' ? steps : JSON.stringify(steps) }),
-      ...(categories !== undefined && { categories: typeof categories === 'string' ? categories : JSON.stringify(categories) }),
-      ...(dietaryPreferences !== undefined && {dietaryPreferences: typeof dietaryPreferences === 'string' ? dietaryPreferences : JSON.stringify(dietaryPreferences)}),
-      ...(allergies !== undefined && {allergies: typeof allergies === 'string' ? allergies : JSON.stringify(allergies)}),
+      ...(parsedIngredients !== undefined && { ingredients: JSON.stringify(parsedIngredients) }),
+      ...(parsedSteps !== undefined && { steps: JSON.stringify(parsedSteps) }),
+      ...(parsedCategories !== undefined && { categories: JSON.stringify(parsedCategories) }),
+      ...(parsedDietaryPreferences !== undefined && {dietaryPreferences: JSON.stringify(parsedDietaryPreferences)}),
+      ...(parsedAllergies !== undefined && {allergies: JSON.stringify(parsedAllergies)}),
       ...(difficulty !== undefined && { difficulty }),
       heroImage,
     };
@@ -183,9 +201,19 @@ const parseRecipe = (r : typeof recipes.$inferSelect) => {
     };
 }
 
+const parseJsonArrayField = <T>(value: unknown): T[] => {
+    if (value === undefined || value === null || value === '') return [];
+    if (Array.isArray(value)) return value as T[];
+    if (typeof value === 'string') {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed as T[] : [];
+    }
+    return [];
+}
+
 // helper to check that ingredents are valid 
-const validateIngredients = (ing: Array<{name: string, amount: number , unit: string}>) => {
-    return ing.every(i => ingredients.has(i.name))
+const validateIngredients = (ing: RecipeIngredient[]) => {
+    return ing.every(i => ingredients.has(i.name.trim().toLowerCase()))
 
 }
 
