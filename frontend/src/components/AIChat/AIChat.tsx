@@ -174,7 +174,10 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
     <div className="aichat-card-row">
       <div className="aichat-card-wrapper">
         <div className="aichat-card-container">
-          <Card {...recipe} />
+          <Card
+            {...recipe}
+            ingredients={recipe.ingredients.map(ing => ({ name: ing.name, amount: String(ing.amount), unit: ing.unit }))}
+          />
         </div>
 
         <div className="aichat-card-actions">
