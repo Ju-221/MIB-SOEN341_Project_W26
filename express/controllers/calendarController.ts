@@ -17,23 +17,23 @@ export const getCalendar = async (req: Request, res: Response) => {
     const existing = db
       .select()
       .from(calendar)
-      .where(
-        and(
-          eq(calendar.userId, userId),
-          eq(calendar.month, String(month)),
-          eq(calendar.year, Number(year))
-        )
-      )
+      .where(eq(calendar.userId, userId))
       .get();
 
     if (!existing) {
+      res.status(404).json({ message: 'No calendar found' });
+      return;
+    }
+
+    // If the saved calendar is for a different month/year, treat it as not found
+    if (existing.month !== String(month) || existing.year !== Number(year)) {
       res.status(404).json({ message: 'No calendar found for that month/year' });
       return;
     }
 
     res.json({
       ...existing,
-      days: JSON.parse(existing.days), // send days as a parsed array, not a raw string
+      days: JSON.parse(existing.days),
     });
   } catch (error) {
     console.error(error);
@@ -58,29 +58,17 @@ export const setCalendar = async (req: Request, res: Response) => {
     const existing = db
       .select()
       .from(calendar)
-      .where(
-        and(
-          eq(calendar.userId, userId),
-          eq(calendar.month, String(month)),
-          eq(calendar.year, Number(year))
-        )
-      )
+      .where(eq(calendar.userId, userId))
       .get();
 
     if (existing) {
-      // Replace the old calendar entirely
+      // Replace the existing calendar (one row per user — update month/year too)
       db.update(calendar)
-        .set({ days: daysJson, lastModified: now })
-        .where(
-          and(
-            eq(calendar.userId, userId),
-            eq(calendar.month, String(month)),
-            eq(calendar.year, Number(year))
-          )
-        )
+        .set({ month: String(month), year: Number(year), days: daysJson, lastModified: now })
+        .where(eq(calendar.userId, userId))
         .run();
     } else {
-      // Create a new calendar entry
+      // First save — create the single calendar entry for this user
       db.insert(calendar)
         .values({ userId, month: String(month), year: Number(year), days: daysJson, lastModified: now })
         .run();

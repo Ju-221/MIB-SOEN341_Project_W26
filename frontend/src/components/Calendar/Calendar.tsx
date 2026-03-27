@@ -45,10 +45,11 @@ function Calendar() {
   const [showRecipeManager, setShowRecipeManager] = useState(false)
   const [recipeManagerInitialEditId, setRecipeManagerInitialEditId] = useState<number | null>(null)
 
-  const year = currentDate.getFullYear()
-  const month = currentDate.getMonth()
+  // Always locked to the real current month — never changes
+  const today = useMemo(() => new Date(), [])
+  const year = useMemo(() => today.getFullYear(), [today])
+  const month = useMemo(() => today.getMonth(), [today])
   const monthName = MONTH_NAMES[month]
-  const today = new Date()
 
   const fetchCalendar = useCallback(async () => {
     setLoading(true)
@@ -146,23 +147,15 @@ function Calendar() {
 
   // Navigation
   const navigate = (direction: number) => {
+    if (viewMode !== 'week') return
     setAnimating(true)
     setTimeout(() => {
-      if (viewMode === 'month') {
-        setCurrentDate(new Date(year, month + direction, 1))
-      } else {
-        const d = new Date(currentDate)
-        d.setDate(d.getDate() + direction * 7)
+      const d = new Date(currentDate)
+      d.setDate(d.getDate() + direction * 7)
+      // Clamp: don't leave the current month
+      if (d.getMonth() === month && d.getFullYear() === year) {
         setCurrentDate(d)
       }
-      setAnimating(false)
-    }, 150)
-  }
-
-  const goToToday = () => {
-    setAnimating(true)
-    setTimeout(() => {
-      setCurrentDate(new Date())
       setAnimating(false)
     }, 150)
   }
@@ -414,21 +407,25 @@ function Calendar() {
       {/* Header */}
       <div className="cal-header">
         <div className="cal-header-left">
-          <button className="cal-nav-arrow" onClick={() => navigate(-1)} aria-label="Previous">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          <button className="cal-nav-arrow" onClick={() => navigate(1)} aria-label="Next">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+          {/* Week navigation only — month view is locked to current month */}
+          {viewMode === 'week' && (
+            <>
+              <button className="cal-nav-arrow" onClick={() => navigate(-1)} aria-label="Previous week">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button className="cal-nav-arrow" onClick={() => navigate(1)} aria-label="Next week">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </>
+          )}
           <h1 className="cal-title">{monthName} {year}</h1>
           {viewMode === 'week' && <span className="cal-week-range">{weekRange}</span>}
         </div>
         <div className="cal-header-right">
-          <button className="cal-today-btn" onClick={goToToday}>Today</button>
           <div className="cal-view-toggle">
             <button
               className={`cal-view-btn ${viewMode === 'week' ? 'active' : ''}`}

@@ -64,6 +64,7 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res:Respons
         if (!validateIngredients(parsedIngredients)){
             return res.status(400).json({message: "invalid ingredients"})
         }
+            
 
         const result = db.insert(recipes).values({
             title, description, createdBy,
