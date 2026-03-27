@@ -911,7 +911,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             >
               <div className="recipe-image-container">
                 <img
-                  src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
+                  src={recipe.heroImage || recipe.image || 'http://localhost:3000/uploads/1.jpeg'}
                   alt={" "}
                   className="recipe-image"
                 />
@@ -974,7 +974,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             {/* Recipe Hero Image */}
             <div className="recipe-detail-hero">
               <img
-                src={selectedRecipe.heroImage || selectedRecipe.image || 'https://via.placeholder.com/500x300?text=Recipe'}
+                src={selectedRecipe.heroImage || selectedRecipe.image || 'http://localhost:3000/uploads/1.jpeg'}
                 alt={selectedRecipe.title || selectedRecipe.name}
                 className="recipe-detail-image"
               />
@@ -1021,9 +1021,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               </div>
             )}
 
-            {/* Get Started Button (Does not lead to anything for now) */}
+            {/* Get Started Button */}
             <div className="recipe-detail-actions">
-              <button className="btn btn-get-started">Get Started →</button>
+              <button className="btn btn-get-started" onClick={() => { window.location.hash = '#calendar' }}>Get Started →</button>
             </div>
           </div>
         </div>
