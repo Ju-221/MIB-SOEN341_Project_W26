@@ -913,7 +913,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             >
               <div className="recipe-image-container">
                 <img
-                  src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
+                  src={recipe.heroImage || recipe.image || 'http://localhost:3000/uploads/1.jpeg'}
                   alt={" "}
                   className="recipe-image"
                 />
@@ -976,7 +976,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             {/* Recipe Hero Image */}
             <div className="recipe-detail-hero">
               <img
-                src={selectedRecipe.heroImage || selectedRecipe.image || 'https://via.placeholder.com/500x300?text=Recipe'}
+                src={selectedRecipe.heroImage || selectedRecipe.image || 'http://localhost:3000/uploads/1.jpeg'}
                 alt={selectedRecipe.title || selectedRecipe.name}
                 className="recipe-detail-image"
               />

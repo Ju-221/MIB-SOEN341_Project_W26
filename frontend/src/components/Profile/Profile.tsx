@@ -290,6 +290,15 @@ function Profile() {
                   </button>
                 );
               })}
+              {/* Greyed-out, unclickable toggle for 'Include snack' */}
+              <button
+                type="button"
+                className="profile-chip profile-chip-disabled"
+                disabled
+                style={{ cursor: "not-allowed", opacity: 0.5 }}
+              >
+                Include snack
+              </button>
               {customDiets.map((option) => {
                 const selected = selectedDiets.includes(option);
                 return (
