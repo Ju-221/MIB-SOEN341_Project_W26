@@ -34,6 +34,8 @@ const getUserIdFromToken = (): number | null => {
   }
 }
 
+const AURORA_COLORS = ['#7cff67', '#B19EEF', '#5227FF']
+
 const Unique: React.FC = () => {
   const [phase, setPhase] = useState<Phase>('intro')
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
@@ -153,7 +155,7 @@ const Unique: React.FC = () => {
 
   const aurora = (
     <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-      <Aurora colorStops={['#7cff67', '#B19EEF', '#5227FF']} blend={0.5} amplitude={1.5} speed={0.5} />
+      <Aurora colorStops={AURORA_COLORS} blend={0.5} amplitude={1.5} speed={0.5} />
     </div>
   )
 

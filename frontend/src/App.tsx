@@ -52,6 +52,7 @@ function App() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('rememberMe')
+    sessionStorage.removeItem('aichat_messages')
     setIsLoggedIn(false)
     setUserEmail(null)
     window.location.hash = '#signin'
