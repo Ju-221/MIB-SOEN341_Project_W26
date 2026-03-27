@@ -246,7 +246,7 @@ const Unique: React.FC = () => {
             <strong>{selectedIngredients.join(', ')}</strong> together.
           </p>
           <div className="no-results-actions">
-            <a href="#home" className="no-results-generate-btn">
+            <a href="#aichat" className="no-results-generate-btn">
               Generate one from scratch with AI →
             </a>
             <button className="no-results-back-btn" onClick={() => setPhase('picker')}>
