@@ -414,3 +414,78 @@
   .recipe-content      { padding: 12px 14px 10px; }
   .recipe-back-content { padding: 16px 14px 12px; }
 }
+
+@media (prefers-color-scheme: dark) {
+  .recipe-flip-card {
+    box-shadow: 0 0 40px rgba(103, 76, 240, 0.26), 0 18px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  .recipe-flip-card-front,
+  .recipe-flip-card-back {
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .recipe-flip-card-front {
+    background: linear-gradient(180deg, rgba(21, 18, 39, 0.9) 0%, rgba(14, 12, 31, 0.96) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .recipe-image-overlay {
+    background: linear-gradient(180deg, rgba(9, 6, 24, 0.04) 15%, rgba(9, 6, 24, 0.78) 100%);
+  }
+
+  .recipe-content {
+    background: linear-gradient(180deg, rgba(18, 16, 36, 0.12) 0%, rgba(18, 16, 36, 0.34) 100%);
+  }
+
+  .recipe-title {
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.48);
+  }
+
+  .recipe-meta {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .meta-label {
+    color: rgba(255, 255, 255, 0.64) !important;
+  }
+
+  .meta-text {
+    color: rgba(255, 255, 255, 0.94) !important;
+  }
+
+  .recipe-tag {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .details-btn {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  .details-btn:hover {
+    background: rgba(255, 255, 255, 0.26);
+    border-color: rgba(255, 255, 255, 0.36);
+  }
+
+  .recipe-flip-card-back {
+    background: linear-gradient(160deg, rgba(15, 11, 34, 0.98) 0%, rgba(28, 19, 62, 0.98) 55%, rgba(11, 9, 25, 0.98) 100%);
+  }
+
+  .card-slot {
+    padding: 18px 18px 22px;
+    border-radius: 28px;
+    background: rgba(8, 10, 20, 0.34);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.28);
+  }
+
+  .winner-label {
+    color: rgba(255, 255, 255, 0.96);
+    background: rgba(14, 16, 28, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+  }
+}
