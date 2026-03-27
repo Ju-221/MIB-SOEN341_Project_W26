@@ -41,6 +41,9 @@ function Calendar() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
 
+  // Recipe assignment error (duplicate in week)
+  const [assignmentError, setAssignmentError] = useState('')
+
   const [animating, setAnimating] = useState(false)
   const [showRecipeManager, setShowRecipeManager] = useState(false)
   const [recipeManagerInitialEditId, setRecipeManagerInitialEditId] = useState<number | null>(null)
@@ -165,6 +168,7 @@ function Calendar() {
     setModalView('closed')
     setAiPrompt('')
     setAiError('')
+    setAssignmentError('')
     setAiLoading(false)
   }
 
@@ -206,19 +210,34 @@ function Calendar() {
 
   const handleAssignRecipe = (recipe: Recipe) => {
     if (pickerDay === null || pickerMeal === null) return
+
+    setAssignmentError('')
+
+    const recipeId = typeof recipe.id === 'string' ? parseInt(recipe.id) : recipe.id
+    const currentDay = days.find(d => d.date === pickerDay)
+    if (!currentDay) return
+
+    if (hasDuplicatesInWeek(currentDay, recipeId)) {
+      setAssignmentError('Recipe already assigned in this week. Please pick a different recipe.')
+      return
+    }
+
     const updated = days.map(d => {
-      if (d.date !== pickerDay) return d
+      if (d.date !== pickerDay) {
+        return d
+      }
       return {
         ...d,
         meals: {
           ...d.meals,
           [pickerMeal]: {
-            recipeId: typeof recipe.id === 'string' ? parseInt(recipe.id) : recipe.id,
+            recipeId,
             recipeTitle: recipe.title,
           },
         },
       }
     })
+
     setDays(updated)
     saveCalendar(updated)
     closeModal()
@@ -326,6 +345,33 @@ function Calendar() {
     }
     return cells
   }, [days, year, month, today])
+
+  const dayHasRecipe = (day: CalendarDay, recipeId: number) => {
+    return MEAL_TYPES.some(mealType => {
+      const slot = day.meals[mealType]
+      return slot.recipeId === recipeId
+    })
+  }
+
+  const hasDuplicatesInWeek = (targetDay: CalendarDay, recipeId: number) => {
+    const targetDate = new Date(year, month, targetDay.date)
+    const dayOfWeek = (targetDate.getDay() + 6) % 7 // Monday=0 .. Sunday=6
+
+    const weekStart = new Date(targetDate)
+    weekStart.setDate(targetDate.getDate() - dayOfWeek)
+
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekStart.getDate() + 6)
+
+    return days.some(day => {
+      const candidateDate = new Date(year, month, day.date)
+      if (candidateDate < weekStart || candidateDate > weekEnd) return false
+
+      // If we're checking the target day, exclude the slot we're about to set from the already-present check
+      return dayHasRecipe(day, recipeId)
+    })
+  }
+
 
   const weekGrid: GridCell[] = useMemo(() => {
     const cells: GridCell[] = []
@@ -641,6 +687,10 @@ function Calendar() {
                     </p>
                   </div>
                 </div>
+
+                {assignmentError && (
+                  <div className="cal-picker-error">{assignmentError}</div>
+                )}
 
                 {currentSlot?.recipeId && (
                   <div className="cal-picker-current">
