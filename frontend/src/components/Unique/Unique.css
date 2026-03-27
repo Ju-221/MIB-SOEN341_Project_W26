@@ -116,23 +116,37 @@
 }
 
 .intro-text {
-  color: white;
+  color: #1a1a2e;
   font-size: 2rem;
   font-weight: 600;
   text-align: center;
   max-width: 640px;
-  padding: 0 2rem;
+  padding: 0;
   line-height: 1.65;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  margin-bottom: 0.5rem;
   animation: fadeInFloat 2s ease forwards;
 }
 
 .intro-hint {
-  margin-top: 2.5rem;
-  color: rgba(255, 255, 255, 0.55);
+  margin-top: 1.5rem;
+  color: rgba(26, 26, 46, 0.45);
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   animation: fadeInFloat 2.6s ease forwards, pulse 2.5s ease-in-out 2.6s infinite;
+}
+
+.intro-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  animation: fadeInFloat 1s ease forwards;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes fadeInFloat {
@@ -160,31 +174,43 @@
 }
 
 .picker-dialogue {
-  color: white;
+  color: #1a1a2e;
   font-size: 1.6rem;
   font-weight: 600;
   text-align: center;
   max-width: 620px;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
   margin-bottom: 0.4rem;
   animation: fadeInFloat 1s ease forwards;
 }
 
 .picker-tip {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(26, 26, 46, 0.6);
   font-size: 0.9rem;
   font-style: italic;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   animation: fadeInFloat 1.3s ease forwards;
+}
+
+.picker-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  max-width: 660px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  animation: fadeInFloat 1s ease forwards;
+  text-align: center;
 }
 
 .filter-toggle {
   display: flex;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(82, 39, 255, 0.08);
+  border: 1px solid rgba(82, 39, 255, 0.2);
   border-radius: 999px;
   padding: 4px;
   gap: 4px;
+  margin-top: 1.2rem;
   animation: fadeInFloat 1.45s ease forwards;
 }
 
@@ -193,7 +219,7 @@
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(26, 26, 46, 0.5);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -201,19 +227,19 @@
 }
 
 .toggle-option:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(26, 26, 46, 0.8);
 }
 
 .toggle-option.toggle-active {
-  background: rgba(255, 255, 255, 0.9);
-  color: #5227FF;
+  background: #5227FF;
+  color: #ffffff;
 }
 
 .filter-toggle-hint {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(26, 26, 46, 0.5);
   font-size: 0.78rem;
   font-style: italic;
-  margin: 0 0 0.5rem;
+  margin: 0.5rem 0 0.5rem;
   animation: fadeInFloat 1.55s ease forwards;
 }
 
@@ -230,50 +256,49 @@
 .ingredient-chip {
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 2px solid rgba(82, 39, 255, 0.25);
+  background: rgba(82, 39, 255, 0.05);
+  color: #1a1a2e;
   font-size: 0.88rem;
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.12s;
-  backdrop-filter: blur(6px);
 }
 
 .ingredient-chip:hover {
-  border-color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(82, 39, 255, 0.5);
+  background: rgba(82, 39, 255, 0.1);
   transform: scale(1.05);
 }
 
 .ingredient-chip.selected {
-  background: rgba(255, 255, 255, 0.92);
-  color: #5227FF;
-  border-color: white;
+  background: #5227FF;
+  color: #ffffff;
+  border-color: #5227FF;
   font-weight: 700;
 }
 
 .picker-start-btn {
   padding: 0.8rem 3rem;
   border-radius: 999px;
-  background: white;
-  color: #5227FF;
+  background: #5227FF;
+  color: #ffffff;
   font-size: 1.05rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 24px rgba(82, 39, 255, 0.35);
   transition: transform 0.15s, box-shadow 0.15s;
   animation: fadeInFloat 1.9s ease forwards;
 }
 
 .picker-start-btn:hover {
   transform: scale(1.06);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 28px rgba(82, 39, 255, 0.45);
 }
 
 .picker-aichat-link {
   margin-top: 1.4rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(26, 26, 46, 0.45);
   font-size: 0.82rem;
   font-style: italic;
   text-decoration: none;
@@ -285,6 +310,49 @@
 }
 
 .picker-aichat-link:hover {
-  color: #ffffff;
+  color: #5227FF;
   text-decoration: underline;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .filter-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .toggle-option {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .toggle-option:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .toggle-option.toggle-active {
+    background: rgba(255, 255, 255, 0.9);
+    color: #5227FF;
+  }
+
+  .filter-toggle-hint {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .picker-start-btn {
+    background: #ffffff;
+    color: #5227FF;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .picker-start-btn:hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .picker-aichat-link {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .picker-aichat-link:hover {
+    color: #ffffff;
+  }
 }
