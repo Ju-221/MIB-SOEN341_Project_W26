@@ -1,3 +1,138 @@
+/* ── Winner calendar picker ──────────────────────────────── */
+.winner-cal-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.winner-cal-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.winner-cal-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.03);
+}
+
+.winner-cal-btn--done {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.12);
+  cursor: default;
+}
+
+.winner-cal-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  min-width: 300px;
+  animation: pickerIn 0.2s ease both;
+}
+
+@keyframes pickerIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.winner-cal-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.winner-cal-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.winner-cal-select {
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.winner-cal-select option {
+  background: #3b1fa0;
+  color: #fff;
+}
+
+.winner-cal-confirm-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: none;
+  background: #ffffff;
+  color: #5227FF;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.winner-cal-confirm-btn:hover:not(:disabled) { transform: scale(1.04); }
+.winner-cal-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.winner-cal-cancel-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.winner-cal-cancel-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.winner-cal-conflict {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.winner-cal-conflict-text {
+  color: #fde68a;
+  font-size: 0.78rem;
+  margin: 0;
+}
+
+.winner-cal-error {
+  color: #f87171;
+  font-size: 0.78rem;
+  margin: 0;
+}
+
 /* ── Winner generate link ────────────────────────────────── */
 .winner-generate-link {
   position: absolute;

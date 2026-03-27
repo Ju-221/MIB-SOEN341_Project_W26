@@ -122,17 +122,16 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
   const [calDay, setCalDay] = useState(today.getDate())
   const [calMeal, setCalMeal] = useState<MealType>('lunch')
   const [calStatus, setCalStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [conflictTitle, setConflictTitle] = useState<string | null>(null)
 
   const handleAddToProfile = () => {
     // Recipe is already saved in DB by the generate endpoint — just show confirmation
     setProfileAdded(true)
   }
 
-  const handleAddToCalendar = async () => {
-    if (calStatus === 'saving') return
+  const doSave = async () => {
     const token = localStorage.getItem('token')
     if (!token) return
-
     setCalStatus('saving')
     try {
       const month = MONTH_NAMES[today.getMonth()]
@@ -141,33 +140,33 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
 
       const updated = days.map(d => {
         if (d.date !== calDay) return d
-        return {
-          ...d,
-          meals: {
-            ...d.meals,
-            [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title },
-          },
-        }
+        return { ...d, meals: { ...d.meals, [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } }
       })
 
-      // If the day wasn't in the fetched list, add it
       if (!updated.find(d => d.date === calDay)) {
-        updated.push({
-          date: calDay,
-          meals: {
-            ...emptyMeals(),
-            [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title },
-          },
-        })
+        updated.push({ date: calDay, meals: { ...emptyMeals(), [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } })
         updated.sort((a, b) => a.date - b.date)
       }
 
       await saveCalendarDays(month, year, updated, token)
       setCalStatus('saved')
-      setTimeout(() => setShowCalPicker(false), 1200)
+      setTimeout(() => { setShowCalPicker(false); window.location.hash = '#calendar' }, 800)
     } catch {
       setCalStatus('error')
     }
+  }
+
+  const handleAddToCalendar = async () => {
+    if (calStatus === 'saving') return
+    const token = localStorage.getItem('token')
+    if (!token) return
+    const days = await fetchCalendarDays(MONTH_NAMES[today.getMonth()], today.getFullYear(), token)
+    const slot = days.find(d => d.date === calDay)?.meals[calMeal]
+    if (slot?.recipeId !== null && slot?.recipeTitle) {
+      setConflictTitle(slot.recipeTitle)
+      return
+    }
+    await doSave()
   }
 
   return (
@@ -264,6 +263,21 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
               </button>
             </div>
 
+            {conflictTitle && (
+              <div className="aichat-cal-conflict">
+                <p className="aichat-cal-conflict-text">
+                  <strong>{conflictTitle}</strong> is already scheduled here. Replace it?
+                </p>
+                <div className="aichat-cal-picker-row">
+                  <button className="aichat-cal-confirm-btn" onClick={() => { setConflictTitle(null); void doSave() }}>
+                    Yes, replace
+                  </button>
+                  <button className="aichat-cal-cancel-btn" onClick={() => setConflictTitle(null)}>
+                    Keep it
+                  </button>
+                </div>
+              </div>
+            )}
             {calStatus === 'error' && (
               <p className="aichat-cal-error">Failed to save. Please try again.</p>
             )}

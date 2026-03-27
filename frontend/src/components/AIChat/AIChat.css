@@ -335,6 +335,20 @@
   margin: 0;
 }
 
+.aichat-cal-conflict {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.aichat-cal-conflict-text {
+  color: #fde68a;
+  font-size: 0.78rem;
+  margin: 0;
+}
+
 /* ── Light-mode overrides ────────────────────────────────── */
 @media (prefers-color-scheme: light) {
   .aichat-title {

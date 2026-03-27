@@ -4,7 +4,43 @@ import Card from './Card'
 import Aurora from './Background'
 import { type Recipe } from './fakeRecipes'
 import { fetchRecipes } from '../../api/recipes'
+import {
+  MONTH_NAMES,
+  MEAL_TYPES,
+  MEAL_LABELS,
+  buildEmptyMonth,
+  emptyMeals,
+  type MealType,
+  type CalendarDay,
+} from '../Calendar/types'
 import './Unique.css'
+
+const API = 'http://localhost:3000'
+
+async function fetchCalendarDays(month: string, year: number, token: string): Promise<CalendarDay[]> {
+  const res = await fetch(`${API}/api/calendar?month=${month}&year=${year}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (res.ok) {
+    const data = await res.json() as { days: CalendarDay[] }
+    const today = new Date()
+    const full = buildEmptyMonth(today.getFullYear(), today.getMonth())
+    for (const d of data.days) {
+      const idx = d.date - 1
+      if (idx >= 0 && idx < full.length) full[idx] = d
+    }
+    return full
+  }
+  return buildEmptyMonth(new Date().getFullYear(), new Date().getMonth())
+}
+
+async function saveCalendarDays(month: string, year: number, days: CalendarDay[], token: string) {
+  await fetch(`${API}/api/calendar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ month, year, days }),
+  })
+}
 
 type Phase = 'intro' | 'picker' | 'no-results' | 'game'
 
@@ -46,6 +82,14 @@ const Unique: React.FC = () => {
   const [winner, setWinner] = useState<Recipe | null>(null)
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
+
+  const today = new Date()
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+  const [showCalPicker, setShowCalPicker] = useState(false)
+  const [calDay, setCalDay] = useState(today.getDate())
+  const [calMeal, setCalMeal] = useState<MealType>('lunch')
+  const [calStatus, setCalStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [conflictTitle, setConflictTitle] = useState<string | null>(null)
 
   useEffect(() => {
     const userId = getUserIdFromToken()
@@ -151,6 +195,43 @@ const Unique: React.FC = () => {
       setPool(newPool)
       setFadingSlot(null)
     }, 500)
+  }
+
+  const doSave = async (recipe: Recipe) => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    setCalStatus('saving')
+    try {
+      const month = MONTH_NAMES[today.getMonth()]
+      const year = today.getFullYear()
+      const days = await fetchCalendarDays(month, year, token)
+      const updated = days.map(d => {
+        if (d.date !== calDay) return d
+        return { ...d, meals: { ...d.meals, [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } }
+      })
+      if (!updated.find(d => d.date === calDay)) {
+        updated.push({ date: calDay, meals: { ...emptyMeals(), [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } })
+        updated.sort((a, b) => a.date - b.date)
+      }
+      await saveCalendarDays(month, year, updated, token)
+      setCalStatus('saved')
+      setTimeout(() => { setShowCalPicker(false); window.location.hash = '#calendar' }, 800)
+    } catch {
+      setCalStatus('error')
+    }
+  }
+
+  const handleAddToCalendar = async (recipe: Recipe) => {
+    if (calStatus === 'saving') return
+    const token = localStorage.getItem('token')
+    if (!token) return
+    const days = await fetchCalendarDays(MONTH_NAMES[today.getMonth()], today.getFullYear(), token)
+    const slot = days.find(d => d.date === calDay)?.meals[calMeal]
+    if (slot?.recipeId !== null && slot?.recipeTitle) {
+      setConflictTitle(slot.recipeTitle)
+      return
+    }
+    await doSave(recipe)
   }
 
   const aurora = (
@@ -269,12 +350,73 @@ const Unique: React.FC = () => {
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {aurora}
         <div className="winner-container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ height: '60vh' }}>
+          <div style={{ height: '55vh' }}>
             <Card {...winner} />
           </div>
           <p className="winner-label">
             It looks like you've been craving <strong>{winner.title}</strong>... Time to cook!
           </p>
+
+          {/* ── Add to Calendar ── */}
+          <div className="winner-cal-wrapper">
+            {calStatus === 'saved' ? (
+              <button className="winner-cal-btn winner-cal-btn--done" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Added to calendar
+              </button>
+            ) : !showCalPicker ? (
+              <button className="winner-cal-btn" onClick={() => setShowCalPicker(true)}>
+                Add to calendar
+              </button>
+            ) : null}
+
+            {showCalPicker && calStatus !== 'saved' && (
+              <div className="winner-cal-picker">
+                <div className="winner-cal-picker-row">
+                  <label className="winner-cal-label">Day</label>
+                  <select className="winner-cal-select" value={calDay} onChange={e => setCalDay(Number(e.target.value))}>
+                    {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <label className="winner-cal-label">Meal</label>
+                  <select className="winner-cal-select" value={calMeal} onChange={e => setCalMeal(e.target.value as MealType)}>
+                    {MEAL_TYPES.map(m => (
+                      <option key={m} value={m}>{MEAL_LABELS[m]}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="winner-cal-picker-row">
+                  <button className="winner-cal-confirm-btn" onClick={() => void handleAddToCalendar(winner)} disabled={calStatus === 'saving'}>
+                    {calStatus === 'saving' ? 'Saving…' : 'Confirm'}
+                  </button>
+                  <button className="winner-cal-cancel-btn" onClick={() => { setShowCalPicker(false); setCalStatus('idle'); setConflictTitle(null) }}>
+                    Cancel
+                  </button>
+                </div>
+                {conflictTitle && (
+                  <div className="winner-cal-conflict">
+                    <p className="winner-cal-conflict-text">
+                      <strong>{conflictTitle}</strong> is already scheduled here. Replace it?
+                    </p>
+                    <div className="winner-cal-picker-row">
+                      <button className="winner-cal-confirm-btn" onClick={() => { setConflictTitle(null); void doSave(winner) }}>
+                        Yes, replace
+                      </button>
+                      <button className="winner-cal-cancel-btn" onClick={() => setConflictTitle(null)}>
+                        Keep it
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {calStatus === 'error' && (
+                  <p className="winner-cal-error">Failed to save. Please try again.</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <a href="#aichat" className="winner-generate-link">
           Still not satisfied? Generate a brand new recipe from scratch with AI →
