@@ -79,14 +79,14 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
             <div className="homepage-recipe-grid">
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="homepage-recipe-card">
-                  {recipe.heroImage && (
-                    <div className="homepage-recipe-image">
-                      <img
-                        src={`http://localhost:3000/uploads/${recipe.heroImage}`}
-                        alt={recipe.title}
-                      />
-                    </div>
-                  )}
+                  <div className="homepage-recipe-image">
+                    <img
+                      src={recipe.heroImage
+                        ? `http://localhost:3000/uploads/${recipe.heroImage}`
+                        : 'http://localhost:3000/uploads/1.jpeg'}
+                      alt={recipe.title}
+                    />
+                  </div>
                   <div className="homepage-recipe-body">
                     <h3>{recipe.title}</h3>
                     <p className="homepage-recipe-desc">{recipe.description}</p>

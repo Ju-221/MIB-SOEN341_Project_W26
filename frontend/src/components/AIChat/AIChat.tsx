@@ -335,7 +335,15 @@ const AIChat: React.FC = () => {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-      <p className="aichat-title">✦ AI Recipe Chef</p>
+      <div className="aichat-header">
+        <p className="aichat-title">✦ AI Recipe Chef</p>
+        <button
+          className="aichat-clear-btn"
+          onClick={() => { setMessages([INITIAL_MESSAGE]); persistMessages([INITIAL_MESSAGE]) }}
+        >
+          Clear
+        </button>
+      </div>
 
       <div className="aichat-messages">
           {messages.map((msg, i) => {
