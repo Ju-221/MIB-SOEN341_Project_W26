@@ -209,28 +209,34 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
 
   }, { scope: containerRef });
 
-  // Scroll-driven reversal — separate useEffect so GSAP scope doesn't interfere
+  // Scroll-driven reversal — delayed until entry animations finish so
+  // gsap.to captures the correct resting state as the "from" value
   useEffect(() => {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
     if (!hero) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: hero,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1,
-      },
+    let tl: gsap.core.Timeline;
+
+    // Longest entry animation: delay 0.4 + duration 1.5 = 1.9s → wait 2.5s to be safe
+    const setup = gsap.delayedCall(2.5, () => {
+      tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 2,
+        },
+      });
+
+      if (imageRef.current)     tl.to(imageRef.current,     { y: -60, scale: 0.5, opacity: 0 }, 0);
+      if (chopstickRef.current) tl.to(chopstickRef.current, { y: 500, opacity: 0 },             0);
+      if (svgRef.current)       tl.to(svgRef.current,       { opacity: 0 },                     0);
     });
 
-    // fromTo: resting state → off-screen exit state
-    if (imageRef.current)     tl.fromTo(imageRef.current,     { y: 0, scale: 1, opacity: 1 }, { y: -60, scale: 0.5, opacity: 0 }, 0);
-    if (chopstickRef.current) tl.fromTo(chopstickRef.current, { y: 0, opacity: 1 },            { y: 500, opacity: 0 },            0);
-    if (svgRef.current)       tl.fromTo(svgRef.current,       { opacity: 1 },                  { opacity: 0 },                    0);
-
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      setup.kill();
+      tl?.scrollTrigger?.kill();
+      tl?.kill();
     };
   }, []);
 

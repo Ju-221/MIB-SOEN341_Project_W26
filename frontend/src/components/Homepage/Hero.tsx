@@ -41,30 +41,36 @@ const MainHeroSection = () => {
     }
   }, { scope: wrapperRef });
 
-  // Scroll-driven reversal — separate useEffect so GSAP scope doesn't interfere
+  // Scroll-driven reversal — delayed until entry animations finish so
+  // gsap.to captures the correct resting state as the "from" value
   useEffect(() => {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
     const titleEl = document.querySelector('.meal-major-title') as HTMLElement;
     if (!hero) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: hero,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1,
-      },
+    let tl: gsap.core.Timeline;
+
+    // Longest entry animation: delay 0.5 + duration 1.4 = 1.9s → wait 2.5s to be safe
+    const setup = gsap.delayedCall(2.5, () => {
+      tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 2,
+        },
+      });
+
+      if (titleEl)           tl.to(titleEl,           { y: -80, opacity: 0 },                        0);
+      if (mintRef.current)   tl.to(mintRef.current,   { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
+      if (tomatoRef.current) tl.to(tomatoRef.current, { x: 220,  y: -180, opacity: 0, rotation: 30  }, 0);
+      if (olivesRef.current) tl.to(olivesRef.current, { x: -200, y: 280,  opacity: 0, rotation: 40  }, 0);
     });
 
-    // fromTo: resting state → off-screen exit state
-    if (titleEl)           tl.fromTo(titleEl,           { y: 0,    opacity: 1 },                          { y: -80, opacity: 0 },                       0);
-    if (mintRef.current)   tl.fromTo(mintRef.current,   { x: 0, y: 0, opacity: 1, rotation: 20  },        { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
-    if (tomatoRef.current) tl.fromTo(tomatoRef.current, { x: 0, y: 0, opacity: 1, rotation: -18 },        { x: 220,  y: -180, opacity: 0, rotation: 30  }, 0);
-    if (olivesRef.current) tl.fromTo(olivesRef.current, { x: 0, y: 0, opacity: 1, rotation: -12 },        { x: -200, y: 280,  opacity: 0, rotation: 40  }, 0);
-
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      setup.kill();
+      tl?.scrollTrigger?.kill();
+      tl?.kill();
     };
   }, []);
 
