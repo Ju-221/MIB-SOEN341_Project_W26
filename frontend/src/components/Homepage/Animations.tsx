@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
@@ -10,8 +11,7 @@ import mint from '../../assets/uploads/mint.png';
 import tomato from '../../assets/uploads/tomato.png';
 import '../../styles/fonts.css'; // Import Google fonts
 
-gsap.registerPlugin(SplitText);
-gsap.registerPlugin(InertiaPlugin);
+gsap.registerPlugin(SplitText, InertiaPlugin, ScrollTrigger);
 
 // TypeScript Interfaces
 interface CalloutLine {
@@ -206,7 +206,33 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         { y: 0, opacity: 1, duration: 1.5, delay: 0.4, ease: 'power3.out' }
       );
     }
+
   }, { scope: containerRef });
+
+  // Scroll-driven reversal — separate useEffect so GSAP scope doesn't interfere
+  useEffect(() => {
+    const hero = document.querySelector('.homepage-hero') as HTMLElement;
+    if (!hero) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: hero,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1,
+      },
+    });
+
+    // fromTo: resting state → off-screen exit state
+    if (imageRef.current)     tl.fromTo(imageRef.current,     { y: 0, scale: 1, opacity: 1 }, { y: -60, scale: 0.5, opacity: 0 }, 0);
+    if (chopstickRef.current) tl.fromTo(chopstickRef.current, { y: 0, opacity: 1 },            { y: 500, opacity: 0 },            0);
+    if (svgRef.current)       tl.fromTo(svgRef.current,       { opacity: 1 },                  { opacity: 0 },                    0);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, []);
 
   // SVG parameters
   const IMAGE_RADIUS = 35; // Rough radius of image in viewBox (100x100)

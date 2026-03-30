@@ -1,10 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { TextAnimation, RotatingImage } from './Animations';
 import olives from '../../assets/uploads/olives.png';
 import mint from '../../assets/uploads/mint.png';
 import tomato from '../../assets/uploads/tomato.png';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface HeroProps {
   isLoggedIn: boolean;
@@ -16,22 +19,20 @@ const MainHeroSection = () => {
   const tomatoRef  = useRef<HTMLImageElement>(null);
   const olivesRef  = useRef<HTMLImageElement>(null);
 
+  // Entry animations
   useGSAP(() => {
-    // Mint — slides in from top-left
     if (mintRef.current) {
       gsap.fromTo(mintRef.current,
         { x: -220, y: -180, opacity: 0, rotation: -35 },
         { x: 0,    y: 0,    opacity: 1, rotation: 20,  duration: 1.4, delay: 0.2, ease: 'power3.out' }
       );
     }
-    // Tomato — slides in from top-right
     if (tomatoRef.current) {
       gsap.fromTo(tomatoRef.current,
         { x: 220,  y: -180, opacity: 0, rotation: 30 },
         { x: 0,    y: 0,    opacity: 1, rotation: -18, duration: 1.4, delay: 0.35, ease: 'power3.out' }
       );
     }
-    // Olives — slides in from bottom-left
     if (olivesRef.current) {
       gsap.fromTo(olivesRef.current,
         { x: -200, y: 280, opacity: 0, rotation: 40 },
@@ -39,6 +40,33 @@ const MainHeroSection = () => {
       );
     }
   }, { scope: wrapperRef });
+
+  // Scroll-driven reversal — separate useEffect so GSAP scope doesn't interfere
+  useEffect(() => {
+    const hero = document.querySelector('.homepage-hero') as HTMLElement;
+    const titleEl = document.querySelector('.meal-major-title') as HTMLElement;
+    if (!hero) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: hero,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1,
+      },
+    });
+
+    // fromTo: resting state → off-screen exit state
+    if (titleEl)           tl.fromTo(titleEl,           { y: 0,    opacity: 1 },                          { y: -80, opacity: 0 },                       0);
+    if (mintRef.current)   tl.fromTo(mintRef.current,   { x: 0, y: 0, opacity: 1, rotation: 20  },        { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
+    if (tomatoRef.current) tl.fromTo(tomatoRef.current, { x: 0, y: 0, opacity: 1, rotation: -18 },        { x: 220,  y: -180, opacity: 0, rotation: 30  }, 0);
+    if (olivesRef.current) tl.fromTo(olivesRef.current, { x: 0, y: 0, opacity: 1, rotation: -12 },        { x: -200, y: 280,  opacity: 0, rotation: 40  }, 0);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, []);
 
   return (
     <div ref={wrapperRef} className="meal-major-container" style={{ position: 'relative' }}>
