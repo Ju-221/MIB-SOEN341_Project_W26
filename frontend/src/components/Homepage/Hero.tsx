@@ -44,27 +44,35 @@ const MainHeroSection = () => {
   // Scroll-driven reversal — delayed until entry animations finish so
   // gsap.to captures the correct resting state as the "from" value
   useEffect(() => {
-    const hero = document.querySelector('.homepage-hero') as HTMLElement;
-    const titleEl = document.querySelector('.meal-major-title') as HTMLElement;
-    if (!hero) return;
-
     let tl: gsap.core.Timeline;
 
-    // Longest entry animation: delay 0.5 + duration 1.4 = 1.9s → wait 2.5s to be safe
-    const setup = gsap.delayedCall(2.5, () => {
+    // Longest entry animation: delay 0.5 + duration 1.4 = 1.9s → wait 2s to be safe
+    const setup = gsap.delayedCall(2, () => {
+      // Query inside the callback so we get the live DOM at animation time
+      const hero = document.querySelector('.homepage-hero') as HTMLElement;
+      const titleEl = document.querySelector('.meal-major-title') as HTMLElement;
+      if (!hero) return;
+
       tl = gsap.timeline({
         scrollTrigger: {
           trigger: hero,
           start: 'top top',
           end: 'bottom top',
           scrub: 2,
+          invalidateOnRefresh: true,
         },
       });
+
+      // Flatten the hero curve as user scrolls
+      tl.to(hero, { borderBottomLeftRadius: '0% 0px', borderBottomRightRadius: '0% 0px' }, 0);
 
       if (titleEl)           tl.to(titleEl,           { y: -80, opacity: 0 },                        0);
       if (mintRef.current)   tl.to(mintRef.current,   { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
       if (tomatoRef.current) tl.to(tomatoRef.current, { x: 220,  y: -180, opacity: 0, rotation: 30  }, 0);
       if (olivesRef.current) tl.to(olivesRef.current, { x: -200, y: 280,  opacity: 0, rotation: 40  }, 0);
+
+      // Force ScrollTrigger to recalculate positions after delayed creation
+      ScrollTrigger.refresh();
     });
 
     return () => {

@@ -212,25 +212,30 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   // Scroll-driven reversal — delayed until entry animations finish so
   // gsap.to captures the correct resting state as the "from" value
   useEffect(() => {
-    const hero = document.querySelector('.homepage-hero') as HTMLElement;
-    if (!hero) return;
-
     let tl: gsap.core.Timeline;
 
-    // Longest entry animation: delay 0.4 + duration 1.5 = 1.9s → wait 2.5s to be safe
-    const setup = gsap.delayedCall(2.5, () => {
+    // Longest entry animation: delay 0.4 + duration 1.5 = 1.9s → wait 2s to be safe
+    const setup = gsap.delayedCall(2, () => {
+      // Query inside the callback so we get the live DOM at animation time
+      const hero = document.querySelector('.homepage-hero') as HTMLElement;
+      if (!hero) return;
+
       tl = gsap.timeline({
         scrollTrigger: {
           trigger: hero,
           start: 'top top',
           end: 'bottom top',
           scrub: 2,
+          invalidateOnRefresh: true,
         },
       });
 
       if (imageRef.current)     tl.to(imageRef.current,     { y: -60, scale: 0.5, opacity: 0 }, 0);
       if (chopstickRef.current) tl.to(chopstickRef.current, { y: 500, opacity: 0 },             0);
       if (svgRef.current)       tl.to(svgRef.current,       { opacity: 0 },                     0);
+
+      // Force ScrollTrigger to recalculate positions after delayed creation
+      ScrollTrigger.refresh();
     });
 
     return () => {
