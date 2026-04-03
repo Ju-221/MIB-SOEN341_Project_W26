@@ -36,6 +36,8 @@ jobs:
       - name: Install backend dependencies
         run: npm install -w express
       
+      - name: Lint backend
+        run: npm run lint -w express
       - name: Setup environment variables
         run: |
           if [ -z "${{ secrets.JWT_SECRET }}" ]; then
