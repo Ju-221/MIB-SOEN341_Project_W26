@@ -36,8 +36,8 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
     if (!hero) return;
 
-    // Slide the goo in from the top once the hero has fully scrolled out of view
-    const gooAnim = gsap.to('.goo-top', {
+    // Slide the goo in from the top and bottom once the hero has fully scrolled out of view
+    const gooAnim = gsap.to('.goo-top, .goo-bottom', {
       y: '0%',
       ease: 'none',
       scrollTrigger: {
@@ -70,6 +70,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     <div className="homepage">
       {/* Goo blob that drips in from the top after the hero scrolls away */}
       <div className="goo-top" aria-hidden="true" />
+      <div className="goo-bottom" aria-hidden="true" />
       <Hero isLoggedIn={isLoggedIn} />
 
       <main className="homepage-main">
