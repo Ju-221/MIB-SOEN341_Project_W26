@@ -60,14 +60,9 @@ export const recipes = sqliteTable('recipes', {
 export const calendar = sqliteTable('meal_calendar', 
   {
     userId : integer('user_id').primaryKey().notNull().references(() => users.id),
-    month: text('month').notNull(), 
-    year: integer('year').notNull(),
-    days: text('days').notNull(),
+    months: text('months').notNull(), // this has the past 3 months and the current month and the next 3 months. each month shoud be formatted as MONTH_NAME:YEAR 
+    days: text('days').notNull(), // the days should now be 7 objects each representing the days of a month  from the months seen from the months property 
     lastModified: text('last_modified').default(sql`CURRENT_TIMESTAMP`)
   }
   
 );
-
-
-
-
