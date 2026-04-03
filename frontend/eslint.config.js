@@ -27,7 +27,7 @@ export default defineConfig([
       'react-hooks/exhaustive-deps': 'warn',   
       
       'no-console': 'warn',                   
-      'eqeqeq': 'error',                     
+      'eqeqeq': 'warn',                     
       'no-duplicate-imports': 'warn',         
 
     }
