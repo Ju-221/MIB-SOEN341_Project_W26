@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Homepage.css';
 import Hero from './Hero';
 import FeatureSection from './FeatureSection';
 import RecentRecipes from './RecentRecipes';
 import UserSection from './UserSection';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface HomepageProps {
   isLoggedIn: boolean;
@@ -28,6 +32,28 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     loadRecipes();
   }, []);
 
+  useEffect(() => {
+    const hero = document.querySelector('.homepage-hero') as HTMLElement;
+    if (!hero) return;
+
+    // Slide the goo in from the top once the hero has fully scrolled out of view
+    const gooAnim = gsap.to('.goo-top', {
+      y: '0%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'bottom top',
+        end: '+=250',
+        scrub: 1.5,
+      },
+    });
+
+    return () => {
+      gooAnim.scrollTrigger?.kill();
+      gooAnim.kill();
+    };
+  }, []);
+
   const loadRecipes = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/recipes');
@@ -42,17 +68,19 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
 
   return (
     <div className="homepage">
+      {/* Goo blob that drips in from the top after the hero scrolls away */}
+      <div className="goo-top" aria-hidden="true" />
       <Hero isLoggedIn={isLoggedIn} />
 
       <main className="homepage-main">
-        <FeatureSection />
-        <RecentRecipes recipes={recipes} />
+        {/* <FeatureSection /> */}
+        {/*<RecentRecipes recipes={recipes} />*/}
         <UserSection isLoggedIn={isLoggedIn} userEmail={userEmail} />
+        {/* Temporary spacer — gives the page enough height for the goo scroll animation */}
+        <div style={{ height: '400vh' }} />
       </main>
 
-      <footer className="homepage-footer">
-        <p>MealMajor -- Built for university students, by university students.</p>
-      </footer>
+    
     </div>
   );
 }
