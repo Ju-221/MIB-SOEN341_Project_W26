@@ -1,7 +1,7 @@
 import type { Recipe } from '../components/Recipe-Manager/CreateRecipe';
 
-const BASE_URL = "http://localhost:3000/api/recipes";
-const IMAGES_URL = "http://localhost:3000/uploads"
+const BASE_URL = 'http://localhost:3000/api/recipes';
+const IMAGES_URL = 'http://localhost:3000/uploads';
 
 export async function fetchRecipes() {
   const response = await fetch(BASE_URL);
@@ -11,31 +11,36 @@ export async function fetchRecipes() {
     throw new Error(errorData.message);
   }
   if (!response.body) {
-    throw new Error("No response body for fetch recipes");
+    throw new Error('No response body for fetch recipes');
   }
 
-  const data: Recipe[] = await response.json();   // Parse
+  const data: Recipe[] = await response.json(); // Parse
   // Convert image files to base64 for frontend
-  const filesConverted = await Promise.all(data.map(async (recipe) => {
-    if (recipe.heroImage) {
-      recipe.heroImage = await filenameToBase64(recipe.heroImage) as string;
-    }
-    return recipe;
-  }));
+  const filesConverted = await Promise.all(
+    data.map(async (recipe) => {
+      if (recipe.heroImage) {
+        recipe.heroImage = (await filenameToBase64(recipe.heroImage)) as string;
+      }
+      return recipe;
+    })
+  );
 
   return filesConverted;
 }
 
-export async function createRecipe(recipeObj: Recipe, jwt_token: string): Promise<Recipe | Recipe[]> {
-  if (recipeObj.title.toLowerCase() == "default") {
-    console.log("Making defaults")
+export async function createRecipe(
+  recipeObj: Recipe,
+  jwt_token: string
+): Promise<Recipe | Recipe[]> {
+  if (recipeObj.title.toLowerCase() == 'default') {
+    console.log('Making defaults');
     return createDefaultRecipes(jwt_token);
   }
-  
+
   const response = await fetch(BASE_URL, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Authorization": `Bearer ${jwt_token}`
+      Authorization: `Bearer ${jwt_token}`,
     },
     body: serializeRecipe(recipeObj),
   });
@@ -47,16 +52,16 @@ export async function createRecipe(recipeObj: Recipe, jwt_token: string): Promis
 
   const data: Recipe = await response.json();
   if (data.heroImage) {
-    data.heroImage = await filenameToBase64(data.heroImage) as string;
+    data.heroImage = (await filenameToBase64(data.heroImage)) as string;
   }
-  return data
+  return data;
 }
 
 export async function updateRecipe(id: string, recipeObj: Recipe, jwt_token: string) {
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Authorization": `Bearer ${jwt_token}`
+      Authorization: `Bearer ${jwt_token}`,
     },
     body: serializeRecipe(recipeObj),
   });
@@ -66,21 +71,21 @@ export async function updateRecipe(id: string, recipeObj: Recipe, jwt_token: str
     throw new Error(errorData.message);
   }
 
-  const data: Recipe = await response.json()
+  const data: Recipe = await response.json();
   if (data.heroImage) {
-    data.heroImage = await filenameToBase64(data.heroImage) as string;
+    data.heroImage = (await filenameToBase64(data.heroImage)) as string;
   }
 
-  return data
+  return data;
 }
 
 export async function deleteRecipe(id: string, jwt_token: string) {
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",
+    method: 'DELETE',
     headers: {
-      "Authorization": `Bearer ${jwt_token}`
+      Authorization: `Bearer ${jwt_token}`,
     },
-  })
+  });
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -102,15 +107,18 @@ function serializeRecipe(recipe: Recipe) {
   if (recipe.difficulty) {
     formData.append('difficulty', recipe.difficulty.toString());
   }
-  
-  formData.append('ingredients', JSON.stringify(recipe.ingredients, ['name', 'amount', 'unit', 'cost']));
+
+  formData.append(
+    'ingredients',
+    JSON.stringify(recipe.ingredients, ['name', 'amount', 'unit', 'cost'])
+  );
   formData.append('steps', JSON.stringify(recipe.steps, ['text'])); // Assuming no image for steps
   formData.append('categories', JSON.stringify(recipe.categories));
 
   // Image
   if (recipe.heroImage) {
     console.log('Serializing recipe with heroImage, length:', recipe.heroImage.length);
-    formData.append('heroImage', base64ToImageFile(recipe.heroImage))
+    formData.append('heroImage', base64ToImageFile(recipe.heroImage));
   } else {
     console.log('No heroImage found on recipe');
   }
@@ -120,9 +128,9 @@ function serializeRecipe(recipe: Recipe) {
 
 function base64ToImageFile(b64Str: string) {
   console.log('Converting base64 to image file, starts with:', b64Str.substring(0, 50));
-  const arr = b64Str.split(",");
-  const mime = arr[0].match(/:(.*?);/)?.[1] || "";  // Prefix to file data
-  const bstr = atob(arr[1]);  // Base64 file into binary text
+  const arr = b64Str.split(',');
+  const mime = arr[0].match(/:(.*?);/)?.[1] || ''; // Prefix to file data
+  const bstr = atob(arr[1]); // Base64 file into binary text
 
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
@@ -130,7 +138,7 @@ function base64ToImageFile(b64Str: string) {
     u8arr[n] = bstr.charCodeAt(n);
   }
 
-  const fileExtension = mime.split("/")[1];
+  const fileExtension = mime.split('/')[1];
   return new File([u8arr], `name_doesn't_matter.${fileExtension}`, { type: mime });
 }
 
@@ -140,12 +148,12 @@ async function filenameToBase64(imageName: string) {
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error("Error loading image:", errorData.message);
+    throw new Error('Error loading image:', errorData.message);
   }
 
   const blob = await response.blob();
 
-  const imagePromise =  new Promise((resolve, reject) => {
+  const imagePromise = new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onloadend = () => {
@@ -169,7 +177,7 @@ async function createDefaultRecipes(jwt_token: string): Promise<Recipe[]> {
 }
 
 const defaultRecipes: Recipe[] = [
-    {
+  {
     id: '1000000',
     title: 'Veggie Pasta Primavera',
     name: 'Veggie Pasta Primavera',
@@ -291,4 +299,4 @@ const defaultRecipes: Recipe[] = [
     // heroImage: 'https://via.placeholder.com/300x200?text=Peanut+Tofu+Noodles',
     // image: 'https://via.placeholder.com/300x200?text=Peanut+Tofu+Noodles',
   },
-]
+];

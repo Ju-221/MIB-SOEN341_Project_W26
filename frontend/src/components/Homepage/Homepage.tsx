@@ -1,41 +1,41 @@
-import { useState, useEffect } from 'react'
-import './Homepage.css'
+import { useState, useEffect } from 'react';
+import './Homepage.css';
 
 interface HomepageProps {
-  isLoggedIn: boolean
-  userEmail: string | null
+  isLoggedIn: boolean;
+  userEmail: string | null;
 }
 
 interface Recipe {
-  id: number
-  title: string
-  description: string
-  prepTime: number
-  cookTime: number
-  estimatedCost: number
-  heroImage: string | null
-  categories: string[]
+  id: number;
+  title: string;
+  description: string;
+  prepTime: number;
+  cookTime: number;
+  estimatedCost: number;
+  heroImage: string | null;
+  categories: string[];
 }
 
 function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
-  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   const loadRecipes = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/recipes')
+      const response = await fetch('http://localhost:3000/api/recipes');
       if (response.ok) {
-        const data = await response.json()
-        setRecipes(data.slice(0, 6))
+        const data = await response.json();
+        setRecipes(data.slice(0, 6));
       }
     } catch (error) {
-      console.error('Error loading recipes:', error)
+      console.error('Error loading recipes:', error);
     }
-  }
+  };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadRecipes()
-  }, [])
+    loadRecipes();
+  }, []);
 
   return (
     <div className="homepage">
@@ -43,8 +43,8 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         <div className="homepage-hero-content">
           <h1>Plan Meals. Save Money. Eat Well.</h1>
           <p>
-            MealMajor helps university students plan weekly meals, discover budget-friendly
-            recipes, and manage grocery lists -- all in one place.
+            MealMajor helps university students plan weekly meals, discover budget-friendly recipes,
+            and manage grocery lists -- all in one place.
           </p>
           {!isLoggedIn && (
             <a href="#signin" className="homepage-hero-cta">
@@ -81,9 +81,11 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
                 <div key={recipe.id} className="homepage-recipe-card">
                   <div className="homepage-recipe-image">
                     <img
-                      src={recipe.heroImage
-                        ? `http://localhost:3000/uploads/${recipe.heroImage}`
-                        : 'http://localhost:3000/uploads/1.jpeg'}
+                      src={
+                        recipe.heroImage
+                          ? `http://localhost:3000/uploads/${recipe.heroImage}`
+                          : 'http://localhost:3000/uploads/1.jpeg'
+                      }
                       alt={recipe.title}
                     />
                   </div>
@@ -123,7 +125,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         <p>MealMajor -- Built for university students, by university students.</p>
       </footer>
     </div>
-  )
+  );
 }
 
-export default Homepage
+export default Homepage;

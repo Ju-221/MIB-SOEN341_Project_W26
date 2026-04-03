@@ -1,33 +1,33 @@
-import { useState, useEffect } from 'react'
-import './SignIn.css'
+import { useState, useEffect } from 'react';
+import './SignIn.css';
 
 interface SignInProps {
-  onSuccess?: () => void
-  onSwitchToSignUp?: () => void
+  onSuccess?: () => void;
+  onSwitchToSignUp?: () => void;
 }
 
 function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Check if user has a valid token and "remember me" is enabled
-    const token = localStorage.getItem('token')
-    const isRemembered = localStorage.getItem('rememberMe') === 'true'
-    
+    const token = localStorage.getItem('token');
+    const isRemembered = localStorage.getItem('rememberMe') === 'true';
+
     if (token && isRemembered) {
-      onSuccess?.()
+      onSuccess?.();
     }
-  }, [onSuccess])
+  }, [onSuccess]);
 
   const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
       const response = await fetch('http://localhost:3000/api/auth/signin', {
@@ -36,36 +36,36 @@ function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
+        throw new Error(data.message || 'Login failed');
       }
 
       // Store the JWT token
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('userEmail', data.user?.email || email)
-      
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userEmail', data.user?.email || email);
+
       // Store remember me preference
       if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true')
+        localStorage.setItem('rememberMe', 'true');
       } else {
-        localStorage.removeItem('rememberMe')
+        localStorage.removeItem('rememberMe');
       }
-      
-      onSuccess?.()
+
+      onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className="signin-container">
@@ -76,7 +76,7 @@ function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
 
         <form onSubmit={handleSignIn} className="signin-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">
               Email Address <span className="required">*</span>
@@ -136,11 +136,11 @@ function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
             <a
               href="#signup"
               onClick={(e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (onSwitchToSignUp) {
-                  onSwitchToSignUp()
+                  onSwitchToSignUp();
                 } else {
-                  window.location.hash = '#signup'
+                  window.location.hash = '#signup';
                 }
               }}
             >
@@ -150,7 +150,7 @@ function SignIn({ onSuccess, onSwitchToSignUp }: SignInProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SignIn
+export default SignIn;

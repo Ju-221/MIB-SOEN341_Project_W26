@@ -1,15 +1,11 @@
-import fs from "fs";
-import path from "path";
-import multer from "multer";
-import { eq, like } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { allergies, dietaryPreferences, recipes } from "../db/schema.js";
-import { Request, Response } from "express";
-import {
-  CreateRecipeBody,
-  Difficulty,
-  UpdateRecipeBody,
-} from "../types/index.js";
+import fs from 'fs';
+import path from 'path';
+import multer from 'multer';
+import { eq, like } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { allergies, dietaryPreferences, recipes } from '../db/schema.js';
+import { Request, Response } from 'express';
+import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
 
 type RecipeIngredient = {
   name: string;
@@ -20,9 +16,8 @@ type RecipeIngredient = {
 
 // muter: temp-storeage, renamed after insert
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "./uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, `temp-${Date.now()}${path.extname(file.originalname)}`),
+  destination: (req, file, cb) => cb(null, './uploads/'),
+  filename: (req, file, cb) => cb(null, `temp-${Date.now()}${path.extname(file.originalname)}`),
 });
 export const upload = multer({ storage });
 
@@ -46,7 +41,7 @@ export const getAllRecipes = (req: Request, res: Response) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch recipes" });
+    res.status(500).json({ message: 'Failed to fetch recipes' });
   }
 };
 
@@ -58,19 +53,16 @@ export const getRecipeById = (req: Request, res: Response) => {
       .from(recipes)
       .where(eq(recipes.id, Number(req.params.id)))
       .get();
-    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
     res.json(parseRecipe(recipe));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fettch recipe" });
+    res.status(500).json({ message: 'Failed to fettch recipe' });
   }
 };
 
 // POST. api/recipes
-export const createRecipe = (
-  req: Request<{}, {}, CreateRecipeBody>,
-  res: Response,
-) => {
+export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res: Response) => {
   try {
     const {
       title,
@@ -86,12 +78,10 @@ export const createRecipe = (
       dietaryPreferences,
     } = req.body;
     const createdBy = req.user!.id;
-    const parsedIngredients =
-      parseJsonArrayField<RecipeIngredient>(ingredients);
+    const parsedIngredients = parseJsonArrayField<RecipeIngredient>(ingredients);
     const parsedSteps = parseJsonArrayField(steps);
     const parsedCategories = parseJsonArrayField<string>(categories);
-    const parsedDietaryPreferences =
-      parseJsonArrayField<string>(dietaryPreferences);
+    const parsedDietaryPreferences = parseJsonArrayField<string>(dietaryPreferences);
     const parsedAllergies = parseJsonArrayField<string>(allergies);
 
     const result = db
@@ -121,7 +111,7 @@ export const createRecipe = (
     if (req.file) {
       const ext = path.extname(req.file.originalname); // the file extension
       const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join("./uploads", newName));
+      fs.renameSync(req.file.path, path.join('./uploads', newName));
       heroImage = newName;
       db.update(recipes).set({ heroImage }).where(eq(recipes.id, id)).run();
     }
@@ -129,18 +119,15 @@ export const createRecipe = (
     res.status(201).json(parseRecipe({ ...result, heroImage }));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to create recipe" });
+    res.status(500).json({ message: 'Failed to create recipe' });
   }
 };
 
-export const updateRecipe = (
-  req: Request<{ id: string }, {}, UpdateRecipeBody>,
-  res: Response,
-) => {
+export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>, res: Response) => {
   try {
     const id = Number(req.params.id);
     const existing = db.select().from(recipes).where(eq(recipes.id, id)).get();
-    if (!existing) return res.status(404).json({ message: "Recipe not found" });
+    if (!existing) return res.status(404).json({ message: 'Recipe not found' });
 
     const {
       title,
@@ -156,39 +143,31 @@ export const updateRecipe = (
       allergies,
     } = req.body;
     const createdBy = req.user!.id;
-    if (existing.createdBy !== createdBy)
-      return res.status(403).json({ message: "Unauthorized" });
+    if (existing.createdBy !== createdBy) return res.status(403).json({ message: 'Unauthorized' });
 
     const parsedIngredients =
-      ingredients !== undefined
-        ? parseJsonArrayField<RecipeIngredient>(ingredients)
-        : undefined;
-    const parsedSteps =
-      steps !== undefined ? parseJsonArrayField(steps) : undefined;
+      ingredients !== undefined ? parseJsonArrayField<RecipeIngredient>(ingredients) : undefined;
+    const parsedSteps = steps !== undefined ? parseJsonArrayField(steps) : undefined;
     const parsedCategories =
-      categories !== undefined
-        ? parseJsonArrayField<string>(categories)
-        : undefined;
+      categories !== undefined ? parseJsonArrayField<string>(categories) : undefined;
     const parsedDietaryPreferences =
       dietaryPreferences !== undefined
         ? parseJsonArrayField<string>(dietaryPreferences)
         : undefined;
     const parsedAllergies =
-      allergies !== undefined
-        ? parseJsonArrayField<string>(allergies)
-        : undefined;
+      allergies !== undefined ? parseJsonArrayField<string>(allergies) : undefined;
 
     let heroImage = existing.heroImage;
     if (req.file) {
       if (existing.heroImage) {
-        const imagePath = path.join("./uploads", existing.heroImage);
+        const imagePath = path.join('./uploads', existing.heroImage);
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
         }
       }
       const ext = path.extname(req.file.originalname);
       const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join("./uploads", newName));
+      fs.renameSync(req.file.path, path.join('./uploads', newName));
       heroImage = newName;
     }
 
@@ -217,16 +196,11 @@ export const updateRecipe = (
       heroImage,
     };
 
-    const updated = db
-      .update(recipes)
-      .set(updates)
-      .where(eq(recipes.id, id))
-      .returning()
-      .get();
+    const updated = db.update(recipes).set(updates).where(eq(recipes.id, id)).returning().get();
     res.json(parseRecipe(updated));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to update the recipe" });
+    res.status(500).json({ message: 'Failed to update the recipe' });
   }
 };
 
@@ -235,24 +209,22 @@ export const deleteRecipe = (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const existing = db.select().from(recipes).where(eq(recipes.id, id)).get();
-    if (!existing)
-      return res.status(404).json({ messsage: "Recipe not found" });
+    if (!existing) return res.status(404).json({ messsage: 'Recipe not found' });
     const createdBy = req.user!.id;
-    if (existing.createdBy !== createdBy)
-      return res.status(403).json({ message: "Unauthorized" });
+    if (existing.createdBy !== createdBy) return res.status(403).json({ message: 'Unauthorized' });
 
     if (existing.heroImage) {
-      const imagePath = path.join("./uploads", existing.heroImage);
+      const imagePath = path.join('./uploads', existing.heroImage);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }
     }
 
     db.delete(recipes).where(eq(recipes.id, id)).run();
-    res.json({ message: "Recipe deleted" });
+    res.json({ message: 'Recipe deleted' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to delete recipe" });
+    res.status(500).json({ message: 'Failed to delete recipe' });
   }
 };
 
@@ -260,26 +232,26 @@ export const deleteRecipe = (req: Request, res: Response) => {
 const parseRecipe = (r: typeof recipes.$inferSelect) => {
   return {
     ...r,
-    ingredients: JSON.parse(r.ingredients || "[]"),
-    steps: JSON.parse(r.steps || "[]"),
-    categories: JSON.parse(r.categories || "[]"),
-    dietaryPreferences: JSON.parse(r.dietaryPreferences || "[]"),
-    allergies: JSON.parse(r.allergies || "[]"),
+    ingredients: JSON.parse(r.ingredients || '[]'),
+    steps: JSON.parse(r.steps || '[]'),
+    categories: JSON.parse(r.categories || '[]'),
+    dietaryPreferences: JSON.parse(r.dietaryPreferences || '[]'),
+    allergies: JSON.parse(r.allergies || '[]'),
   };
 };
 
 const parseJsonArrayField = <T>(value: unknown): T[] => {
-  if (value === undefined || value === null || value === "") return [];
+  if (value === undefined || value === null || value === '') return [];
   if (Array.isArray(value)) return value as T[];
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? (parsed as T[]) : [];
   }
   return [];
 };
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { error } from "console";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { error } from 'console';
 
 export const generateRecipe = async (req: Request, res: Response) => {
   try {
@@ -287,7 +259,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
     const createdBy = req.user!.id; // ! asserts that user object is non null
 
     const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAi.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAi.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const systemPrompt = `
             Generate a recipe based on: "${prompt}".
@@ -310,7 +282,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
     const text = result.response.text();
 
     // strip away the markdown syntax
-    const json = text.replace(/```json|```/g, "").trim();
+    const json = text.replace(/```json|```/g, '').trim();
     const recipe = JSON.parse(json);
 
     console.log(recipe);
@@ -328,8 +300,8 @@ export const generateRecipe = async (req: Request, res: Response) => {
         ingredients: JSON.stringify(recipe.ingredients),
         steps: JSON.stringify(recipe.steps),
         categories: JSON.stringify(recipe.categories),
-        dietaryPreferences: "[]",
-        allergies: "[]",
+        dietaryPreferences: '[]',
+        allergies: '[]',
         heroImage: null,
       })
       .returning()
@@ -338,6 +310,6 @@ export const generateRecipe = async (req: Request, res: Response) => {
     res.status(201).json(parseRecipe(saved));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to generate recipe" });
+    res.status(500).json({ message: 'Failed to generate recipe' });
   }
 };
