@@ -1,25 +1,25 @@
 export interface Ingredient {
-  name: string
-  amount?: string
-  unit?: string
+  name: string;
+  amount?: string;
+  unit?: string;
 }
 
 export interface Recipe {
-  id: number
-  createdBy?: number
-  title: string
-  description: string
-  prepTime: number
-  cookTime: number
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  estimatedCost: number
-  heroImage: string | null
-  ingredients: (string | Ingredient)[]
-  steps: string[]
-  categories: string[]
-  createdAt?: string
-  dietaryPreferences?: string[]
-  allergies?: string[]
+  id: number;
+  createdBy?: number;
+  title: string;
+  description: string;
+  prepTime: number;
+  cookTime: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  estimatedCost: number;
+  heroImage: string | null;
+  ingredients: (string | Ingredient)[];
+  steps: string[];
+  categories: string[];
+  createdAt?: string;
+  dietaryPreferences?: string[];
+  allergies?: string[];
 }
 
 const fakeRecipes: Recipe[] = [
@@ -432,7 +432,8 @@ const fakeRecipes: Recipe[] = [
   {
     id: 16,
     title: 'Greek Salad',
-    description: 'Cucumber, tomato, red onion, olives, and feta cheese dressed in olive oil and oregano.',
+    description:
+      'Cucumber, tomato, red onion, olives, and feta cheese dressed in olive oil and oregano.',
     prepTime: 10,
     cookTime: 0,
     difficulty: 'Easy',
@@ -643,7 +644,8 @@ const fakeRecipes: Recipe[] = [
   {
     id: 24,
     title: 'Beef Tacos',
-    description: 'Ground beef seasoned with cumin and chili powder in corn tortillas with toppings.',
+    description:
+      'Ground beef seasoned with cumin and chili powder in corn tortillas with toppings.',
     prepTime: 10,
     cookTime: 15,
     difficulty: 'Easy',
@@ -698,6 +700,6 @@ const fakeRecipes: Recipe[] = [
       'Stir in parmesan, season, and serve.',
     ],
   },
-]
+];
 
-export default fakeRecipes
+export default fakeRecipes;

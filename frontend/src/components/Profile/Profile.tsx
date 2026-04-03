@@ -1,40 +1,40 @@
-import { useState, useEffect } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import RecipeManager from "../Recipe-Manager/CreateRecipe";
+import { useState, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import RecipeManager from '../Recipe-Manager/CreateRecipe';
 
-import "./Profile.css";
+import './Profile.css';
 
 function Profile() {
-  const [profileEmail, setProfileEmail] = useState("");
+  const [profileEmail, setProfileEmail] = useState('');
 
   const getEmailFromToken = (token: string): string => {
     try {
-      const payloadPart = token.split(".")[1];
-      if (!payloadPart) return "";
+      const payloadPart = token.split('.')[1];
+      if (!payloadPart) return '';
 
-      const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+      const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
-          .split("")
-          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-          .join(""),
+          .split('')
+          .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+          .join('')
       );
 
       const parsed = JSON.parse(jsonPayload) as { email?: string };
-      return parsed.email ?? "";
+      return parsed.email ?? '';
     } catch {
-      return "";
+      return '';
     }
   };
 
   const loadPreferences = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/preferences", {
+      const response = await fetch('http://localhost:3000/api/preferences', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -44,15 +44,15 @@ function Profile() {
         await response.json();
       }
     } catch (error) {
-      console.error("Error loading preferences:", error);
+      console.error('Error loading preferences:', error);
     }
   };
 
   useEffect(() => {
     loadPreferences();
 
-    const token = localStorage.getItem("token");
-    const storedEmail = localStorage.getItem("userEmail") ?? "";
+    const token = localStorage.getItem('token');
+    const storedEmail = localStorage.getItem('userEmail') ?? '';
 
     if (token) {
       const tokenEmail = getEmailFromToken(token);
@@ -67,39 +67,39 @@ function Profile() {
   }, []);
 
   const handleSave = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) return;
 
     // Map your selected arrays to the backend format
     const allergyData = {
-      peanuts: selectedAllergies.includes("Peanuts"),
-      treeNuts: selectedAllergies.includes("Nuts"),
-      eggs: selectedAllergies.includes("Eggs"),
-      milk: selectedAllergies.includes("Dairy"),
-      fish: selectedAllergies.includes("Fish"),
-      crustaceans: selectedAllergies.includes("Shellfish"),
-      soy: selectedAllergies.includes("Soy"),
-      wheat: selectedAllergies.includes("Wheat"),
-      sesame: selectedAllergies.includes("Sesame"),
-      mustard: selectedAllergies.includes("Mustard"),
-      lactoseIntolerance: selectedAllergies.includes("Lactose Intolerance"),
-      glutenIntolerance: selectedAllergies.includes("Gluten"),
+      peanuts: selectedAllergies.includes('Peanuts'),
+      treeNuts: selectedAllergies.includes('Nuts'),
+      eggs: selectedAllergies.includes('Eggs'),
+      milk: selectedAllergies.includes('Dairy'),
+      fish: selectedAllergies.includes('Fish'),
+      crustaceans: selectedAllergies.includes('Shellfish'),
+      soy: selectedAllergies.includes('Soy'),
+      wheat: selectedAllergies.includes('Wheat'),
+      sesame: selectedAllergies.includes('Sesame'),
+      mustard: selectedAllergies.includes('Mustard'),
+      lactoseIntolerance: selectedAllergies.includes('Lactose Intolerance'),
+      glutenIntolerance: selectedAllergies.includes('Gluten'),
     };
 
     const dietData = {
-      vegetarian: selectedDiets.includes("Vegetarian"),
-      vegan: selectedDiets.includes("Vegan"),
-      pescetarian: selectedDiets.includes("Pescatarian"),
-      halal: selectedDiets.includes("Halal"),
-      kosher: selectedDiets.includes("Kosher"),
-      keto: selectedDiets.includes("Keto"),
+      vegetarian: selectedDiets.includes('Vegetarian'),
+      vegan: selectedDiets.includes('Vegan'),
+      pescetarian: selectedDiets.includes('Pescatarian'),
+      halal: selectedDiets.includes('Halal'),
+      kosher: selectedDiets.includes('Kosher'),
+      keto: selectedDiets.includes('Keto'),
     };
 
     try {
-      const response = await fetch("http://localhost:3000/api/preferences", {
-        method: "PUT",
+      const response = await fetch('http://localhost:3000/api/preferences', {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -109,48 +109,48 @@ function Profile() {
       });
 
       if (response.ok) {
-        alert("Preferences saved!");
+        alert('Preferences saved!');
       }
     } catch (error) {
-      console.error("Failed to save:", error);
+      console.error('Failed to save:', error);
     }
   };
 
   const dietOptions = [
-    "Vegetarian",
-    "Vegan",
-    "Keto",
-    "Paleo",
-    "Mediterranean",
-    "Low Carb",
-    "Gluten-Free",
-    "Dairy-Free",
-    "Pescatarian",
-    "Halal",
-    "Kosher",
+    'Vegetarian',
+    'Vegan',
+    'Keto',
+    'Paleo',
+    'Mediterranean',
+    'Low Carb',
+    'Gluten-Free',
+    'Dairy-Free',
+    'Pescatarian',
+    'Halal',
+    'Kosher',
   ];
   const allergyOptions = [
-    "Nuts",
-    "Peanuts",
-    "Dairy",
-    "Eggs",
-    "Wheat",
-    "Gluten",
-    "Shellfish",
-    "Fish",
-    "Soy",
-    "Sesame",
-    "Mustard",
-    "Lactose Intolerance",
-    "Sulfites",
+    'Nuts',
+    'Peanuts',
+    'Dairy',
+    'Eggs',
+    'Wheat',
+    'Gluten',
+    'Shellfish',
+    'Fish',
+    'Soy',
+    'Sesame',
+    'Mustard',
+    'Lactose Intolerance',
+    'Sulfites',
   ];
 
   const [selectedDiets, setSelectedDiets] = useState<string[]>([]);
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
   const [customDiets, setCustomDiets] = useState<string[]>([]);
   const [customAllergies, setCustomAllergies] = useState<string[]>([]);
-  const [customDietInput, setCustomDietInput] = useState("");
-  const [customAllergyInput, setCustomAllergyInput] = useState("");
+  const [customDietInput, setCustomDietInput] = useState('');
+  const [customAllergyInput, setCustomAllergyInput] = useState('');
   const [showRecipeManager, setShowRecipeManager] = useState(false);
 
   // The following function was drafted with the assistance of ChatGPT Codex.
@@ -158,14 +158,9 @@ function Profile() {
   // I Ashton Levine reviewed, modified, and tested the code to ensure correctness.
 
   //the toggleSelection function is a helper function that manages the selection state for both diets and allergies. It takes a value (the diet or allergy being toggled) and a state setter function (either setSelectedDiets or setSelectedAllergies). The function checks if the value is already in the current selection; if it is, it removes it, and if it's not, it adds it to the selection. This allows users to easily toggle their preferences on and off by clicking the corresponding buttons in the UI.
-  const toggleSelection = (
-    value: string,
-    setSelected: Dispatch<SetStateAction<string[]>>,
-  ) => {
+  const toggleSelection = (value: string, setSelected: Dispatch<SetStateAction<string[]>>) => {
     setSelected((current) =>
-      current.includes(value)
-        ? current.filter((item) => item !== value)
-        : [...current, value],
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
     );
   };
 
@@ -180,23 +175,21 @@ function Profile() {
     customList: string[],
     options: string[],
     setSelected: Dispatch<SetStateAction<string[]>>,
-    setCustomList: Dispatch<SetStateAction<string[]>>,
+    setCustomList: Dispatch<SetStateAction<string[]>>
   ) => {
     const trimmed = value.trim();
     if (!trimmed) return;
     const normalized = trimmed.toLowerCase();
     const existingItem = [...customList, ...options].find(
-      (item) => item.toLowerCase() === normalized,
+      (item) => item.toLowerCase() === normalized
     );
     if (existingItem) {
       setSelected((current) =>
-        current.includes(existingItem) ? current : [...current, existingItem],
+        current.includes(existingItem) ? current : [...current, existingItem]
       );
       return;
     }
-    const alreadySelected = selected.some(
-      (item) => item.toLowerCase() === normalized,
-    );
+    const alreadySelected = selected.some((item) => item.toLowerCase() === normalized);
     if (alreadySelected) return;
     setCustomList((current) => [...current, trimmed]);
     setSelected((current) => [...current, trimmed]);
@@ -210,8 +203,8 @@ function Profile() {
   const handleReset = () => {
     setCustomDiets([]);
     setCustomAllergies([]);
-    setCustomDietInput("");
-    setCustomAllergyInput("");
+    setCustomDietInput('');
+    setCustomAllergyInput('');
   };
 
   return (
@@ -241,22 +234,13 @@ function Profile() {
                 <label htmlFor="lastName">
                   Last Name <span className="required">*</span>
                 </label>
-                <input
-                  id="lastName"
-                  type="text"
-                  placeholder="Enter last name"
-                />
+                <input id="lastName" type="text" placeholder="Enter last name" />
               </div>
             </div>
             <div className="profile-grid one">
               <div className="profile-field">
                 <label htmlFor="email">Email Address</label>
-                <input
-                  id="email"
-                  type="email"
-                  value={profileEmail || "No email found"}
-                  disabled
-                />
+                <input id="email" type="email" value={profileEmail || 'No email found'} disabled />
                 <p className="profile-hint">Email cannot be changed</p>
               </div>
             </div>
@@ -268,12 +252,9 @@ function Profile() {
             <h2>Diet Preferences</h2>
           </div>
           <div className="profile-card-body">
-            <p className="profile-card-title">
-              Select your dietary preferences
-            </p>
+            <p className="profile-card-title">Select your dietary preferences</p>
             <p className="profile-card-subtitle">
-              Select your preferences and we will recommend recipes that match
-              your lifestyle.
+              Select your preferences and we will recommend recipes that match your lifestyle.
             </p>
             <div className="profile-chip-grid">
               {dietOptions.map((option) => {
@@ -282,11 +263,11 @@ function Profile() {
                   <button
                     key={option}
                     type="button"
-                    className={`profile-chip ${selected ? "selected" : ""}`}
+                    className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
                     {option}
-                    {selected ? " (selected)" : ""}
+                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -296,11 +277,11 @@ function Profile() {
                   <button
                     key={`custom-diet-${option}`}
                     type="button"
-                    className={`profile-chip ${selected ? "selected" : ""}`}
+                    className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
                     {option}
-                    {selected ? " (selected)" : ""}
+                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -312,7 +293,7 @@ function Profile() {
                 placeholder="Add a custom dietary preference"
                 onChange={(event) => setCustomDietInput(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
+                  if (event.key === 'Enter') {
                     event.preventDefault();
                     addCustomItem(
                       customDietInput,
@@ -320,9 +301,9 @@ function Profile() {
                       customDiets,
                       dietOptions,
                       setSelectedDiets,
-                      setCustomDiets,
+                      setCustomDiets
                     );
-                    setCustomDietInput("");
+                    setCustomDietInput('');
                   }
                 }}
               />
@@ -336,9 +317,9 @@ function Profile() {
                     customDiets,
                     dietOptions,
                     setSelectedDiets,
-                    setCustomDiets,
+                    setCustomDiets
                   );
-                  setCustomDietInput("");
+                  setCustomDietInput('');
                 }}
               >
                 Add
@@ -352,9 +333,7 @@ function Profile() {
             <h2>Allergies &amp; Intolerances</h2>
           </div>
           <div className="profile-card-body">
-            <p className="profile-card-title">
-              Select any allergies or food intolerances
-            </p>
+            <p className="profile-card-title">Select any allergies or food intolerances</p>
             <p className="profile-card-subtitle">
               We'll exclude these ingredients from recipe recommendations.
             </p>
@@ -365,13 +344,11 @@ function Profile() {
                   <button
                     key={option}
                     type="button"
-                    className={`profile-chip ${selected ? "selected" : ""}`}
-                    onClick={() =>
-                      toggleSelection(option, setSelectedAllergies)
-                    }
+                    className={`profile-chip ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
                     {option}
-                    {selected ? " (selected)" : ""}
+                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -381,13 +358,11 @@ function Profile() {
                   <button
                     key={`custom-allergy-${option}`}
                     type="button"
-                    className={`profile-chip ${selected ? "selected" : ""}`}
-                    onClick={() =>
-                      toggleSelection(option, setSelectedAllergies)
-                    }
+                    className={`profile-chip ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
                     {option}
-                    {selected ? " (selected)" : ""}
+                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -399,7 +374,7 @@ function Profile() {
                 placeholder="Add a custom allergy or intolerance"
                 onChange={(event) => setCustomAllergyInput(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
+                  if (event.key === 'Enter') {
                     event.preventDefault();
                     addCustomItem(
                       customAllergyInput,
@@ -407,9 +382,9 @@ function Profile() {
                       customAllergies,
                       allergyOptions,
                       setSelectedAllergies,
-                      setCustomAllergies,
+                      setCustomAllergies
                     );
-                    setCustomAllergyInput("");
+                    setCustomAllergyInput('');
                   }
                 }}
               />
@@ -423,9 +398,9 @@ function Profile() {
                     customAllergies,
                     allergyOptions,
                     setSelectedAllergies,
-                    setCustomAllergies,
+                    setCustomAllergies
                   );
-                  setCustomAllergyInput("");
+                  setCustomAllergyInput('');
                 }}
               >
                 Add
@@ -434,11 +409,7 @@ function Profile() {
           </div>
         </section>
         <div className="profile-actions">
-          <button
-            type="button"
-            className="profile-button secondary"
-            onClick={handleReset}
-          >
+          <button type="button" className="profile-button secondary" onClick={handleReset}>
             Reset Changes
           </button>
           <button
@@ -446,26 +417,17 @@ function Profile() {
             className="profile-button secondary"
             onClick={() => setShowRecipeManager(true)}
           >
-             Manage Recipes
+            Manage Recipes
           </button>
-          <button type="button"  onClick={handleSave}className="profile-button primary">
+          <button type="button" onClick={handleSave} className="profile-button primary">
             Save Changes
           </button>
         </div>
       </div>
       {showRecipeManager && (
-        <div
-          className="modal-overlay-profile"
-          onClick={() => setShowRecipeManager(false)}
-        >
-          <div
-            className="modal-content-profile"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="modal-close-profile"
-              onClick={() => setShowRecipeManager(false)}
-            >
+        <div className="modal-overlay-profile" onClick={() => setShowRecipeManager(false)}>
+          <div className="modal-content-profile" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-profile" onClick={() => setShowRecipeManager(false)}>
               ×
             </button>
             <RecipeManager />

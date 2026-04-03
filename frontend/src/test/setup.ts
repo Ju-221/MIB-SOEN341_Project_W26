@@ -1,11 +1,11 @@
-import { afterEach, vi } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
+import { afterEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
 
 // Cleanup after each test case
 afterEach(() => {
-  cleanup()
-})
+  cleanup();
+});
 
 // Mock localStorage
 const localStorageMock = {
@@ -13,9 +13,9 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
-}
+};
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-global.localStorage = localStorageMock as any
+global.localStorage = localStorageMock as any;
 
 // Mock fetch API
-global.fetch = vi.fn()
+global.fetch = vi.fn();

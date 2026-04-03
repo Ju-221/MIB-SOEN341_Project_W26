@@ -28,11 +28,14 @@
   border-radius: 999px;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   background: #ffffff;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    transform 0.15s;
   white-space: nowrap;
 }
 
@@ -43,8 +46,14 @@
 }
 
 @keyframes fadeInDown {
-  0%   { opacity: 0; transform: translateY(-16px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Messages ────────────────────────────────────────────── */
@@ -58,11 +67,19 @@
   scrollbar-width: none;
 }
 
-.aichat-messages::-webkit-scrollbar { display: none; }
+.aichat-messages::-webkit-scrollbar {
+  display: none;
+}
 
-.aichat-bubble-row { display: flex; }
-.aichat-bubble-row--user  { justify-content: flex-end; }
-.aichat-bubble-row--model { justify-content: flex-start; }
+.aichat-bubble-row {
+  display: flex;
+}
+.aichat-bubble-row--user {
+  justify-content: flex-end;
+}
+.aichat-bubble-row--model {
+  justify-content: flex-start;
+}
 
 .aichat-bubble {
   max-width: 62%;
@@ -76,8 +93,14 @@
 }
 
 @keyframes bubbleIn {
-  0%   { opacity: 0; transform: translateY(10px) scale(0.97); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .aichat-bubble--user {
@@ -112,12 +135,24 @@
   animation: typingBounce 1.2s ease-in-out infinite;
 }
 
-.aichat-bubble--typing span:nth-child(2) { animation-delay: 0.2s; }
-.aichat-bubble--typing span:nth-child(3) { animation-delay: 0.4s; }
+.aichat-bubble--typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.aichat-bubble--typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
-  30%           { transform: translateY(-6px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
 }
 
 /* ── Floating input bar ──────────────────────────────────── */
@@ -140,11 +175,15 @@
   padding: 0.75rem 1.3rem;
   font-family: inherit;
   line-height: 1.5;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
   outline: none;
 }
 
-.aichat-input::placeholder { color: rgba(255, 255, 255, 0.38); }
+.aichat-input::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
 .aichat-input:focus {
   border-color: rgba(255, 255, 255, 0.65);
   background: rgba(255, 255, 255, 0.16);
@@ -154,13 +193,15 @@
   padding: 0.72rem 1.5rem;
   border-radius: 999px;
   background: #ffffff;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 0.9rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
   box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 }
@@ -170,7 +211,10 @@
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
-.aichat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.aichat-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* ── Recipe card in chat ─────────────────────────────────── */
 .aichat-card-row {
@@ -208,7 +252,10 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    transform 0.15s;
   white-space: nowrap;
 }
 
@@ -247,13 +294,23 @@
 }
 
 @keyframes checkPop {
-  0%   { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes checkDraw {
-  0%   { stroke-dashoffset: 24; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ── Calendar picker ─────────────────────────────────────── */
@@ -303,15 +360,22 @@
   border-radius: 999px;
   border: none;
   background: #ffffff;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s;
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
 }
 
-.aichat-cal-confirm-btn:hover:not(:disabled) { transform: scale(1.04); }
-.aichat-cal-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.aichat-cal-confirm-btn:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+.aichat-cal-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .aichat-cal-cancel-btn {
   padding: 0.4rem 0.8rem;
@@ -321,7 +385,9 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.82rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .aichat-cal-cancel-btn:hover {
@@ -375,7 +441,7 @@
   }
 
   .aichat-bubble--user {
-    background: #5227FF;
+    background: #5227ff;
     color: #ffffff;
   }
 
@@ -394,12 +460,12 @@
   }
 
   .aichat-input:focus {
-    border-color: #5227FF;
+    border-color: #5227ff;
     background: rgba(0, 0, 0, 0.03);
   }
 
   .aichat-send-btn {
-    background: #5227FF;
+    background: #5227ff;
     color: #ffffff;
     box-shadow: 0 3px 16px rgba(82, 39, 255, 0.25);
   }

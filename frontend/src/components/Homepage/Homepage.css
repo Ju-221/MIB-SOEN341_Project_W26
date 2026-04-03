@@ -46,7 +46,9 @@
   border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .homepage-hero-cta:hover {
@@ -118,7 +120,9 @@
   border-radius: 0px;
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .homepage-recipe-card:hover {

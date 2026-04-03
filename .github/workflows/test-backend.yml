@@ -3,41 +3,45 @@ name: Backend API Tests
 
 on:
   push:
-    branches: [ main, Dev ]
+    branches: [main, Dev]
     paths:
       - 'express/**'
       - '.github/workflows/test-backend.yml'
   pull_request:
-    branches: [ main, Dev ]
+    branches: [main, Dev]
     paths:
       - 'express/**'
 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install root dependencies
         run: npm install
-      
+
       - name: Install backend dependencies
         run: npm install -w express
-      
+
       - name: Lint backend
         run: npm run lint -w express
+
+      - name: Check formatting
+        run: npx prettier --check .
+
       - name: Setup environment variables
         run: |
           if [ -z "${{ secrets.JWT_SECRET }}" ]; then
@@ -48,18 +52,18 @@ jobs:
             cp .env.example .env
             sed -i 's/your_jwt_secret_key/${{ secrets.JWT_SECRET }}/' .env
           fi
-      
+
       - name: Run database migrations
         run: npx drizzle-kit push --force
         working-directory: express
-            
+
       - name: Start backend server
         run: |
           echo "Starting backend server..."
           npm run dev -w express > express/server.log 2>&1 &
           echo $! > express/server.pid
         timeout-minutes: 2
-      
+
       - name: Wait for server to start
         run: |
           echo "Waiting for server to start..."
@@ -76,13 +80,13 @@ jobs:
           cat express/server.log
           echo "====================================="
           exit 1
-      
+
       - name: Test root endpoint
         run: |
           echo "Testing GET /"
           curl -v http://localhost:3000/
           echo ""
-      
+
       - name: Create test user (signup)
         run: |
           echo "Testing POST /api/auth/signup"
@@ -96,7 +100,7 @@ jobs:
           RESPONSE=$(cat /tmp/signup_response.json)
           echo "HTTP Status: $HTTP_CODE"
           echo "Response: $RESPONSE"
-          
+
           if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 201 ]; then
             echo "✗ Signup failed: Expected HTTP 200/201, got $HTTP_CODE"
             echo "============ Server Logs ============"
@@ -104,7 +108,7 @@ jobs:
             echo "====================================="
             exit 1
           fi
-          
+
           if ! echo "$RESPONSE" | grep -q "id\|email\|user"; then
             echo "✗ Signup failed: Response missing expected fields (id/email/user)"
             echo "============ Server Logs ============"
@@ -112,9 +116,9 @@ jobs:
             echo "====================================="
             exit 1
           fi
-          
+
           echo "✓ Signup endpoint working correctly"
-      
+
       - name: Test signin endpoint
         run: |
           echo "Testing POST /api/auth/signin"
@@ -128,7 +132,7 @@ jobs:
           RESPONSE=$(cat /tmp/signin_response.json)
           echo "HTTP Status: $HTTP_CODE"
           echo "Response: $RESPONSE"
-          
+
           if [ "$HTTP_CODE" -ne 200 ]; then
             echo "✗ Signin failed: Expected HTTP 200, got $HTTP_CODE"
             echo "============ Server Logs ============"
@@ -136,7 +140,7 @@ jobs:
             echo "====================================="
             exit 1
           fi
-          
+
           if ! echo "$RESPONSE" | grep -q "token\|email\|user"; then
             echo "✗ Signin failed: Response missing expected fields (token/email/user)"
             echo "============ Server Logs ============"
@@ -144,9 +148,9 @@ jobs:
             echo "====================================="
             exit 1
           fi
-          
+
           echo "✓ Signin endpoint working correctly"
-      
+
       - name: Check database file was created
         run: |
           if [ -f "express/db/mealmajor.db" ]; then
@@ -156,7 +160,7 @@ jobs:
             echo "✗ Database file not found"
             exit 1
           fi
-      
+
       - name: Check database tables
         run: |
           cd express
@@ -173,7 +177,7 @@ jobs:
               process.exit(1);
             }
           "
-      
+
       - name: Cleanup
         if: always()
         run: |

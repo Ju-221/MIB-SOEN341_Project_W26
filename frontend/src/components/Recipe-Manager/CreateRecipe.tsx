@@ -42,7 +42,10 @@ export interface Recipe {
   instructions?: string[];
 }
 
-interface RecipeFormData extends Omit<Recipe, 'ingredients' | 'prepTime' | 'cookTime' | 'estimatedCost' | 'servings'> {
+interface RecipeFormData extends Omit<
+  Recipe,
+  'ingredients' | 'prepTime' | 'cookTime' | 'estimatedCost' | 'servings'
+> {
   ingredients: (string | FormIngredient)[];
   prepTime: FormNumberValue;
   cookTime: FormNumberValue;
@@ -58,20 +61,42 @@ interface RecipeManagerProps {
 const tagCategories = {
   allergies: {
     label: 'Allergies & Intolerances',
-    tags: ['peanuts', 'tree-nuts', 'eggs', 'milk', 'fish', 'crustaceans', 'soy', 'wheat', 'sesame', 'mustard', 'lactose', 'gluten']
+    tags: [
+      'peanuts',
+      'tree-nuts',
+      'eggs',
+      'milk',
+      'fish',
+      'crustaceans',
+      'soy',
+      'wheat',
+      'sesame',
+      'mustard',
+      'lactose',
+      'gluten',
+    ],
   },
   difficulty: {
     label: 'Difficulty Level',
-    tags: ['easy', 'medium', 'hard']
+    tags: ['easy', 'medium', 'hard'],
   },
   diet: {
     label: 'Diet Preferences',
-    tags: ['vegetarian', 'vegan', 'keto', 'low-carb', 'high-protein', 'pescetarian', 'halal', 'kosher']
+    tags: [
+      'vegetarian',
+      'vegan',
+      'keto',
+      'low-carb',
+      'high-protein',
+      'pescetarian',
+      'halal',
+      'kosher',
+    ],
   },
   goals: {
     label: 'Goals & Attributes',
-    tags: ['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free']
-  }
+    tags: ['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free'],
+  },
 };
 
 const predefinedTags = Object.values(tagCategories).flatMap((category) => category.tags);
@@ -185,7 +210,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
   const getRecipeDisplayCost = (recipe: Recipe): number => {
     const ingredientCost = (recipe.ingredients || []).reduce((sum, ing) => {
-      const cost = typeof ing === 'object' ? (ing.cost || 0) : 0;
+      const cost = typeof ing === 'object' ? ing.cost || 0 : 0;
       return sum + cost;
     }, 0);
     return ingredientCost > 0 ? ingredientCost : recipe.estimatedCost || 0;
@@ -215,9 +240,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     const normalizedTag = normalizeText(tag);
 
     if (singleSelect) {
-      setSelectedTags((current) =>
-        current.includes(normalizedTag) ? [] : [normalizedTag]
-      );
+      setSelectedTags((current) => (current.includes(normalizedTag) ? [] : [normalizedTag]));
       return;
     }
 
@@ -267,10 +290,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       .map(normalizeText)
       .filter(Boolean);
 
-    const ingredientTokens = ingredientFilterQuery
-      .split(',')
-      .map(normalizeText)
-      .filter(Boolean);
+    const ingredientTokens = ingredientFilterQuery.split(',').map(normalizeText).filter(Boolean);
 
     const maxPrepTime = parseFilterNumber(maxPrepTimeFilter);
     const maxCookTime = parseFilterNumber(maxCookTimeFilter);
@@ -320,18 +340,18 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         typeof ingredient === 'string'
           ? ingredient
           : {
-            ...ingredient,
-            amount: ingredient.amount || '',
-            unit: ingredient.unit || '',
-            cost: ingredient.cost ?? '',
-          }
+              ...ingredient,
+              amount: ingredient.amount || '',
+              unit: ingredient.unit || '',
+              cost: ingredient.cost ?? '',
+            }
       ),
       servings: recipe.servings ?? '',
       prepTime: recipe.prepTime ?? '',
       cookTime: recipe.cookTime ?? '',
       estimatedCost: recipe.estimatedCost ?? 0,
     });
-    const customRecipeTags = recipe.categories.filter(tag => !predefinedTags.includes(tag));
+    const customRecipeTags = recipe.categories.filter((tag) => !predefinedTags.includes(tag));
     setCustomTags(customRecipeTags);
     setImagePreview(recipe.heroImage || recipe.image || '');
     setIsEditing(true);
@@ -342,7 +362,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     if (hasHandledInitialEdit.current || initialEditRecipeId === null) return;
     if (recipes.length === 0) return;
 
-    const matchedRecipe = recipes.find((recipe) => recipe.id.toString() === initialEditRecipeId.toString());
+    const matchedRecipe = recipes.find(
+      (recipe) => recipe.id.toString() === initialEditRecipeId.toString()
+    );
     hasHandledInitialEdit.current = true;
 
     if (matchedRecipe) {
@@ -364,25 +386,25 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     const jwt_token: string | null = localStorage.getItem('token');
 
     if (!jwt_token) {
-        throw new Error("jwt token not found");
+      throw new Error('jwt token not found');
     }
 
     return jwt_token;
-  }
+  };
 
   const confirmDeleteRecipe = async () => {
     try {
-      const jwt_token = getJwtToken()
+      const jwt_token = getJwtToken();
 
       if (!selectedRecipeId) {
-        throw new Error("Recipe ID for deletion is null");
+        throw new Error('Recipe ID for deletion is null');
       }
-      
+
       await deleteRecipe(selectedRecipeId.toString(), jwt_token);
 
       setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
       setShowDeleteConfirm(false);
-      setSelectedRecipeId(null)
+      setSelectedRecipeId(null);
     } catch (error) {
       console.error(error);
     }
@@ -401,9 +423,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (name === 'servings' || name === 'prepTime' || name === 'cookTime') {
       if (value === '') {
@@ -428,7 +448,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
   ) => {
     if (!formData[field]) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const currentArray = Array.isArray(formData[field]) ? [...(formData[field] as (string | any)[])] : [];
+    const currentArray = Array.isArray(formData[field])
+      ? [...(formData[field] as (string | any)[])]
+      : [];
 
     if (field === 'ingredients') {
       const ingredient = currentArray[index];
@@ -476,17 +498,15 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
 
-    const newItem = field === 'ingredients' ? { name: '', amount: '', unit: '', cost: '' } : { text: '' };
+    const newItem =
+      field === 'ingredients' ? { name: '', amount: '', unit: '', cost: '' } : { text: '' };
     setFormData({
       ...formData,
       [field]: [...currentArray, newItem],
     });
   };
 
-  const handleRemoveArrayField = (
-    index: number,
-    field: 'ingredients' | 'steps'
-  ) => {
+  const handleRemoveArrayField = (index: number, field: 'ingredients' | 'steps') => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentArray = formData[field] as (string | any)[];
     if (!currentArray) return;
@@ -503,7 +523,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
     if (isDifficultyTag) {
       // For difficulty tags, ensure only one can be selected
-      const nonDifficultyCategories = formData.categories.filter(t => !tagCategories.difficulty.tags.includes(t));
+      const nonDifficultyCategories = formData.categories.filter(
+        (t) => !tagCategories.difficulty.tags.includes(t)
+      );
 
       if (formData.categories.includes(tag)) {
         // If already selected, deselect it
@@ -576,7 +598,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
     // Preserve the previously saved total for legacy recipes whose per-ingredient costs were not stored.
     const ingredientCostTotal = getIngredientCostTotal(formData);
-    const totalCost = ingredientCostTotal > 0 ? ingredientCostTotal : (formData.estimatedCost || 0);
+    const totalCost = ingredientCostTotal > 0 ? ingredientCostTotal : formData.estimatedCost || 0;
 
     const cleanedIngredients = (formData.ingredients as (string | FormIngredient)[])
       .map((ingredient) => {
@@ -631,9 +653,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       cookTime: formData.cookTime === '' ? 0 : formData.cookTime,
       estimatedCost: totalCost,
     };
-    const defaultImage = !baseRecipeData.heroImage && !baseRecipeData.image
-      ? await getDefaultImage()
-      : null;
+    const defaultImage =
+      !baseRecipeData.heroImage && !baseRecipeData.image ? await getDefaultImage() : null;
     const recipeData: Recipe = {
       ...baseRecipeData,
       heroImage: baseRecipeData.heroImage || defaultImage || undefined,
@@ -646,13 +667,13 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
     if (isEditing) {
       try {
-        const updatedRecipe = await updateRecipe(recipeData.id.toString(), recipeData, getJwtToken());
-        
-        setRecipes(
-          recipes.map((recipe) =>
-            recipe.id === recipeData.id ? updatedRecipe : recipe
-          )
+        const updatedRecipe = await updateRecipe(
+          recipeData.id.toString(),
+          recipeData,
+          getJwtToken()
         );
+
+        setRecipes(recipes.map((recipe) => (recipe.id === recipeData.id ? updatedRecipe : recipe)));
         setSelectedRecipe((currentRecipe) =>
           currentRecipe && currentRecipe.id === recipeData.id ? updatedRecipe : currentRecipe
         );
@@ -669,20 +690,20 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         title: recipeData.title || recipeData.name || '',
       };
       try {
-        // API call 
+        // API call
         const potentialArray = await createRecipe(tempNewRecipe, getJwtToken());
         // Account for default recipe creation returning an array of recipes
         if (Array.isArray(potentialArray)) {
-            const loadedRecipes = await Promise.all(potentialArray)
-            setRecipes([...recipes, ...loadedRecipes])
-            loadedRecipes.forEach((recipe) => onRecipeSaved?.(recipe))
+          const loadedRecipes = await Promise.all(potentialArray);
+          setRecipes([...recipes, ...loadedRecipes]);
+          loadedRecipes.forEach((recipe) => onRecipeSaved?.(recipe));
         } else {
-          const returnedRecipe: Recipe = potentialArray
+          const returnedRecipe: Recipe = potentialArray;
           setRecipes([...recipes, returnedRecipe]);
           onRecipeSaved?.(returnedRecipe);
-        } 
+        }
       } catch (error) {
-        console.error(error)
+        console.error(error);
         setSaveError(error instanceof Error ? error.message : 'Failed to create recipe.');
         return;
       }
@@ -699,10 +720,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     <div className="recipe-manager">
       <div className="recipe-header">
         <h1>Recipe Manager</h1>
-        <button
-          className="btn btn-create"
-          onClick={handleCreateRecipe}
-        >
+        <button className="btn btn-create" onClick={handleCreateRecipe}>
           + Add Recipe
         </button>
       </div>
@@ -714,11 +732,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             <span className="recipe-filter-count">
               Showing {filteredRecipes.length} of {recipes.length}
             </span>
-            <button
-              type="button"
-              className="btn btn-filter-clear"
-              onClick={clearRecipeFilters}
-            >
+            <button type="button" className="btn btn-filter-clear" onClick={clearRecipeFilters}>
               Clear Filters
             </button>
             <button
@@ -734,166 +748,162 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
         {filtersExpanded && (
           <>
-        <div className="recipe-filters-grid">
-          <div className="filter-field wide">
-            <label className="form-label" htmlFor="recipe-search-query">
-              Search (title, description, tags, steps)
-            </label>
-            <input
-              id="recipe-search-query"
-              type="text"
-              className="form-input"
-              value={recipeSearchQuery}
-              onChange={(e) => setRecipeSearchQuery(e.target.value)}
-              placeholder="e.g. healthy quick pasta"
-            />
-          </div>
+            <div className="recipe-filters-grid">
+              <div className="filter-field wide">
+                <label className="form-label" htmlFor="recipe-search-query">
+                  Search (title, description, tags, steps)
+                </label>
+                <input
+                  id="recipe-search-query"
+                  type="text"
+                  className="form-input"
+                  value={recipeSearchQuery}
+                  onChange={(e) => setRecipeSearchQuery(e.target.value)}
+                  placeholder="e.g. healthy quick pasta"
+                />
+              </div>
 
-          <div className="filter-field wide">
-            <label className="form-label" htmlFor="ingredient-filter-query">
-              Ingredients (comma separated)
-            </label>
-            <input
-              id="ingredient-filter-query"
-              type="text"
-              className="form-input"
-              value={ingredientFilterQuery}
-              onChange={(e) => setIngredientFilterQuery(e.target.value)}
-              placeholder="e.g. tomato, basil"
-            />
-          </div>
+              <div className="filter-field wide">
+                <label className="form-label" htmlFor="ingredient-filter-query">
+                  Ingredients (comma separated)
+                </label>
+                <input
+                  id="ingredient-filter-query"
+                  type="text"
+                  className="form-input"
+                  value={ingredientFilterQuery}
+                  onChange={(e) => setIngredientFilterQuery(e.target.value)}
+                  placeholder="e.g. tomato, basil"
+                />
+              </div>
 
-          <div className="filter-field">
-            <label className="form-label" htmlFor="max-prep-time-filter">
-              Max Prep Time (min)
-            </label>
-            <input
-              id="max-prep-time-filter"
-              type="number"
-              min="0"
-              className="form-input"
-              value={maxPrepTimeFilter}
-              onChange={(e) => setMaxPrepTimeFilter(e.target.value)}
-              placeholder="Any"
-            />
-          </div>
+              <div className="filter-field">
+                <label className="form-label" htmlFor="max-prep-time-filter">
+                  Max Prep Time (min)
+                </label>
+                <input
+                  id="max-prep-time-filter"
+                  type="number"
+                  min="0"
+                  className="form-input"
+                  value={maxPrepTimeFilter}
+                  onChange={(e) => setMaxPrepTimeFilter(e.target.value)}
+                  placeholder="Any"
+                />
+              </div>
 
-          <div className="filter-field">
-            <label className="form-label" htmlFor="max-cook-time-filter">
-              Max Cook Time (min)
-            </label>
-            <input
-              id="max-cook-time-filter"
-              type="number"
-              min="0"
-              className="form-input"
-              value={maxCookTimeFilter}
-              onChange={(e) => setMaxCookTimeFilter(e.target.value)}
-              placeholder="Any"
-            />
-          </div>
+              <div className="filter-field">
+                <label className="form-label" htmlFor="max-cook-time-filter">
+                  Max Cook Time (min)
+                </label>
+                <input
+                  id="max-cook-time-filter"
+                  type="number"
+                  min="0"
+                  className="form-input"
+                  value={maxCookTimeFilter}
+                  onChange={(e) => setMaxCookTimeFilter(e.target.value)}
+                  placeholder="Any"
+                />
+              </div>
 
-          <div className="filter-field">
-            <label className="form-label" htmlFor="max-total-time-filter">
-              Max Total Time (min)
-            </label>
-            <input
-              id="max-total-time-filter"
-              type="number"
-              min="0"
-              className="form-input"
-              value={maxTotalTimeFilter}
-              onChange={(e) => setMaxTotalTimeFilter(e.target.value)}
-              placeholder="Any"
-            />
-          </div>
+              <div className="filter-field">
+                <label className="form-label" htmlFor="max-total-time-filter">
+                  Max Total Time (min)
+                </label>
+                <input
+                  id="max-total-time-filter"
+                  type="number"
+                  min="0"
+                  className="form-input"
+                  value={maxTotalTimeFilter}
+                  onChange={(e) => setMaxTotalTimeFilter(e.target.value)}
+                  placeholder="Any"
+                />
+              </div>
 
-          <div className="filter-field">
-            <label className="form-label" htmlFor="max-cost-filter">
-              Max Cost ($)
-            </label>
-            <input
-              id="max-cost-filter"
-              type="number"
-              min="0"
-              step="0.01"
-              className="form-input"
-              value={maxCostFilter}
-              onChange={(e) => setMaxCostFilter(e.target.value)}
-              placeholder="Any"
-            />
-          </div>
-        </div>
-
-        <div className="filter-tag-groups">
-          <div className="tag-category compact">
-            <h4 className="tag-category-title">Difficulty</h4>
-            <div className="tags-container">
-              {tagCategories.difficulty.tags.map((tag) => (
-                <button
-                  key={`filter-difficulty-${tag}`}
-                  type="button"
-                  className={`tag-button ${selectedDifficultyFilters.includes(tag) ? 'selected' : ''}`}
-                  onClick={() =>
-                    toggleFilterTag(tag, setSelectedDifficultyFilters, true)
-                  }
-                >
-                  {tag}
-                </button>
-              ))}
+              <div className="filter-field">
+                <label className="form-label" htmlFor="max-cost-filter">
+                  Max Cost ($)
+                </label>
+                <input
+                  id="max-cost-filter"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="form-input"
+                  value={maxCostFilter}
+                  onChange={(e) => setMaxCostFilter(e.target.value)}
+                  placeholder="Any"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="tag-category compact">
-            <h4 className="tag-category-title">Dietary Tags</h4>
-            <div className="tags-container">
-              {tagCategories.diet.tags.map((tag) => (
-                <button
-                  key={`filter-diet-${tag}`}
-                  type="button"
-                  className={`tag-button ${selectedDietFilters.includes(tag) ? 'selected' : ''}`}
-                  onClick={() => toggleFilterTag(tag, setSelectedDietFilters)}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
+            <div className="filter-tag-groups">
+              <div className="tag-category compact">
+                <h4 className="tag-category-title">Difficulty</h4>
+                <div className="tags-container">
+                  {tagCategories.difficulty.tags.map((tag) => (
+                    <button
+                      key={`filter-difficulty-${tag}`}
+                      type="button"
+                      className={`tag-button ${selectedDifficultyFilters.includes(tag) ? 'selected' : ''}`}
+                      onClick={() => toggleFilterTag(tag, setSelectedDifficultyFilters, true)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="tag-category compact">
-            <h4 className="tag-category-title">Goals & Attributes</h4>
-            <div className="tags-container">
-              {tagCategories.goals.tags.map((tag) => (
-                <button
-                  key={`filter-goal-${tag}`}
-                  type="button"
-                  className={`tag-button ${selectedGoalFilters.includes(tag) ? 'selected' : ''}`}
-                  onClick={() => toggleFilterTag(tag, setSelectedGoalFilters)}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div className="tag-category compact">
+                <h4 className="tag-category-title">Dietary Tags</h4>
+                <div className="tags-container">
+                  {tagCategories.diet.tags.map((tag) => (
+                    <button
+                      key={`filter-diet-${tag}`}
+                      type="button"
+                      className={`tag-button ${selectedDietFilters.includes(tag) ? 'selected' : ''}`}
+                      onClick={() => toggleFilterTag(tag, setSelectedDietFilters)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="tag-category compact">
-            <h4 className="tag-category-title">Allergies & Intolerances</h4>
-            <div className="tags-container">
-              {tagCategories.allergies.tags.map((tag) => (
-                <button
-                  key={`filter-allergy-${tag}`}
-                  type="button"
-                  className={`tag-button ${selectedAllergyFilters.includes(tag) ? 'selected' : ''}`}
-                  onClick={() =>
-                    toggleFilterTag(tag, setSelectedAllergyFilters)
-                  }
-                >
-                  {tag}
-                </button>
-              ))}
+              <div className="tag-category compact">
+                <h4 className="tag-category-title">Goals & Attributes</h4>
+                <div className="tags-container">
+                  {tagCategories.goals.tags.map((tag) => (
+                    <button
+                      key={`filter-goal-${tag}`}
+                      type="button"
+                      className={`tag-button ${selectedGoalFilters.includes(tag) ? 'selected' : ''}`}
+                      onClick={() => toggleFilterTag(tag, setSelectedGoalFilters)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="tag-category compact">
+                <h4 className="tag-category-title">Allergies & Intolerances</h4>
+                <div className="tags-container">
+                  {tagCategories.allergies.tags.map((tag) => (
+                    <button
+                      key={`filter-allergy-${tag}`}
+                      type="button"
+                      className={`tag-button ${selectedAllergyFilters.includes(tag) ? 'selected' : ''}`}
+                      onClick={() => toggleFilterTag(tag, setSelectedAllergyFilters)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
           </>
         )}
       </div>
@@ -913,8 +923,12 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             >
               <div className="recipe-image-container">
                 <img
-                  src={recipe.heroImage || recipe.image || 'https://via.placeholder.com/300x200?text=No+Image'}
-                  alt={" "}
+                  src={
+                    recipe.heroImage ||
+                    recipe.image ||
+                    'https://via.placeholder.com/300x200?text=No+Image'
+                  }
+                  alt={' '}
                   className="recipe-image"
                 />
               </div>
@@ -937,16 +951,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                 </div>
               </div>
               <div className="recipe-actions" onClick={(e) => e.stopPropagation()}>
-                <button
-                  className="btn btn-edit"
-                  onClick={() => handleEditRecipe(recipe)}
-                >
+                <button className="btn btn-edit" onClick={() => handleEditRecipe(recipe)}>
                   Edit
                 </button>
-                <button
-                  className="btn btn-delete"
-                  onClick={() => handleDeleteRecipe(recipe.id)}
-                >
+                <button className="btn btn-delete" onClick={() => handleDeleteRecipe(recipe.id)}>
                   Delete
                 </button>
               </div>
@@ -955,9 +963,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         })}
       </div>
       {filteredRecipes.length === 0 && (
-        <div className="recipe-empty-state">
-          No recipes match the current filters.
-        </div>
+        <div className="recipe-empty-state">No recipes match the current filters.</div>
       )}
 
       {/* Recipe Detail Modal */}
@@ -965,10 +971,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         <div className="modal-overlay" onClick={() => setShowRecipeDetail(false)}>
           <div className="modal-content recipe-detail-modal" onClick={(e) => e.stopPropagation()}>
             <div className="recipe-detail-close">
-              <button
-                className="modal-close"
-                onClick={() => setShowRecipeDetail(false)}
-              >
+              <button className="modal-close" onClick={() => setShowRecipeDetail(false)}>
                 ×
               </button>
             </div>
@@ -976,7 +979,11 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             {/* Recipe Hero Image */}
             <div className="recipe-detail-hero">
               <img
-                src={selectedRecipe.heroImage || selectedRecipe.image || 'https://via.placeholder.com/500x300?text=Recipe'}
+                src={
+                  selectedRecipe.heroImage ||
+                  selectedRecipe.image ||
+                  'https://via.placeholder.com/500x300?text=Recipe'
+                }
                 alt={selectedRecipe.title || selectedRecipe.name}
                 className="recipe-detail-image"
               />
@@ -992,7 +999,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               <div className="stat-item">
                 <div className="stat-content">
                   <div className="stat-label">Time</div>
-                  <div className="stat-value">{(selectedRecipe.prepTime || 0) + (selectedRecipe.cookTime || 0)} Min</div>
+                  <div className="stat-value">
+                    {(selectedRecipe.prepTime || 0) + (selectedRecipe.cookTime || 0)} Min
+                  </div>
                 </div>
               </div>
               <div className="stat-item">
@@ -1009,7 +1018,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               <div className="stat-item">
                 <div className="stat-content">
                   <div className="stat-label">Cost</div>
-                  <div className="stat-value">${getRecipeDisplayCost(selectedRecipe).toFixed(2)}</div>
+                  <div className="stat-value">
+                    ${getRecipeDisplayCost(selectedRecipe).toFixed(2)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1018,13 +1029,17 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             {selectedRecipe.categories && selectedRecipe.categories.length > 0 && (
               <div className="recipe-detail-tags">
                 {selectedRecipe.categories.map((category, index) => (
-                  <span key={index} className="recipe-tag">{category}</span>
+                  <span key={index} className="recipe-tag">
+                    {category}
+                  </span>
                 ))}
               </div>
             )}
 
             <div className="recipe-detail-actions">
-              <button className="btn btn-get-started" onClick={() => setShowPopup(true)}>View Details →</button>
+              <button className="btn btn-get-started" onClick={() => setShowPopup(true)}>
+                View Details →
+              </button>
             </div>
           </div>
         </div>
@@ -1033,7 +1048,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       {showPopup && selectedRecipe && (
         <RecipePopup
           recipe={{
-            id: typeof selectedRecipe.id === 'string' ? parseInt(selectedRecipe.id, 10) : selectedRecipe.id as number,
+            id:
+              typeof selectedRecipe.id === 'string'
+                ? parseInt(selectedRecipe.id, 10)
+                : (selectedRecipe.id as number),
             title: selectedRecipe.title || selectedRecipe.name || '',
             description: selectedRecipe.description,
             prepTime: selectedRecipe.prepTime as number,
@@ -1043,7 +1061,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             heroImage: selectedRecipe.heroImage || selectedRecipe.image || null,
             categories: selectedRecipe.categories,
             ingredients: selectedRecipe.ingredients,
-            steps: selectedRecipe.steps.map(s => typeof s === 'string' ? s : s.text),
+            steps: selectedRecipe.steps.map((s) => (typeof s === 'string' ? s : s.text)),
           }}
           onClose={() => setShowPopup(false)}
         />
@@ -1055,10 +1073,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{isEditing ? 'Edit Recipe' : 'Create New Recipe'}</h2>
-              <button
-                className="modal-close"
-                onClick={() => setShowModal(false)}
-              >
+              <button className="modal-close" onClick={() => setShowModal(false)}>
                 ×
               </button>
             </div>
@@ -1076,9 +1091,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                       <button
                         type="button"
                         className="btn-change-image"
-                        onClick={() =>
-                          document.getElementById('image-upload')?.click()
-                        }
+                        onClick={() => document.getElementById('image-upload')?.click()}
                       >
                         Change Image
                       </button>
@@ -1086,9 +1099,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                   ) : (
                     <div
                       className="image-placeholder"
-                      onClick={() =>
-                        document.getElementById('image-upload')?.click()
-                      }
+                      onClick={() => document.getElementById('image-upload')?.click()}
                     >
                       <span>Click to upload image</span>
                     </div>
@@ -1194,26 +1205,39 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
                   <div className="ingredient-stats">
                     <div className="ingredient-total-cost">
-                      Total: ${(getIngredientCostTotal(formData) > 0
+                      Total: $
+                      {(getIngredientCostTotal(formData) > 0
                         ? getIngredientCostTotal(formData)
-                        : (formData.estimatedCost || 0)
+                        : formData.estimatedCost || 0
                       ).toFixed(2)}
                     </div>
                   </div>
                 </div>
                 <div className="ingredient-header-row">
-                  <div className="ingredient-name-col"><small>Name</small></div>
-                  <div className="ingredient-amount-col"><small>Amount</small></div>
-                  <div className="ingredient-unit-col"><small>Unit</small></div>
-                  <div className="ingredient-cost-col"><small>Cost</small></div>
+                  <div className="ingredient-name-col">
+                    <small>Name</small>
+                  </div>
+                  <div className="ingredient-amount-col">
+                    <small>Amount</small>
+                  </div>
+                  <div className="ingredient-unit-col">
+                    <small>Unit</small>
+                  </div>
+                  <div className="ingredient-cost-col">
+                    <small>Cost</small>
+                  </div>
                 </div>
                 <div className="array-fields">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {(formData.ingredients as (string | any)[])?.map((ingredient, index) => {
-                    const ingredientName = typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
-                    const ingredientAmount = typeof ingredient === 'object' ? ingredient?.amount || '' : '';
-                    const ingredientUnit = typeof ingredient === 'object' ? ingredient?.unit || '' : '';
-                    const ingredientCost = typeof ingredient === 'object' ? ingredient?.cost ?? '' : '';
+                    const ingredientName =
+                      typeof ingredient === 'string' ? ingredient : ingredient?.name || '';
+                    const ingredientAmount =
+                      typeof ingredient === 'object' ? ingredient?.amount || '' : '';
+                    const ingredientUnit =
+                      typeof ingredient === 'object' ? ingredient?.unit || '' : '';
+                    const ingredientCost =
+                      typeof ingredient === 'object' ? (ingredient?.cost ?? '') : '';
                     return (
                       <div key={index} className="ingredient-row">
                         <div className="ingredient-name-col">
@@ -1221,12 +1245,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                             type="text"
                             value={ingredientName}
                             onChange={(e) =>
-                              handleArrayFieldChange(
-                                index,
-                                'ingredients',
-                                e.target.value,
-                                'name'
-                              )
+                              handleArrayFieldChange(index, 'ingredients', e.target.value, 'name')
                             }
                             className="form-input"
                             placeholder={`Ingredient ${index + 1}`}
@@ -1237,12 +1256,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                             type="text"
                             value={ingredientAmount}
                             onChange={(e) =>
-                              handleArrayFieldChange(
-                                index,
-                                'ingredients',
-                                e.target.value,
-                                'amount'
-                              )
+                              handleArrayFieldChange(index, 'ingredients', e.target.value, 'amount')
                             }
                             className="form-input"
                             placeholder="Amount"
@@ -1252,19 +1266,16 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                           <select
                             value={ingredientUnit}
                             onChange={(e) =>
-                              handleArrayFieldChange(
-                                index,
-                                'ingredients',
-                                e.target.value,
-                                'unit'
-                              )
+                              handleArrayFieldChange(index, 'ingredients', e.target.value, 'unit')
                             }
                             className="form-input"
                             aria-label={`Ingredient ${index + 1} unit`}
                           >
                             <option value="">Unit</option>
                             {unitOptions.map((unit) => (
-                              <option key={unit} value={unit}>{unit}</option>
+                              <option key={unit} value={unit}>
+                                {unit}
+                              </option>
                             ))}
                           </select>
                         </div>
@@ -1273,12 +1284,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                             type="number"
                             value={ingredientCost}
                             onChange={(e) =>
-                              handleArrayFieldChange(
-                                index,
-                                'ingredients',
-                                e.target.value,
-                                'cost'
-                              )
+                              handleArrayFieldChange(index, 'ingredients', e.target.value, 'cost')
                             }
                             className="form-input"
                             placeholder="0.00"
@@ -1292,9 +1298,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                           <button
                             type="button"
                             className="btn-remove"
-                            onClick={() =>
-                              handleRemoveArrayField(index, 'ingredients')
-                            }
+                            onClick={() => handleRemoveArrayField(index, 'ingredients')}
                           >
                             Remove
                           </button>
@@ -1325,12 +1329,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                           <textarea
                             value={stepText}
                             onChange={(e) =>
-                              handleArrayFieldChange(
-                                index,
-                                'steps',
-                                e.target.value,
-                                'text'
-                              )
+                              handleArrayFieldChange(index, 'steps', e.target.value, 'text')
                             }
                             className="form-input form-textarea"
                             placeholder={`Step ${index + 1}`}
@@ -1340,9 +1339,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                             <button
                               type="button"
                               className="btn-remove"
-                              onClick={() =>
-                                handleRemoveArrayField(index, 'steps')
-                              }
+                              onClick={() => handleRemoveArrayField(index, 'steps')}
                             >
                               Remove
                             </button>
@@ -1350,7 +1347,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                         </div>
 
                         {/* Step Image (put on hold for now) */}
-                       {/*  <div className="step-image-section">
+                        {/*  <div className="step-image-section">
                           {preview ? (
                             <div className="step-image-preview">
                               <img src={preview} alt={`Step ${index + 1}`} />
@@ -1473,10 +1470,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
             <div className="modal-footer">
               {saveError && <p className="form-error-message">{saveError}</p>}
-              <button
-                className="btn btn-cancel"
-                onClick={() => setShowModal(false)}
-              >
+              <button className="btn btn-cancel" onClick={() => setShowModal(false)}>
                 Cancel
               </button>
               <button className="btn btn-save" onClick={handleSaveRecipe}>
@@ -1489,14 +1483,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowDeleteConfirm(false)}
-        >
-          <div
-            className="modal-content confirmation-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Confirm Delete</h2>
             </div>
@@ -1504,16 +1492,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               <p>Are you sure you want to delete this recipe? This action cannot be undone.</p>
             </div>
             <div className="modal-footer">
-              <button
-                className="btn btn-cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
+              <button className="btn btn-cancel" onClick={() => setShowDeleteConfirm(false)}>
                 Cancel
               </button>
-              <button
-                className="btn btn-delete-confirm"
-                onClick={confirmDeleteRecipe}
-              >
+              <button className="btn btn-delete-confirm" onClick={confirmDeleteRecipe}>
                 Delete
               </button>
             </div>

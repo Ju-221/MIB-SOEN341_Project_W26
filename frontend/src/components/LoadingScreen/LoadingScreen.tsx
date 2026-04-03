@@ -1,31 +1,31 @@
-import { useEffect } from 'react'
-import './LoadingScreen.css'
+import { useEffect } from 'react';
+import './LoadingScreen.css';
 
 interface LoadingScreenProps {
-  onReady: () => void
+  onReady: () => void;
 }
 
 function LoadingScreen({ onReady }: LoadingScreenProps) {
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     if (!token) {
-      onReady()
-      return
+      onReady();
+      return;
     }
 
     const checkBackendReady = async () => {
       try {
         await fetch('http://localhost:3000/api/preferences', {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        });
       } catch {
         // Backend not reachable — still proceed so the user isn't stuck
       }
-      onReady()
-    }
+      onReady();
+    };
 
-    checkBackendReady()
-  }, [onReady])
+    checkBackendReady();
+  }, [onReady]);
 
   return (
     <div className="loading-screen">
@@ -33,7 +33,7 @@ function LoadingScreen({ onReady }: LoadingScreenProps) {
       <div className="loading-screen-spinner" />
       <p className="loading-screen-text">Getting everything ready...</p>
     </div>
-  )
+  );
 }
 
-export default LoadingScreen
+export default LoadingScreen;
