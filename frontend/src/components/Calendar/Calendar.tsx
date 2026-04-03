@@ -10,6 +10,14 @@ import {
   buildEmptyMonth,
   emptyMeals,
 } from './types'
+import {
+  fetchCalendarWindow,
+  getCalendarMonthKey,
+  getCalendarMonthWindow,
+  replaceMonthInCalendarWindow,
+  saveCalendarWindow,
+  type CalendarWindowData,
+} from '../../api/calendar'
 import './Calendar.css'
 
 const API = 'http://localhost:3000'
@@ -19,20 +27,36 @@ type ModalView = 'closed' | 'choices' | 'picker' | 'ai'
 interface GridCell {
   day: CalendarDay
   currentMonth: boolean
+  interactive: boolean
   isToday: boolean
   fullDate: Date
 }
 
 function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const today = useMemo(() => new Date(), [])
+  const baseMonthDate = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+    [today],
+  )
+  const allowedMonthDates = useMemo(
+    () => getCalendarMonthWindow(baseMonthDate),
+    [baseMonthDate],
+  )
+  const [visibleMonthIndex, setVisibleMonthIndex] = useState(3)
+  const visibleMonthDate = allowedMonthDates[visibleMonthIndex]
+  const visibleMonthKey = useMemo(
+    () => getCalendarMonthKey(visibleMonthDate),
+    [visibleMonthDate],
+  )
+  const [currentDate, setCurrentDate] = useState(today)
   const [viewMode, setViewMode] = useState<ViewMode>('month')
-  const [days, setDays] = useState<CalendarDay[]>([])
+  const [calendarWindow, setCalendarWindow] = useState<CalendarWindowData | null>(null)
   const [loading, setLoading] = useState(true)
   const [recipes, setRecipes] = useState<Recipe[]>([])
 
   // Modal state
   const [modalView, setModalView] = useState<ModalView>('closed')
-  const [pickerDay, setPickerDay] = useState<number | null>(null)
+  const [pickerDate, setPickerDate] = useState<Date | null>(null)
   const [pickerMeal, setPickerMeal] = useState<MealType | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -48,41 +72,57 @@ function Calendar() {
   const [showRecipeManager, setShowRecipeManager] = useState(false)
   const [recipeManagerInitialEditId, setRecipeManagerInitialEditId] = useState<number | null>(null)
 
-  // Always locked to the real current month — never changes
-  const today = useMemo(() => new Date(), [])
-  const year = useMemo(() => today.getFullYear(), [today])
-  const month = useMemo(() => today.getMonth(), [today])
+  const year = visibleMonthDate.getFullYear()
+  const month = visibleMonthDate.getMonth()
   const monthName = MONTH_NAMES[month]
+  const days = calendarWindow?.monthData[visibleMonthKey] ?? buildEmptyMonth(year, month)
+  const getMonthDays = useCallback((date: Date) => {
+    const monthKey = getCalendarMonthKey(new Date(date.getFullYear(), date.getMonth(), 1))
+    return calendarWindow?.monthData[monthKey] ?? buildEmptyMonth(date.getFullYear(), date.getMonth())
+  }, [calendarWindow])
+
+  const getDayDataForDate = useCallback((date: Date) => {
+    return getMonthDays(date).find(day => day.date === date.getDate()) ?? {
+      date: date.getDate(),
+      meals: emptyMeals(),
+    }
+  }, [getMonthDays])
 
   const fetchCalendar = useCallback(async () => {
     setLoading(true)
     const token = localStorage.getItem('token')
-    if (!token) { setLoading(false); return }
+    if (!token) {
+      setCalendarWindow({
+        monthDates: allowedMonthDates,
+        monthKeys: allowedMonthDates.map(getCalendarMonthKey),
+        monthData: Object.fromEntries(
+          allowedMonthDates.map(date => [
+            getCalendarMonthKey(date),
+            buildEmptyMonth(date.getFullYear(), date.getMonth()),
+          ]),
+        ),
+      })
+      setLoading(false)
+      return
+    }
 
     try {
-      const res = await fetch(
-        `${API}/api/calendar?month=${MONTH_NAMES[month]}&year=${year}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        const backendDays: CalendarDay[] = data.days
-        const full = buildEmptyMonth(year, month)
-        for (const d of backendDays) {
-          const idx = d.date - 1
-          if (idx >= 0 && idx < full.length) {
-            full[idx] = d
-          }
-        }
-        setDays(full)
-      } else {
-        setDays(buildEmptyMonth(year, month))
-      }
+      const windowData = await fetchCalendarWindow(token, baseMonthDate)
+      setCalendarWindow(windowData)
     } catch {
-      setDays(buildEmptyMonth(year, month))
+      setCalendarWindow({
+        monthDates: allowedMonthDates,
+        monthKeys: allowedMonthDates.map(getCalendarMonthKey),
+        monthData: Object.fromEntries(
+          allowedMonthDates.map(date => [
+            getCalendarMonthKey(date),
+            buildEmptyMonth(date.getFullYear(), date.getMonth()),
+          ]),
+        ),
+      })
     }
     setLoading(false)
-  }, [month, year])
+  }, [allowedMonthDates, baseMonthDate])
 
   const fetchRecipes = useCallback(() => {
     fetch(`${API}/api/recipes`)
@@ -93,21 +133,35 @@ function Calendar() {
 
   useEffect(() => { fetchRecipes() }, [fetchRecipes])
   useEffect(() => { fetchCalendar() }, [fetchCalendar])
+  useEffect(() => {
+    if (viewMode !== 'month') return
+    const nextVisibleDate = new Date(
+      visibleMonthDate.getFullYear(),
+      visibleMonthDate.getMonth(),
+      visibleMonthDate.getTime() === baseMonthDate.getTime() ? today.getDate() : 1,
+    )
+    setCurrentDate(nextVisibleDate)
+  }, [baseMonthDate, today, viewMode, visibleMonthDate])
 
   const saveCalendar = useCallback(async (updatedDays: CalendarDay[]) => {
     const token = localStorage.getItem('token')
-    if (!token) return
+    if (!token || !calendarWindow) return
+    const updatedWindow = replaceMonthInCalendarWindow(calendarWindow, visibleMonthDate, updatedDays)
+    setCalendarWindow(updatedWindow)
     try {
-      await fetch(`${API}/api/calendar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ month: MONTH_NAMES[month], year, days: updatedDays }),
-      })
+      await saveCalendarWindow(token, updatedWindow)
     } catch { /* silent */ }
-  }, [month, year])
+  }, [calendarWindow, visibleMonthDate])
+
+  const saveCalendarForDate = useCallback(async (targetDate: Date, updatedDays: CalendarDay[]) => {
+    const token = localStorage.getItem('token')
+    if (!token || !calendarWindow) return
+    const updatedWindow = replaceMonthInCalendarWindow(calendarWindow, targetDate, updatedDays)
+    setCalendarWindow(updatedWindow)
+    try {
+      await saveCalendarWindow(token, updatedWindow)
+    } catch { /* silent */ }
+  }, [calendarWindow])
 
   const syncDaysWithRecipes = useCallback((calendarDays: CalendarDay[], recipeList: Recipe[]) => {
     if (calendarDays.length === 0 || recipeList.length === 0) {
@@ -148,17 +202,46 @@ function Calendar() {
     return { updatedDays, changed }
   }, [])
 
-  // Navigation
-  const navigate = (direction: number) => {
-    if (viewMode !== 'week') return
+  const navigateMonth = (direction: number) => {
+    const nextIndex = visibleMonthIndex + direction
+    if (nextIndex < 0 || nextIndex >= allowedMonthDates.length) return
     setAnimating(true)
     setTimeout(() => {
-      const d = new Date(currentDate)
-      d.setDate(d.getDate() + direction * 7)
-      // Clamp: don't leave the current month
-      if (d.getMonth() === month && d.getFullYear() === year) {
-        setCurrentDate(d)
+      setVisibleMonthIndex(nextIndex)
+      setAnimating(false)
+    }, 150)
+  }
+
+  const navigateWeek = (direction: number) => {
+    const nextDate = new Date(currentDate)
+    nextDate.setDate(nextDate.getDate() + direction * 7)
+
+    const earliestMonth = allowedMonthDates[0]
+    const latestMonth = allowedMonthDates[allowedMonthDates.length - 1]
+    const minDate = new Date(earliestMonth.getFullYear(), earliestMonth.getMonth(), 1)
+    const maxDate = new Date(latestMonth.getFullYear(), latestMonth.getMonth() + 1, 0)
+
+    if (nextDate < minDate || nextDate > maxDate) return
+
+    const nextMonthIndex = allowedMonthDates.findIndex(date =>
+      date.getFullYear() === nextDate.getFullYear() && date.getMonth() === nextDate.getMonth(),
+    )
+
+    setAnimating(true)
+    setTimeout(() => {
+      setCurrentDate(nextDate)
+      if (nextMonthIndex !== -1) {
+        setVisibleMonthIndex(nextMonthIndex)
       }
+      setAnimating(false)
+    }, 150)
+  }
+
+  const goToCurrentPeriod = () => {
+    setAnimating(true)
+    setTimeout(() => {
+      setVisibleMonthIndex(3)
+      setCurrentDate(today)
       setAnimating(false)
     }, 150)
   }
@@ -192,15 +275,15 @@ function Calendar() {
   }
 
   // Meal slot click — open choices modal
-  const handleSlotClick = (dayDate: number, meal: MealType) => {
-    setPickerDay(dayDate)
+  const handleSlotClick = (date: Date, meal: MealType) => {
+    setPickerDate(date)
     setPickerMeal(meal)
     setSearchQuery('')
     setAiPrompt('')
     setAiError('')
 
     // If a recipe is already assigned, go straight to picker (to change/remove)
-    const dayData = days.find(d => d.date === dayDate)
+    const dayData = getDayDataForDate(date)
     if (dayData && dayData.meals[meal].recipeId !== null) {
       setModalView('picker')
     } else {
@@ -209,21 +292,22 @@ function Calendar() {
   }
 
   const handleAssignRecipe = (recipe: Recipe) => {
-    if (pickerDay === null || pickerMeal === null) return
+    if (pickerDate === null || pickerMeal === null) return
 
     setAssignmentError('')
 
     const recipeId = typeof recipe.id === 'string' ? parseInt(recipe.id) : recipe.id
-    const currentDay = days.find(d => d.date === pickerDay)
+    const currentMonthDays = getMonthDays(pickerDate)
+    const currentDay = currentMonthDays.find(d => d.date === pickerDate.getDate())
     if (!currentDay) return
 
-    if (hasDuplicatesInWeek(currentDay, recipeId)) {
+    if (hasDuplicatesInWeek(pickerDate, recipeId)) {
       setAssignmentError('Recipe already assigned in this week. Please pick a different recipe.')
       return
     }
 
-    const updated = days.map(d => {
-      if (d.date !== pickerDay) {
+    const updated = currentMonthDays.map(d => {
+      if (d.date !== pickerDate.getDate()) {
         return d
       }
       return {
@@ -238,15 +322,15 @@ function Calendar() {
       }
     })
 
-    setDays(updated)
-    saveCalendar(updated)
+    saveCalendarForDate(pickerDate, updated)
     closeModal()
   }
 
   const handleRemoveMeal = () => {
-    if (pickerDay === null || pickerMeal === null) return
-    const updated = days.map(d => {
-      if (d.date !== pickerDay) return d
+    if (pickerDate === null || pickerMeal === null) return
+    const currentMonthDays = getMonthDays(pickerDate)
+    const updated = currentMonthDays.map(d => {
+      if (d.date !== pickerDate.getDate()) return d
       return {
         ...d,
         meals: {
@@ -255,8 +339,7 @@ function Calendar() {
         },
       }
     })
-    setDays(updated)
-    saveCalendar(updated)
+    saveCalendarForDate(pickerDate, updated)
     closeModal()
   }
 
@@ -293,9 +376,10 @@ function Calendar() {
 
       const recipe = await res.json()
       // Assign the generated recipe to the slot
-      if (pickerDay !== null && pickerMeal !== null) {
-        const updated = days.map(d => {
-          if (d.date !== pickerDay) return d
+      if (pickerDate !== null && pickerMeal !== null) {
+        const currentMonthDays = getMonthDays(pickerDate)
+        const updated = currentMonthDays.map(d => {
+          if (d.date !== pickerDate.getDate()) return d
           return {
             ...d,
             meals: {
@@ -307,8 +391,7 @@ function Calendar() {
             },
           }
         })
-        setDays(updated)
-        saveCalendar(updated)
+        saveCalendarForDate(pickerDate, updated)
       }
       // Refresh recipes list so the new one appears in the picker
       fetchRecipes()
@@ -339,6 +422,7 @@ function Calendar() {
       cells.push({
         day: dayData,
         currentMonth: isCurrent,
+        interactive: isCurrent,
         isToday: date.toDateString() === today.toDateString(),
         fullDate: date,
       })
@@ -353,8 +437,7 @@ function Calendar() {
     })
   }
 
-  const hasDuplicatesInWeek = (targetDay: CalendarDay, recipeId: number) => {
-    const targetDate = new Date(year, month, targetDay.date)
+  const hasDuplicatesInWeek = (targetDate: Date, recipeId: number) => {
     const dayOfWeek = (targetDate.getDay() + 6) % 7 // Monday=0 .. Sunday=6
 
     const weekStart = new Date(targetDate)
@@ -363,12 +446,11 @@ function Calendar() {
     const weekEnd = new Date(weekStart)
     weekEnd.setDate(weekStart.getDate() + 6)
 
-    return days.some(day => {
-      const candidateDate = new Date(year, month, day.date)
+    return weekGrid.some(cell => {
+      const candidateDate = cell.fullDate
       if (candidateDate < weekStart || candidateDate > weekEnd) return false
 
-      // If we're checking the target day, exclude the slot we're about to set from the already-present check
-      return dayHasRecipe(day, recipeId)
+      return dayHasRecipe(cell.day, recipeId)
     })
   }
 
@@ -383,20 +465,17 @@ function Calendar() {
       const date = new Date(mondayOfWeek)
       date.setDate(mondayOfWeek.getDate() + i)
       const isCurrent = date.getMonth() === month && date.getFullYear() === year
-      const dayOfMonth = date.getDate()
-      const dayData = isCurrent
-        ? (days.find(d => d.date === dayOfMonth) || { date: dayOfMonth, meals: emptyMeals() })
-        : { date: dayOfMonth, meals: emptyMeals() }
 
       cells.push({
-        day: dayData,
+        day: getDayDataForDate(date),
         currentMonth: isCurrent,
+        interactive: true,
         isToday: date.toDateString() === today.toDateString(),
         fullDate: date,
       })
     }
     return cells
-  }, [days, currentDate, month, year, today])
+  }, [currentDate, getDayDataForDate, month, year, today])
 
   const grid = viewMode === 'week' ? weekGrid : monthGrid
 
@@ -408,6 +487,22 @@ function Calendar() {
     return `${fmt(start)} - ${fmt(end)}`
   }, [viewMode, weekGrid])
 
+  const canNavigatePrevWeek = useMemo(() => {
+    const previousDate = new Date(currentDate)
+    previousDate.setDate(previousDate.getDate() - 7)
+    const earliestMonth = allowedMonthDates[0]
+    const minDate = new Date(earliestMonth.getFullYear(), earliestMonth.getMonth(), 1)
+    return previousDate >= minDate
+  }, [allowedMonthDates, currentDate])
+
+  const canNavigateNextWeek = useMemo(() => {
+    const nextDate = new Date(currentDate)
+    nextDate.setDate(nextDate.getDate() + 7)
+    const latestMonth = allowedMonthDates[allowedMonthDates.length - 1]
+    const maxDate = new Date(latestMonth.getFullYear(), latestMonth.getMonth() + 1, 0)
+    return nextDate <= maxDate
+  }, [allowedMonthDates, currentDate])
+
   const filteredRecipes = recipes.filter(r =>
     r.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -415,13 +510,11 @@ function Calendar() {
   useEffect(() => {
     const { updatedDays, changed } = syncDaysWithRecipes(days, recipes)
     if (!changed) return
-
-    setDays(updatedDays)
     saveCalendar(updatedDays)
   }, [days, recipes, saveCalendar, syncDaysWithRecipes])
 
-  const currentSlot = pickerDay !== null && pickerMeal !== null
-    ? days.find(d => d.date === pickerDay)?.meals[pickerMeal]
+  const currentSlot = pickerDate !== null && pickerMeal !== null
+    ? getDayDataForDate(pickerDate).meals[pickerMeal]
     : null
 
   const getRecipeDetail = (recipeId: number | null): Recipe | undefined => {
@@ -453,25 +546,37 @@ function Calendar() {
       {/* Header */}
       <div className="cal-header">
         <div className="cal-header-left">
-          {/* Week navigation only — month view is locked to current month */}
-          {viewMode === 'week' && (
-            <>
-              <button className="cal-nav-arrow" onClick={() => navigate(-1)} aria-label="Previous week">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <button className="cal-nav-arrow" onClick={() => navigate(1)} aria-label="Next week">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </>
-          )}
+          <button
+            className="cal-nav-arrow"
+            onClick={() => viewMode === 'week' ? navigateWeek(-1) : navigateMonth(-1)}
+            aria-label={viewMode === 'week' ? 'Previous week' : 'Previous month'}
+            disabled={viewMode === 'week' ? !canNavigatePrevWeek : visibleMonthIndex === 0}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <button
+            className="cal-nav-arrow"
+            onClick={() => viewMode === 'week' ? navigateWeek(1) : navigateMonth(1)}
+            aria-label={viewMode === 'week' ? 'Next week' : 'Next month'}
+            disabled={viewMode === 'week' ? !canNavigateNextWeek : visibleMonthIndex === allowedMonthDates.length - 1}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
           <h1 className="cal-title">{monthName} {year}</h1>
           {viewMode === 'week' && <span className="cal-week-range">{weekRange}</span>}
         </div>
         <div className="cal-header-right">
+          <button
+            className="cal-today-btn"
+            onClick={goToCurrentPeriod}
+            type="button"
+          >
+            {viewMode === 'week' ? 'Current Week' : 'Current Month'}
+          </button>
           <div className="cal-view-toggle">
             <button
               className={`cal-view-btn ${viewMode === 'week' ? 'active' : ''}`}
@@ -497,7 +602,7 @@ function Calendar() {
         {grid.map((cell, i) => (
           <div
             key={`${viewMode}-${i}`}
-            className={`cal-cell ${viewMode} ${cell.isToday ? 'today' : ''} ${!cell.currentMonth ? 'muted' : ''}`}
+            className={`cal-cell ${viewMode} ${cell.isToday ? 'today' : ''} ${viewMode === 'month' && !cell.currentMonth ? 'muted' : ''}`}
           >
             <div className="cal-cell-header">
               <span className={`cal-cell-date ${cell.isToday ? 'today' : ''}`}>
@@ -519,8 +624,8 @@ function Calendar() {
                   <button
                     key={mealType}
                     className={`cal-meal-slot ${mealType} ${filled ? 'filled' : ''} ${viewMode}`}
-                    onClick={() => cell.currentMonth ? handleSlotClick(cell.day.date, mealType) : undefined}
-                    disabled={!cell.currentMonth}
+                    onClick={() => cell.interactive ? handleSlotClick(cell.fullDate, mealType) : undefined}
+                    disabled={!cell.interactive}
                     title={filled ? displayTitle || '' : `Add ${MEAL_LABELS[mealType]}`}
                   >
                     <span className="cal-meal-label">{MEAL_LABELS[mealType]}</span>
@@ -578,7 +683,7 @@ function Calendar() {
                 <div className="cal-choices-header">
                   <h2 className="cal-modal-title">Add a meal</h2>
                   <p className="cal-modal-subtitle">
-                    {pickerMeal && MEAL_LABELS[pickerMeal]} &middot; {monthName} {pickerDay}
+                    {pickerMeal && MEAL_LABELS[pickerMeal]} &middot; {pickerDate ? `${MONTH_NAMES[pickerDate.getMonth()]} ${pickerDate.getDate()}` : ''}
                   </p>
                 </div>
 
@@ -669,7 +774,7 @@ function Calendar() {
             {/* ── Recipe Picker View ── */}
             {modalView === 'picker' && (
               <div className="cal-picker-view">
-                {pickerDay !== null && modalView === 'picker' && !currentSlot?.recipeId && (
+                {pickerDate !== null && modalView === 'picker' && !currentSlot?.recipeId && (
                   <button className="cal-modal-back" onClick={() => setModalView('choices')}>
                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                       <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -683,7 +788,7 @@ function Calendar() {
                       {pickerMeal && MEAL_LABELS[pickerMeal]}
                     </h2>
                     <p className="cal-modal-subtitle">
-                      {monthName} {pickerDay}, {year}
+                      {pickerDate ? `${MONTH_NAMES[pickerDate.getMonth()]} ${pickerDate.getDate()}, ${pickerDate.getFullYear()}` : ''}
                     </p>
                   </div>
                 </div>

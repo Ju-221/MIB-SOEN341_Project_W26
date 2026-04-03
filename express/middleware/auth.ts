@@ -13,9 +13,11 @@ export const verifyToken = (
   }
 
   const token = authHeader.split(" ")[1];
+  const jwtSecret =
+    process.env.JWT_SECRET || "default_jwt_secret_for_testing";
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    const decoded = jwt.verify(token, jwtSecret) as {
       id: number;
       email: string;
     };

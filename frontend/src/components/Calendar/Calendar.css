@@ -132,6 +132,18 @@
   background-color: #e5e7eb !important;
 }
 
+.cal-nav-arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.cal-nav-arrow:disabled:hover {
+  background-color: #ffffff !important;
+  border-color: #b0b5bf !important;
+  color: #111827 !important;
+}
+
 /* ── Today Button ── */
 .cal-today-btn {
   padding: 7px 16px;

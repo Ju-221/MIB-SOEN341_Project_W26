@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react'
 import Aurora from '../Unique/Background'
 import Card from '../Unique/Card'
 import {
-  MONTH_NAMES,
   MEAL_TYPES,
   MEAL_LABELS,
-  buildEmptyMonth,
-  emptyMeals,
   type MealType,
-  type CalendarDay,
 } from '../Calendar/types'
+import {
+  fetchCalendarWindow,
+  getCalendarMonthKey,
+  replaceMonthInCalendarWindow,
+  saveCalendarWindow,
+} from '../../api/calendar'
 import './AIChat.css'
 
 const API = 'http://localhost:3000'
@@ -80,33 +82,6 @@ function persistMessages(messages: Message[]) {
   } catch { /* quota exceeded — silent */ }
 }
 
-// ── Calendar helpers ───────────────────────────────────────
-
-async function fetchCalendarDays(month: string, year: number, token: string): Promise<CalendarDay[]> {
-  const res = await fetch(`${API}/api/calendar?month=${month}&year=${year}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  if (res.ok) {
-    const data = await res.json() as { days: CalendarDay[] }
-    const today = new Date()
-    const full = buildEmptyMonth(today.getFullYear(), today.getMonth())
-    for (const d of data.days) {
-      const idx = d.date - 1
-      if (idx >= 0 && idx < full.length) full[idx] = d
-    }
-    return full
-  }
-  return buildEmptyMonth(new Date().getFullYear(), new Date().getMonth())
-}
-
-async function saveCalendarDays(month: string, year: number, days: CalendarDay[], token: string) {
-  await fetch(`${API}/api/calendar`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ month, year, days }),
-  })
-}
-
 // ── RecipeMessage ──────────────────────────────────────────
 
 interface RecipeMessageProps {
@@ -134,21 +109,18 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
     if (!token) return
     setCalStatus('saving')
     try {
-      const month = MONTH_NAMES[today.getMonth()]
-      const year = today.getFullYear()
-      const days = await fetchCalendarDays(month, year, token)
+      const monthDate = new Date(today.getFullYear(), today.getMonth(), 1)
+      const calendarWindow = await fetchCalendarWindow(token, monthDate)
+      const monthKey = getCalendarMonthKey(monthDate)
+      const days = calendarWindow.monthData[monthKey]
 
       const updated = days.map(d => {
         if (d.date !== calDay) return d
         return { ...d, meals: { ...d.meals, [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } }
       })
 
-      if (!updated.find(d => d.date === calDay)) {
-        updated.push({ date: calDay, meals: { ...emptyMeals(), [calMeal]: { recipeId: recipe.id, recipeTitle: recipe.title } } })
-        updated.sort((a, b) => a.date - b.date)
-      }
-
-      await saveCalendarDays(month, year, updated, token)
+      const updatedWindow = replaceMonthInCalendarWindow(calendarWindow, monthDate, updated)
+      await saveCalendarWindow(token, updatedWindow)
       setCalStatus('saved')
       setTimeout(() => { setShowCalPicker(false); window.location.hash = '#calendar' }, 800)
     } catch {
@@ -160,7 +132,9 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
     if (calStatus === 'saving') return
     const token = localStorage.getItem('token')
     if (!token) return
-    const days = await fetchCalendarDays(MONTH_NAMES[today.getMonth()], today.getFullYear(), token)
+    const monthDate = new Date(today.getFullYear(), today.getMonth(), 1)
+    const calendarWindow = await fetchCalendarWindow(token, monthDate)
+    const days = calendarWindow.monthData[getCalendarMonthKey(monthDate)]
     const slot = days.find(d => d.date === calDay)?.meals[calMeal]
     if (slot?.recipeId !== null && slot?.recipeTitle) {
       setConflictTitle(slot.recipeTitle)
