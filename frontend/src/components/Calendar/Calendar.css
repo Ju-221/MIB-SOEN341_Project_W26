@@ -37,8 +37,12 @@
 }
 
 @keyframes calFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Loading ── */
@@ -63,7 +67,9 @@
 }
 
 @keyframes calSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Header ── */
@@ -202,7 +208,9 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   flex: 1;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   border-top: 1px solid #e5e7eb;
   border-left: 1px solid #e5e7eb;
 }
@@ -315,18 +323,33 @@
   cursor: default;
 }
 
-.cal-meal-slot.breakfast { background-color: #fffbeb !important; color: #92400e !important; }
-.cal-meal-slot.lunch { background-color: #f0fdf4 !important; color: #166534 !important; }
-.cal-meal-slot.dinner { background-color: #eef2ff !important; color: #3730a3 !important; }
+.cal-meal-slot.breakfast {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+}
+.cal-meal-slot.lunch {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+}
+.cal-meal-slot.dinner {
+  background-color: #eef2ff !important;
+  color: #3730a3 !important;
+}
 
 .cal-meal-slot:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.cal-meal-slot.breakfast:not(:disabled):hover { background-color: #fef3c7 !important; }
-.cal-meal-slot.lunch:not(:disabled):hover { background-color: #dcfce7 !important; }
-.cal-meal-slot.dinner:not(:disabled):hover { background-color: #e0e7ff !important; }
+.cal-meal-slot.breakfast:not(:disabled):hover {
+  background-color: #fef3c7 !important;
+}
+.cal-meal-slot.lunch:not(:disabled):hover {
+  background-color: #dcfce7 !important;
+}
+.cal-meal-slot.dinner:not(:disabled):hover {
+  background-color: #e0e7ff !important;
+}
 
 .cal-meal-label {
   font-size: 9px;
@@ -478,8 +501,12 @@
 }
 
 @keyframes calOverlayIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cal-modal {
@@ -497,8 +524,14 @@
 }
 
 @keyframes calModalIn {
-  from { opacity: 0; transform: scale(0.95) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ── Shared Close Button ── */
@@ -719,7 +752,9 @@
   font-family: inherit;
   outline: none;
   resize: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   background-color: #fafafa !important;
   color: #111827 !important;
   box-sizing: border-box;
@@ -854,7 +889,9 @@
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   background-color: #fafafa !important;
   color: #111827 !important;
 }

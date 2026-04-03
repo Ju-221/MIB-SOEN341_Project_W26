@@ -773,12 +773,12 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;            
+  gap: 8px;
 }
 
 .form-label {
-  margin-bottom: 0;    
-} 
+  margin-bottom: 0;
+}
 .recipe-detail-close {
   position: absolute;
   top: 1rem;

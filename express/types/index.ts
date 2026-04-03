@@ -1,4 +1,4 @@
-export type Difficulty = "Easy" | "Medium" | "Hard";
+export type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 export interface CreateRecipeBody {
   title: string;

@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { allergies, dietaryPreferences } from "../db/schema.js";
-import { Request, Response } from "express";
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { allergies, dietaryPreferences } from '../db/schema.js';
+import { Request, Response } from 'express';
 
 // SET PREFERENCES
 export const setPreferences = async (req: Request, res: Response) => {
@@ -10,17 +10,10 @@ export const setPreferences = async (req: Request, res: Response) => {
     const { allergies: allergyData, dietaryPreferences: dietData } = req.body;
 
     //  allergies
-    const existingAllergy = db
-      .select()
-      .from(allergies)
-      .where(eq(allergies.userId, userId))
-      .get();
+    const existingAllergy = db.select().from(allergies).where(eq(allergies.userId, userId)).get();
 
     if (existingAllergy) {
-      db.update(allergies)
-        .set(allergyData)
-        .where(eq(allergies.userId, userId))
-        .run();
+      db.update(allergies).set(allergyData).where(eq(allergies.userId, userId)).run();
     } else {
       db.insert(allergies)
         .values({ userId, ...allergyData })
@@ -45,10 +38,10 @@ export const setPreferences = async (req: Request, res: Response) => {
         .run();
     }
 
-    res.json({ message: "Preferences updated successfully" });
+    res.json({ message: 'Preferences updated successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({ message: 'Something went wrong' });
   }
 };
 
@@ -57,11 +50,7 @@ export const getPreferences = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
 
-    const userAllergies = db
-      .select()
-      .from(allergies)
-      .where(eq(allergies.userId, userId))
-      .get();
+    const userAllergies = db.select().from(allergies).where(eq(allergies.userId, userId)).get();
     const userDiet = db
       .select()
       .from(dietaryPreferences)
@@ -74,6 +63,6 @@ export const getPreferences = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({ message: 'Something went wrong' });
   }
 };

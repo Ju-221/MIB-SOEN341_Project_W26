@@ -13,8 +13,12 @@
 }
 
 @keyframes overlayIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Card ────────────────────────────────────────────────── */
@@ -33,8 +37,14 @@
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: scale(0.92) translateY(16px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ── Hero image ──────────────────────────────────────────── */
@@ -56,7 +66,7 @@
 .popup-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.28) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.28) 100%);
 }
 
 .popup-close {
@@ -92,9 +102,17 @@
   color: #111827;
 }
 
-.popup-body::-webkit-scrollbar { width: 5px; }
-.popup-body::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 3px; }
-.popup-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+.popup-body::-webkit-scrollbar {
+  width: 5px;
+}
+.popup-body::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+.popup-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
 
 /* ── Title row ───────────────────────────────────────────── */
 .popup-title-row {
@@ -245,7 +263,7 @@
   height: 24px;
   border-radius: 50%;
   background: #ede9fe;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -305,10 +323,23 @@
 
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 540px) {
-  .popup-overlay  { padding: 12px; }
-  .popup-hero     { height: 170px; }
-  .popup-body     { padding: 18px 18px 24px; }
-  .popup-title    { font-size: 19px; }
-  .popup-meta     { padding: 10px 14px; gap: 0; }
-  .popup-meta-icon { font-size: 17px; }
+  .popup-overlay {
+    padding: 12px;
+  }
+  .popup-hero {
+    height: 170px;
+  }
+  .popup-body {
+    padding: 18px 18px 24px;
+  }
+  .popup-title {
+    font-size: 19px;
+  }
+  .popup-meta {
+    padding: 10px 14px;
+    gap: 0;
+  }
+  .popup-meta-icon {
+    font-size: 17px;
+  }
 }

@@ -45,7 +45,9 @@
   color: #6b7280;
   text-decoration: none;
   border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 
 .app-nav-link:hover {
@@ -80,7 +82,9 @@
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .app-nav-button.login {

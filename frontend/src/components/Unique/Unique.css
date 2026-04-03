@@ -19,7 +19,10 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    transform 0.15s;
   white-space: nowrap;
 }
 
@@ -49,8 +52,14 @@
 }
 
 @keyframes pickerIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .winner-cal-picker-row {
@@ -87,15 +96,22 @@
   border-radius: 999px;
   border: none;
   background: #ffffff;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s;
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
 }
 
-.winner-cal-confirm-btn:hover:not(:disabled) { transform: scale(1.04); }
-.winner-cal-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.winner-cal-confirm-btn:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+.winner-cal-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .winner-cal-cancel-btn {
   padding: 0.4rem 0.8rem;
@@ -105,7 +121,9 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.82rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .winner-cal-cancel-btn:hover {
@@ -208,7 +226,7 @@
   width: 100%;
   border-radius: 10px;
   background: #ffffff;
-  color: #5227FF;
+  color: #5227ff;
   font-size: 0.95rem;
   font-weight: 700;
   text-decoration: none;
@@ -229,7 +247,9 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .no-results-back-btn:hover {
@@ -267,7 +287,9 @@
   color: rgba(26, 26, 46, 0.45);
   font-size: 0.85rem;
   letter-spacing: 0.08em;
-  animation: fadeInFloat 2.6s ease forwards, pulse 2.5s ease-in-out 2.6s infinite;
+  animation:
+    fadeInFloat 2.6s ease forwards,
+    pulse 2.5s ease-in-out 2.6s infinite;
 }
 
 .intro-card {
@@ -285,13 +307,24 @@
 }
 
 @keyframes fadeInFloat {
-  0%   { opacity: 0; transform: translateY(28px); }
-  100% { opacity: 1; transform: translateY(0);    }
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 1;    }
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ── Picker phase ─────────────────────────────────────────── */
@@ -358,7 +391,9 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .toggle-option:hover {
@@ -366,7 +401,7 @@
 }
 
 .toggle-option.toggle-active {
-  background: #5227FF;
+  background: #5227ff;
   color: #ffffff;
 }
 
@@ -396,7 +431,11 @@
   color: #1a1a2e;
   font-size: 0.88rem;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.12s;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    color 0.18s,
+    transform 0.12s;
 }
 
 .ingredient-chip:hover {
@@ -406,23 +445,25 @@
 }
 
 .ingredient-chip.selected {
-  background: #5227FF;
+  background: #5227ff;
   color: #ffffff;
-  border-color: #5227FF;
+  border-color: #5227ff;
   font-weight: 700;
 }
 
 .picker-start-btn {
   padding: 0.8rem 3rem;
   border-radius: 999px;
-  background: #5227FF;
+  background: #5227ff;
   color: #ffffff;
   font-size: 1.05rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 24px rgba(82, 39, 255, 0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
   animation: fadeInFloat 1.9s ease forwards;
 }
 
@@ -445,7 +486,7 @@
 }
 
 .picker-aichat-link:hover {
-  color: #5227FF;
+  color: #5227ff;
   text-decoration: underline;
 }
 
@@ -482,7 +523,7 @@
 
   .toggle-option.toggle-active {
     background: rgba(255, 255, 255, 0.9);
-    color: #5227FF;
+    color: #5227ff;
   }
 
   .filter-toggle-hint {
@@ -503,7 +544,7 @@
 
   .picker-start-btn {
     background: #ffffff;
-    color: #5227FF;
+    color: #5227ff;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
   }
 

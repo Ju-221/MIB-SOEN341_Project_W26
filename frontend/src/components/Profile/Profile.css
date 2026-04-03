@@ -121,7 +121,10 @@
   font-size: 15px;
   background: #f9fafb;
   color: #111827;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 
 .profile-field input:focus {
@@ -184,7 +187,10 @@
   font-size: 15px;
   background: #f9fafb;
   color: #111827;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 
 .profile-custom-row input:focus {
@@ -212,7 +218,10 @@
   font-size: 14px;
   font-weight: 600;
   border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 
 .profile-button.primary {

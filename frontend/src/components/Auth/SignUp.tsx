@@ -1,53 +1,53 @@
-import { useState } from 'react'
-import './SignUp.css'
+import { useState } from 'react';
+import './SignUp.css';
 
 interface SignUpProps {
-  onSuccess?: () => void
-  onSwitchToSignIn?: () => void
+  onSuccess?: () => void;
+  onSwitchToSignIn?: () => void;
 }
 
 function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {}
+    const newErrors: { [key: string]: string } = {};
 
     if (!email) {
-      newErrors.email = 'Email is required'
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email'
+      newErrors.email = 'Please enter a valid email';
     }
 
     if (!password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = 'Password is required';
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    return newErrors
-  }
+    return newErrors;
+  };
 
   const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const newErrors = validateForm()
+    e.preventDefault();
+    const newErrors = validateForm();
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+      setErrors(newErrors);
     } else {
-      setErrors({})
-      setLoading(true)
+      setErrors({});
+      setLoading(true);
 
       try {
         const response = await fetch('http://localhost:3000/api/auth/signup', {
@@ -56,34 +56,34 @@ function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ email, password }),
-        })
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Signup failed')
+          throw new Error(data.message || 'Signup failed');
         }
 
         // Store the JWT token
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('userEmail', data.user?.email || email)
-        
-        onSuccess?.()
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userEmail', data.user?.email || email);
+
+        onSuccess?.();
       } catch (err) {
-        setErrors({ general: err instanceof Error ? err.message : 'Signup failed' })
+        setErrors({ general: err instanceof Error ? err.message : 'Signup failed' });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword)
-  }
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   return (
     <div className="signup-container">
@@ -94,7 +94,7 @@ function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
 
         <form onSubmit={handleCreateAccount} className="signup-form">
           {errors.general && <div className="error-message">{errors.general}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">
               Email Address <span className="required">*</span>
@@ -171,11 +171,11 @@ function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
             <a
               href="#signin"
               onClick={(e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (onSwitchToSignIn) {
-                  onSwitchToSignIn()
+                  onSwitchToSignIn();
                 } else {
-                  window.location.hash = '#signin'
+                  window.location.hash = '#signin';
                 }
               }}
             >
@@ -185,7 +185,7 @@ function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SignUp
+export default SignUp;

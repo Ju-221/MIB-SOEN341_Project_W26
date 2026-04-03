@@ -3,74 +3,77 @@ name: Frontend UI Tests
 on:
   # Run after backend tests complete successfully
   workflow_run:
-    workflows: ["Backend API Tests"]
+    workflows: ['Backend API Tests']
     types:
       - completed
     branches: [main, Dev]
-  
+
   # Also run on direct pushes/PRs to frontend
   push:
-    branches: [ main, Dev ]
+    branches: [main, Dev]
     paths:
       - 'frontend/**'
       - '.github/workflows/test-frontend.yml'
   pull_request:
-    branches: [ main, Dev ]
+    branches: [main, Dev]
     paths:
       - 'frontend/**'
 
 jobs:
   test-frontend:
     runs-on: ubuntu-latest
-    
+
     # Only run if:
     # 1. Triggered by workflow_run and backend tests passed, OR
     # 2. Triggered by push/PR directly
     if: |
       github.event_name != 'workflow_run' ||
       github.event.workflow_run.conclusion == 'success'
-    
+
     strategy:
       matrix:
         node-version: [20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install root dependencies
         run: npm install
-      
+
       - name: Install frontend dependencies
         run: npm install -w frontend
-      
+
       - name: Run unit tests
         run: |
           echo "Running frontend unit tests..."
           npm run test -w frontend
-      
+
       - name: Run ESLint
         run: |
           echo "Running ESLint checks..."
           npm run lint -w frontend
-      
+
+      - name: Check formatting
+        run: npx prettier --check .
+
       - name: Run TypeScript type checking
         run: |
           echo "Running TypeScript type checks..."
           cd frontend
           npx tsc --noEmit
-      
+
       - name: Build frontend
         run: |
           echo "Building frontend production bundle..."
           npm run build -w frontend
-      
+
       - name: Check build output
         run: |
           echo "Verifying build artifacts..."
@@ -93,14 +96,14 @@ jobs:
             echo "✗ Build failed - dist folder not found"
             exit 1
           fi
-      
+
       - name: Preview server test
         run: |
           echo "Starting preview server..."
           cd frontend
           npm run preview > preview.log 2>&1 &
           echo $! > preview.pid
-          
+
           # Wait for preview server to start
           echo "Waiting for preview server..."
           for i in {1..15}; do
@@ -123,13 +126,13 @@ jobs:
             echo "Attempt $i/15 - waiting..."
             sleep 2
           done
-          
+
           echo "✗ Preview server failed to start"
           echo "============ Preview Logs ============"
           cat preview.log
           echo "====================================="
           exit 1
-      
+
       - name: UI Check Summary
         if: success()
         run: |
@@ -141,7 +144,7 @@ jobs:
           echo "  - Build: Passed"
           echo "  - Preview: Passed"
           echo "================================"
-      
+
       - name: Upload build artifacts
         if: success()
         uses: actions/upload-artifact@v4
