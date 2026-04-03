@@ -47,23 +47,10 @@ jobs:
             sed -i 's/your_jwt_secret_key/${{ secrets.JWT_SECRET }}/' .env
           fi
       
-      - name: Check database initialization
-        run: |
-          cd express
-          echo "✓ Checking if database backup exists..."
-          if [ -f "db/mealmajor.bkcp" ]; then
-            echo "✓ Database backup found"
-            ls -lh db/mealmajor.bkcp
-          else
-            echo "⚠ Database backup not found - will be created on first run"
-          fi
-          
-          # Remove existing database to test backup restoration
-          if [ -f "db/mealmajor.db" ]; then
-            echo "Removing existing database to test backup restoration..."
-            rm db/mealmajor.db
-          fi
-      
+      - name: Run database migrations
+        run: npx drizzle-kit push --force
+        working-directory: express
+            
       - name: Start backend server
         run: |
           echo "Starting backend server..."
