@@ -67,6 +67,7 @@ function Calendar() {
 
   // Recipe assignment error (duplicate in week)
   const [assignmentError, setAssignmentError] = useState('')
+  const [saveError, setSaveError] = useState(false)
 
   const [animating, setAnimating] = useState(false)
   const [showRecipeManager, setShowRecipeManager] = useState(false)
@@ -143,6 +144,11 @@ function Calendar() {
     setCurrentDate(nextVisibleDate)
   }, [baseMonthDate, today, viewMode, visibleMonthDate])
 
+  const showSaveError = useCallback(() => {
+    setSaveError(true)
+    setTimeout(() => setSaveError(false), 4000)
+  }, [])
+
   const saveCalendar = useCallback(async (updatedDays: CalendarDay[]) => {
     const token = localStorage.getItem('token')
     if (!token || !calendarWindow) return
@@ -150,8 +156,8 @@ function Calendar() {
     setCalendarWindow(updatedWindow)
     try {
       await saveCalendarWindow(token, updatedWindow)
-    } catch { /* silent */ }
-  }, [calendarWindow, visibleMonthDate])
+    } catch { showSaveError() }
+  }, [calendarWindow, visibleMonthDate, showSaveError])
 
   const saveCalendarForDate = useCallback(async (targetDate: Date, updatedDays: CalendarDay[]) => {
     const token = localStorage.getItem('token')
@@ -160,8 +166,8 @@ function Calendar() {
     setCalendarWindow(updatedWindow)
     try {
       await saveCalendarWindow(token, updatedWindow)
-    } catch { /* silent */ }
-  }, [calendarWindow])
+    } catch { showSaveError() }
+  }, [calendarWindow, showSaveError])
 
   const syncDaysWithRecipes = useCallback((calendarDays: CalendarDay[], recipeList: Recipe[]) => {
     if (calendarDays.length === 0 || recipeList.length === 0) {
@@ -446,10 +452,9 @@ function Calendar() {
     const weekEnd = new Date(weekStart)
     weekEnd.setDate(weekStart.getDate() + 6)
 
-    return weekGrid.some(cell => {
-      const candidateDate = cell.fullDate
-      if (candidateDate < weekStart || candidateDate > weekEnd) return false
-
+    const sourceGrid = viewMode === 'week' ? weekGrid : monthGrid
+    return sourceGrid.some(cell => {
+      if (cell.fullDate < weekStart || cell.fullDate > weekEnd) return false
       return dayHasRecipe(cell.day, recipeId)
     })
   }
@@ -543,6 +548,11 @@ function Calendar() {
 
   return (
     <div className="cal">
+      {saveError && (
+        <div className="cal-save-error-toast">
+          Failed to save your meal plan. Please try again.
+        </div>
+      )}
       {/* Header */}
       <div className="cal-header">
         <div className="cal-header-left">
