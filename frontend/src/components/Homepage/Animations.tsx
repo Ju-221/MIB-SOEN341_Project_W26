@@ -9,7 +9,6 @@ import chopsticks from '../../assets/uploads/chopsticks.png';
 import olives from '../../assets/uploads/olives.png';
 import mint from '../../assets/uploads/mint.png';
 import tomato from '../../assets/uploads/tomato.png';
-import '../../styles/fonts.css'; // Import Google fonts
 
 gsap.registerPlugin(SplitText, InertiaPlugin, ScrollTrigger);
 

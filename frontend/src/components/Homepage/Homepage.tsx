@@ -3,9 +3,15 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Homepage.css';
 import Hero from './Hero';
-import FeatureSection from './FeatureSection';
 import RecentRecipes from './RecentRecipes';
 import UserSection from './UserSection';
+import mandala from '../../assets/uploads/mandala.png';
+
+const GOO_FEATURES = [
+  { heading: '•\tCreate Your Recipes', body: 'Create from scratch or generate with AI!' },
+  { heading: '•\tPlan Your Week',      body: 'Organize your meals with our meal planner.' },
+  { heading: '•\tGenerate Recipes',     body: 'Create new dishes with our AI recipe generator.' },
+];
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,9 +42,20 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
     if (!hero) return;
 
-    // Slide the goo in from the top and bottom once the hero has fully scrolled out of view
+    // Slide the goo (top + bottom) and reveal the goo-content panel together
     const gooAnim = gsap.to('.goo-top, .goo-bottom', {
       y: '0%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'bottom top',
+        end: '+=250',
+        scrub: 1.5,
+      },
+    });
+
+    const contentReveal = gsap.to('.goo-content', {
+      opacity: 1,
       ease: 'none',
       scrollTrigger: {
         trigger: hero,
@@ -51,6 +68,37 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     return () => {
       gooAnim.scrollTrigger?.kill();
       gooAnim.kill();
+      contentReveal.scrollTrigger?.kill();
+      contentReveal.kill();
+    };
+  }, []);
+
+  useEffect(() => {
+    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
+    if (!spacer) return;
+
+    const cards = gsap.utils.toArray<HTMLElement>('.goo-feature-card');
+    gsap.set(cards, { x: '-110vw', opacity: 0 });
+    gsap.set('.goo-mandala', { scale: 0.2, filter: 'blur(20px)', opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        start: 'top top',
+        end: '+=250vh',
+        scrub: 2,
+      },
+    });
+
+    cards.forEach((card, i) => {
+      tl.to(card, { x: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, i * 1.0);
+    });
+
+    tl.to('.goo-mandala', { scale: 1, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
     };
   }, []);
 
@@ -70,15 +118,28 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     <div className="homepage">
       {/* Goo blob that drips in from the top after the hero scrolls away */}
       <div className="goo-top" aria-hidden="true" />
+
+      {/* Content panel that sits between the two goo edges */}
+      <div className="goo-content" aria-hidden="true">
+        <div className="goo-features-list">
+          {GOO_FEATURES.map((f, i) => (
+            <div key={i} className="goo-feature-card">
+              <h3>{f.heading}</h3>
+              <p>{f.body}</p>
+            </div>
+          ))}
+        </div>
+        <img className="goo-mandala" src={mandala} alt="" />
+      </div>
+
       <div className="goo-bottom" aria-hidden="true" />
       <Hero isLoggedIn={isLoggedIn} />
 
       <main className="homepage-main">
-        {/* <FeatureSection /> */}
         {/*<RecentRecipes recipes={recipes} />*/}
         <UserSection isLoggedIn={isLoggedIn} userEmail={userEmail} />
-        {/* Temporary spacer — gives the page enough height for the goo scroll animation */}
-        <div style={{ height: '400vh' }} />
+        {/* Spacer — gives the page enough height for the goo + feature-card scroll animations */}
+        <div className="homepage-spacer" style={{ height: '400vh' }} />
       </main>
 
     
