@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Aurora from '../Unique/Background';
 import Card from '../Unique/Card';
 import {
-  MONTH_NAMES,
   MEAL_TYPES,
   MEAL_LABELS,
   buildEmptyMonth,
@@ -10,6 +9,12 @@ import {
   type MealType,
   type CalendarDay,
 } from '../Calendar/types';
+import {
+  fetchCalendarWindow,
+  saveCalendarWindow,
+  replaceMonthInCalendarWindow,
+  getCalendarMonthKey,
+} from '../../api/calendar';
 import './AIChat.css';
 
 const API = 'http://localhost:3000';
@@ -84,33 +89,20 @@ function persistMessages(messages: Message[]) {
 
 // ── Calendar helpers ───────────────────────────────────────
 
-async function fetchCalendarDays(
-  month: string,
-  year: number,
-  token: string
-): Promise<CalendarDay[]> {
-  const res = await fetch(`${API}/api/calendar?month=${month}&year=${year}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (res.ok) {
-    const data = (await res.json()) as { days: CalendarDay[] };
-    const today = new Date();
-    const full = buildEmptyMonth(today.getFullYear(), today.getMonth());
-    for (const d of data.days) {
-      const idx = d.date - 1;
-      if (idx >= 0 && idx < full.length) full[idx] = d;
-    }
-    return full;
-  }
-  return buildEmptyMonth(new Date().getFullYear(), new Date().getMonth());
+async function fetchCalendarDays(token: string): Promise<CalendarDay[]> {
+  const today = new Date();
+  const centerDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  const calWindow = await fetchCalendarWindow(token, centerDate);
+  const monthKey = getCalendarMonthKey(centerDate);
+  return calWindow.monthData[monthKey] ?? buildEmptyMonth(today.getFullYear(), today.getMonth());
 }
 
-async function saveCalendarDays(month: string, year: number, days: CalendarDay[], token: string) {
-  await fetch(`${API}/api/calendar`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ month, year, days }),
-  });
+async function saveCalendarDays(days: CalendarDay[], token: string): Promise<void> {
+  const today = new Date();
+  const centerDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  const calWindow = await fetchCalendarWindow(token, centerDate);
+  const updatedWindow = replaceMonthInCalendarWindow(calWindow, centerDate, days);
+  await saveCalendarWindow(token, updatedWindow);
 }
 
 // ── RecipeMessage ──────────────────────────────────────────
@@ -140,9 +132,7 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
     if (!token) return;
     setCalStatus('saving');
     try {
-      const month = MONTH_NAMES[today.getMonth()];
-      const year = today.getFullYear();
-      const days = await fetchCalendarDays(month, year, token);
+      const days = await fetchCalendarDays(token);
 
       const updated = days.map((d) => {
         if (d.date !== calDay) return d;
@@ -160,7 +150,7 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
         updated.sort((a, b) => a.date - b.date);
       }
 
-      await saveCalendarDays(month, year, updated, token);
+      await saveCalendarDays(updated, token);
       setCalStatus('saved');
       setTimeout(() => {
         setShowCalPicker(false);
@@ -175,7 +165,7 @@ const RecipeMessage: React.FC<RecipeMessageProps> = ({ recipe }) => {
     if (calStatus === 'saving') return;
     const token = localStorage.getItem('token');
     if (!token) return;
-    const days = await fetchCalendarDays(MONTH_NAMES[today.getMonth()], today.getFullYear(), token);
+    const days = await fetchCalendarDays(token);
     const slot = days.find((d) => d.date === calDay)?.meals[calMeal];
     if (slot?.recipeId !== null && slot?.recipeTitle) {
       setConflictTitle(slot.recipeTitle);
