@@ -25,7 +25,8 @@ async function fetchCalendarDays(targetDate: Date, token: string): Promise<Calen
   const calendarWindow = await fetchCalendarWindow(token, centerDate);
   const monthKey = getCalendarMonthKey(centerDate);
   return (
-    calendarWindow.monthData[monthKey] ?? buildEmptyMonth(targetDate.getFullYear(), targetDate.getMonth())
+    calendarWindow.monthData[monthKey] ??
+    buildEmptyMonth(targetDate.getFullYear(), targetDate.getMonth())
   );
 }
 
