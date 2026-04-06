@@ -11,15 +11,22 @@
   clip-path: polygon(
     0% 0%,
     100% 0%,
-    100% 65%,
-    97%   88%, 93%   64%, 89%   90%, 84.5% 66%, 80%   92%,
-    75.5% 66%, 71%   90%, 66.5% 66%, 62%   88%, 57.5% 64%,
-    53.5% 84%, 50%   65%,
-    47%   88%, 43%   64%, 39%   90%, 34.5% 66%, 30%   92%,
-    25.5% 66%, 21%   90%, 16.5% 66%, 12%   88%, 7.5%  64%,
-    3.5%  84%, 0%    65%
+    100%   65%,
+    95.8%  88%, 91.7%  65%,
+    87.5%  88%, 83.3%  65%,
+    79.2%  88%, 75%    65%,
+    70.8%  88%, 66.7%  65%,
+    62.5%  88%, 58.3%  65%,
+    54.2%  88%, 50%    65%,
+    45.8%  88%, 41.7%  65%,
+    37.5%  88%, 33.3%  65%,
+    29.2%  88%, 25%    65%,
+    20.8%  88%, 16.7%  65%,
+    12.5%  88%, 8.3%   65%,
+    4.2%   88%, 0%     65%
   );
   transform: translateY(-100%);
+  transform-origin: top center;
   animation: goo-drift 26s linear infinite;
   z-index: 3;
   pointer-events: none;
@@ -39,22 +46,31 @@
   width: 200vw;
   height: 220px;
   background: linear-gradient(160deg, #c8956c 0%, #9a692a 100%);
-  /* Same wave pattern as goo-top but flipped, teeth point upward */
+  /*
+    Complementary to goo-top: peaks (upward teeth) sit at goo-top's valley x-positions,
+    valleys sit at goo-top's peak x-positions — so the teeth interlock on close.
+    No animation-delay needed; the clip-path handles the half-period offset directly.
+  */
   clip-path: polygon(
-    0% 35%,
-    3.5%  16%, 7.5%  36%, 12%   10%, 16.5% 34%,
-    21%   10%, 25.5% 34%, 30%    8%, 34.5% 34%,
-    39%   10%, 43%   36%, 47%   12%, 50%   35%,
-    53.5% 16%, 57.5% 36%, 62%   10%, 66.5% 34%,
-    71%   10%, 75.5% 34%, 80%    8%, 84.5% 34%,
-    89%   10%, 93%   36%, 97%   12%,
-    100%  35%,
+    0%     12%,
+    4.2%   35%, 8.3%   12%,
+    12.5%  35%, 16.7%  12%,
+    20.8%  35%, 25%    12%,
+    29.2%  35%, 33.3%  12%,
+    37.5%  35%, 41.7%  12%,
+    45.8%  35%, 50%    12%,
+    54.2%  35%, 58.3%  12%,
+    62.5%  35%, 66.7%  12%,
+    70.8%  35%, 75%    12%,
+    79.2%  35%, 83.3%  12%,
+    87.5%  35%, 91.7%  12%,
+    95.8%  35%, 100%   12%,
     100% 100%,
     0%   100%
   );
   transform: translateY(100%);
+  transform-origin: bottom center;
   animation: goo-drift 26s linear infinite;
-  animation-delay: -2.2s;
   z-index: 1;
   pointer-events: none;
 }
@@ -198,18 +214,43 @@
 
 .goo-content {
   position: fixed;
-  top: 220px;
+  top: 0;
   bottom: 220px;
   left: 0;
   width: 100%;
   z-index: 3;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0 clamp(16px, 4vw, 60px);
+  gap: 0;
+  opacity: 0;
+}
+
+.goo-section-title {
+  height: 220px;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: min(7vw, 9vh);
+  color: #54351a;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.goo-content-row {
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(16px, 4vw, 60px);
-  opacity: 0;
-  pointer-events: none;
+  flex: 1;
+  min-height: 0;
 }
 
 .goo-features-list {
@@ -219,7 +260,6 @@
   gap: clamp(6px, 1.5vh, 20px);
   flex: 0 1 55%;
   min-width: 0;
-  pointer-events: auto;
 }
 
 .goo-mandala-wrapper {
@@ -229,6 +269,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  pointer-events: none;
 }
 
 .goo-mandala,
@@ -237,6 +278,7 @@
   height: auto;
   object-fit: contain;
   display: block;
+  pointer-events: none;
 }
 
 .mandala-icon-ring {
@@ -255,6 +297,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 3;
 }
 
 .mandala-icon-inner {
@@ -342,7 +387,8 @@
   width: 100%;
   border-radius: 12px;
   padding: clamp(8px, 1.5vh, 20px) clamp(10px, 2vw, 24px);
-  cursor: default;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .goo-feature-card h3 {
@@ -353,12 +399,6 @@
   color: #583606;
   display: inline-block;
   transform-origin: left center;
-  transition: transform 0.2s ease;
-  cursor: pointer;
-}
-
-.goo-feature-card--active h3 {
-  transform: scale(1.1);
 }
 
 .goo-feature-card p {
@@ -367,13 +407,8 @@
   font-weight: 700;
   display: inline-block;
   transform-origin: left center;
-  transition: transform 0.2s ease;
   font-family: 'Permanent Marker', cursive;
   color: #58360674;
-}
-
-.goo-feature-card--active p {
-  transform: scale(1.07);
 }
 
 
@@ -538,8 +573,12 @@
     flex: 1;
   }
 
-  .goo-content {
+  .goo-content-row {
     justify-content: center;
+  }
+
+  .goo-section-title {
+    font-size: min(9vw, 9vh);
   }
 
   .goo-feature-card h3 {

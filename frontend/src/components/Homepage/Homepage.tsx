@@ -45,6 +45,7 @@ interface Recipe {
 // 2 = Generate Recipes        → right  (AiFillStar)
 // 3 = Figure Out What to Cook → top    (mdiPodium)
 const FEATURE_ICON_MAP: Record<number, string> = { 0: 'bottom', 1: 'left', 2: 'right', 3: 'top' };
+const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
 function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -93,7 +94,9 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
     if (!spacer) return;
 
+    const titleEl = document.querySelector('.goo-section-title') as HTMLElement;
     const cards = gsap.utils.toArray<HTMLElement>('.goo-feature-card');
+    if (titleEl) gsap.set(titleEl, { x: '-110vw', opacity: 0, filter: 'blur(16px)' });
     gsap.set(cards, { x: '-110vw', opacity: 0, filter: 'blur(16px)' });
     gsap.set('.goo-mandala-wrapper', { scale: 0.2, filter: 'blur(20px)', opacity: 0 });
     gsap.set('.tacos', { scale: 0.2, filter: 'blur(20px)', opacity: 0 });
@@ -107,8 +110,10 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
       },
     });
 
+    // Title slides in first, then each card after it
+    if (titleEl) tl.to(titleEl, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, 0);
     cards.forEach((card, i) => {
-      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, i * 1.0);
+      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, (i + 1) * 1.0);
     });
 
     tl.to('.goo-mandala-wrapper', { scale: 4, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
@@ -117,6 +122,43 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     return () => {
       tl.scrollTrigger?.kill();
       tl.kill();
+    };
+  }, []);
+
+  // Drive h3/p scale with GSAP so it works regardless of CSS stacking/transform conflicts
+  useEffect(() => {
+    const cards = document.querySelectorAll<HTMLElement>('.goo-feature-card');
+    cards.forEach((card, i) => {
+      const h3 = card.querySelector<HTMLElement>('h3');
+      const p  = card.querySelector<HTMLElement>('p');
+      const active = hoveredFeature === i;
+      if (h3) gsap.to(h3, { scale: active ? 1.1 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
+      if (p)  gsap.to(p,  { scale: active ? 1.07 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
+    });
+  }, [hoveredFeature]);
+
+  // Closing animation — goo teeth close together after the feature section
+  useEffect(() => {
+    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
+    if (!spacer) return;
+
+    const closingTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        start: '45% top',        // starts at 270vh into the 600vh spacer — after features finish at 250vh
+        end: () => '+=' + window.innerHeight * 2,  // 200vh of scroll to close
+        scrub: 2,
+      },
+    });
+
+    closingTl
+      .to('.goo-content', { opacity: 0, ease: 'none', duration: 0.3 }, 0)
+      .to('.goo-top',     { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
+      .to('.goo-bottom',  { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0);
+
+    return () => {
+      closingTl.scrollTrigger?.kill();
+      closingTl.kill();
     };
   }, []);
 
@@ -139,38 +181,56 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
 
       {/* Content panel that sits between the two goo edges */}
       <div className="goo-content" aria-hidden="true">
-        <div className="goo-features-list">
-          {GOO_FEATURES.map((f, i) => (
-            <div
-              key={i}
-              className={`goo-feature-card${hoveredFeature === i ? ' goo-feature-card--active' : ''}${i === 2 ? ' goo-feature-card--generate' : ''}`}
-            >
-              <h3
+        <h2 className="goo-section-title">Our features</h2>
+        <div className="goo-content-row">
+          <div className="goo-features-list">
+            {GOO_FEATURES.map((f, i) => (
+              <div
+                key={i}
+                className={`goo-feature-card${hoveredFeature === i ? ' goo-feature-card--active' : ''}${i === 2 ? ' goo-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
-              >{f.heading}</h3>
-              <p>{f.body}</p>
-            </div>
-          ))}
-        </div>
-        <span className="goo-mandala-wrapper">
-          <div className="mandala-icon-ring">
-            <img className="goo-mandala" src={mandala} alt="" />
-            <img className="tacos" src={tacos} alt="" />
-            <span className={`mandala-icon mandala-icon-top${hoveredFeature !== null && FEATURE_ICON_MAP[hoveredFeature] === 'top' ? ' mandala-icon--active' : ''}`}>
-              <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
-            </span>
-            <span className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature !== null && FEATURE_ICON_MAP[hoveredFeature] === 'right' ? ' mandala-icon--active' : ''}`}>
-              <span className="mandala-icon-inner"><AiFillStar /></span>
-            </span>
-            <span className={`mandala-icon mandala-icon-bottom${hoveredFeature !== null && FEATURE_ICON_MAP[hoveredFeature] === 'bottom' ? ' mandala-icon--active' : ''}`}>
-              <span className="mandala-icon-inner"><FaCalendarAlt /></span>
-            </span>
-            <span className={`mandala-icon mandala-icon-left${hoveredFeature !== null && FEATURE_ICON_MAP[hoveredFeature] === 'left' ? ' mandala-icon--active' : ''}`}>
-              <span className="mandala-icon-inner"><HiPencilSquare /></span>
-            </span>
+              >
+                <h3>{f.heading}</h3>
+                <p>{f.body}</p>
+              </div>
+            ))}
           </div>
-        </span>
+          <span className="goo-mandala-wrapper">
+            <div className="mandala-icon-ring">
+              <img className="goo-mandala" src={mandala} alt="" />
+              <img className="tacos" src={tacos} alt="" />
+              <span
+                className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><AiFillStar /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><FaCalendarAlt /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><HiPencilSquare /></span>
+              </span>
+            </div>
+          </span>
+        </div>
       </div>
 
       <div className="goo-bottom" aria-hidden="true" />
@@ -180,7 +240,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         {/*<RecentRecipes recipes={recipes} />*/}
         <UserSection isLoggedIn={isLoggedIn} userEmail={userEmail} />
         {/* Spacer — gives the page enough height for the goo + feature-card scroll animations */}
-        <div className="homepage-spacer" style={{ height: '400vh' }} />
+        <div className="homepage-spacer" style={{ height: '600vh' }} />
       </main>
 
     
