@@ -208,6 +208,20 @@
 
 /* ── Logged-out gate ── */
 
+/* Fixed so it sits centred in the viewport; GSAP controls visibility/opacity */
+.coverflow-section--gate {
+  position: fixed;
+  inset: 0;
+  min-height: unset;
+  padding: 0;
+  z-index: 10;
+  pointer-events: none; /* passthrough until visible */
+}
+
+.coverflow-section--gate .coverflow-gate {
+  pointer-events: auto;
+}
+
 .coverflow-gate {
   display: flex;
   flex-direction: column;

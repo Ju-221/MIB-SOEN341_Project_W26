@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './CoverFlow.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Recipe {
   id: number;
@@ -52,6 +56,47 @@ function getCardStyle(offset: number): React.CSSProperties {
 
 const CoverFlow: React.FC<CoverFlowProps> = ({ recipes, isLoggedIn }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const gateRef = useRef<HTMLElement>(null);
+
+  // Blur-in appearance for the logged-out gate, triggered when the teeth finish closing.
+  // The closing animation ends at ~78% through the 600vh spacer (45% start + 200vh = 470/600vh).
+  // The gate section is fixed so it sits centred in the viewport from that point on.
+  useEffect(() => {
+    if (isLoggedIn || !gateRef.current) return;
+
+    const spacer = document.querySelector('.homepage-spacer');
+    if (!spacer) return;
+
+    const section = gateRef.current;
+    const label   = section.querySelector('.coverflow-gate-label');
+    const sub     = section.querySelector('.coverflow-gate-sub');
+    const btn     = section.querySelector('.coverflow-signin-btn');
+
+    // Start invisible; visibility toggled by the ScrollTrigger below
+    gsap.set(section, { visibility: 'hidden' });
+    gsap.set([label, sub, btn], { opacity: 0, filter: 'blur(18px)', y: 28 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        // 78% ≈ the point where the closing teeth animation finishes
+        start: '78% top',
+        end:   '+=150',
+        scrub: 1.5,
+        onEnter:     () => gsap.set(section, { visibility: 'visible' }),
+        onLeaveBack: () => gsap.set(section, { visibility: 'hidden' }),
+      },
+    });
+
+    tl.to(label, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1,   ease: 'power3.out' }, 0)
+      .to(sub,   { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1,   ease: 'power3.out' }, 0.35)
+      .to(btn,   { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.8, ease: 'power3.out' }, 0.65);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -64,7 +109,7 @@ const CoverFlow: React.FC<CoverFlowProps> = ({ recipes, isLoggedIn }) => {
 
   if (!isLoggedIn) {
     return (
-      <section className="coverflow-section">
+      <section className="coverflow-section coverflow-section--gate" ref={gateRef}>
         <div className="coverflow-spotlight" aria-hidden="true" />
         <div className="coverflow-gate">
           <p className="coverflow-gate-label">Your personal recipe collection awaits</p>

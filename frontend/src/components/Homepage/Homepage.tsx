@@ -149,6 +149,28 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         start: '45% top',        // starts at 270vh into the 600vh spacer — after features finish at 250vh
         end: () => '+=' + window.innerHeight * 2,  // 200vh of scroll to close
         scrub: 2,
+        onUpdate: (self) => {
+          // Only guard when scrolling forward — reverse scrub must be free to drive opacity.
+          // The goo-content fade completes at 30% progress (duration 0.3 of total 1.0).
+          // If a faster competing scrub kept the panel visible past that point, hide it via
+          // visibility only — don't touch any GSAP-owned opacity so the reverse animation
+          // still plays correctly.
+          if (self.direction === 1 && self.progress > 0.3) {
+            const opacity = gsap.getProperty('.goo-content', 'opacity') as number;
+            if (opacity > 0.05) {
+              (document.querySelector('.goo-content') as HTMLElement).style.visibility = 'hidden';
+            }
+          }
+        },
+        onLeave: () => {
+          // Hard stop: teeth are fully closed — guarantee nothing bleeds through.
+          (document.querySelector('.goo-content') as HTMLElement).style.visibility = 'hidden';
+        },
+        onEnterBack: () => {
+          // Scrolling back up into the closing section: reveal the panel so GSAP's
+          // reverse scrub can animate it back in.
+          (document.querySelector('.goo-content') as HTMLElement).style.visibility = 'visible';
+        },
       },
     });
 
@@ -161,6 +183,32 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
       closingTl.scrollTrigger?.kill();
       closingTl.kill();
     };
+  }, []);
+
+  // Hard scroll-position guard: past 75% of page height the features must be invisible.
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const scrolled = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      const scrollingDown = scrollY > lastScrollY;
+      lastScrollY = scrollY;
+
+      const gooContent = document.querySelector('.goo-content') as HTMLElement;
+      if (!gooContent) return;
+
+      if (scrollingDown && scrolled >= 0.75) {
+        // Only flip visibility — never touch GSAP-owned opacity values so the
+        // reverse animation can play freely when scrolling back up.
+        gooContent.style.visibility = 'hidden';
+      } else if (!scrollingDown && scrolled < 0.75) {
+        gooContent.style.visibility = 'visible';
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const loadRecipes = async () => {
