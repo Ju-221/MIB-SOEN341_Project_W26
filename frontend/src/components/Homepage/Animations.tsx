@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -81,9 +81,9 @@ const TextAnimation = () => {
 const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   callouts = [
     { id: '1', angle: 315, label: 'Filter your meals' },
-    { id: '2', angle: 45,  label: 'Write recipes' },
-    { id: '3', angle: 135, label: 'Add tags' },
-    { id: '4', angle: 225, label: 'Be organized' },
+    { id: '2', angle:30,  label: 'Write recipes' },
+    { id: '3', angle: 115, label: 'Add tags' },
+    { id: '4', angle: 245, label: 'Be organized' },
   ],
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -244,10 +244,32 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
     };
   }, []);
 
-  // SVG parameters
-  const IMAGE_RADIUS = 35; // Rough radius of image in viewBox (100x100)
-  const ELBOW_DISTANCE = 15; // How far beyond image to place elbow
-  const HORIZONTAL_LENGTH = 40; // Length of horizontal segment (longer)
+  // ── Responsive SVG parameters ──────────────────────────────────────────────
+  // Track the container's rendered pixel width so we can scale line length and
+  // font size proportionally.  Design baseline is 480 px (maxWidth of container).
+  const [containerW, setContainerW] = useState(480);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerW(entry.contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  // Ratio clamped to [0.35, 1] so labels never become unreadably tiny
+  const ratio = Math.min(Math.max(containerW / 480, 0.35), 1);
+
+  const IMAGE_RADIUS     = 35;
+  const ELBOW_DISTANCE   = 15;
+  const HORIZONTAL_LENGTH = Math.round(40 * ratio); // shrinks on small screens
+
+  // Font is expressed in SVG user-units (viewBox 0 0 100 100).
+  // The SVG element itself already scales 1:1 with the container, so the
+  // letters scale automatically — no need to multiply by ratio here.
+  // 3 SVG units ≈ 14 px at 480 px container, ≈ 10 px at 320 px.
+  const LABEL_FONT_SIZE = 5.2;
 
   return (
     <div
@@ -309,14 +331,14 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 y={labelY}
                 textAnchor={callout.angle < 180 ? 'start' : 'end'}
                 dy="0.35em"
-                fontSize="7"
+                fontSize={LABEL_FONT_SIZE}
                 fill="rgba(255, 255, 255, 0.8)"
                 fontFamily="'Caveat', serif"
                 fontWeight="900"
                 letterSpacing="0.05em"
                 style={{ pointerEvents: 'auto', cursor: 'default' }}
-                onMouseEnter={(e) => gsap.to(e.currentTarget, { attr: { fontSize: 13 }, duration: 0.2, ease: 'back.out(2)', overwrite: true })}
-                onMouseLeave={(e) => gsap.to(e.currentTarget, { attr: { fontSize: 7  }, duration: 0.25, ease: 'power2.out', overwrite: true })}
+                onMouseEnter={(e) => gsap.to(e.currentTarget, { attr: { fontSize: LABEL_FONT_SIZE * 1.9 }, duration: 0.2, ease: 'back.out(2)', overwrite: true })}
+                onMouseLeave={(e) => gsap.to(e.currentTarget, { attr: { fontSize: LABEL_FONT_SIZE      }, duration: 0.25, ease: 'power2.out', overwrite: true })}
               >
                 {callout.label}
               </text>

@@ -1,0 +1,103 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import Homepage from './Homepage';
+
+// ── GSAP / animation mocks ───────────────────────────────────────────────────
+vi.mock('gsap', () => import('../../test/gsapMock'));
+vi.mock('gsap/ScrollTrigger', () => ({ ScrollTrigger: { refresh: vi.fn() } }));
+vi.mock('@gsap/react', () => ({ useGSAP: (fn: () => void) => fn() }));
+vi.mock('gsap/SplitText',     () => ({ SplitText: class { chars = []; } }));
+vi.mock('gsap/InertiaPlugin', () => ({ InertiaPlugin: {} }));
+
+// ── Asset mocks ───────────────────────────────────────────────────────────────
+vi.mock('../../assets/uploads/mandala.png',    () => ({ default: 'mandala.png' }));
+vi.mock('../../assets/uploads/tacos.png',      () => ({ default: 'tacos.png' }));
+vi.mock('../../assets/uploads/round-plate.png',() => ({ default: 'round-plate.png' }));
+vi.mock('../../assets/uploads/chopsticks.png', () => ({ default: 'chopsticks.png' }));
+vi.mock('../../assets/uploads/olives.png',     () => ({ default: 'olives.png' }));
+vi.mock('../../assets/uploads/mint.png',       () => ({ default: 'mint.png' }));
+vi.mock('../../assets/uploads/tomato.png',     () => ({ default: 'tomato.png' }));
+
+// ── Fetch mock ────────────────────────────────────────────────────────────────
+const mockRecipes = [
+  { id: 1, title: 'Pasta', description: 'Italian', prepTime: 10, cookTime: 20,
+    estimatedCost: 8, heroImage: null, categories: ['Italian'] },
+  { id: 2, title: 'Sushi', description: 'Japanese', prepTime: 15, cookTime: 5,
+    estimatedCost: 12, heroImage: null, categories: ['Japanese'] },
+];
+
+beforeEach(() => {
+  Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
+  global.fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => mockRecipes,
+  }) as unknown as typeof fetch;
+});
+
+afterEach(() => { vi.restoreAllMocks(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Homepage — not logged in', () => {
+  it('renders the .homepage root element', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(document.querySelector('.homepage')).toBeInTheDocument();
+  });
+
+  it('shows the goo features section title', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(screen.getByText(/our features/i)).toBeInTheDocument();
+  });
+
+  it('renders all four feature cards', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(screen.getByText(/plan your week/i)).toBeInTheDocument();
+    expect(screen.getByText(/create your recipes/i)).toBeInTheDocument();
+    expect(screen.getByText(/generate recipes/i)).toBeInTheDocument();
+    expect(screen.getByText(/figure out what to cook/i)).toBeInTheDocument();
+  });
+
+  it('shows the CoverFlow gate heading', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(screen.getByText(/your personal recipe collection awaits/i)).toBeInTheDocument();
+  });
+
+  it('shows "Register now!" hero button', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(screen.getByRole('link', { name: /register now/i })).toBeInTheDocument();
+  });
+
+  it('shows "View recipes" hero button', () => {
+    render(<Homepage isLoggedIn={false} userEmail={null} />);
+    expect(screen.getByRole('button', { name: /view recipes/i })).toBeInTheDocument();
+  });
+});
+
+describe('Homepage — logged in', () => {
+  it('shows the "Welcome Back" greeting in the hero (hero-welcome element)', () => {
+    render(<Homepage isLoggedIn={true} userEmail="user@test.com" />);
+    // Hero renders it in .hero-welcome; UserSection also renders a welcome line —
+    // target the hero element directly.
+    const heroWelcome = document.querySelector('.hero-welcome');
+    expect(heroWelcome).toBeInTheDocument();
+    expect(heroWelcome?.textContent).toMatch(/welcome back/i);
+  });
+
+  it('does not show the Register button', () => {
+    render(<Homepage isLoggedIn={true} userEmail="user@test.com" />);
+    expect(screen.queryByRole('link', { name: /register now/i })).not.toBeInTheDocument();
+  });
+
+  it('fetches recipes from the API on mount', () => {
+    render(<Homepage isLoggedIn={true} userEmail="user@test.com" />);
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api/recipes');
+  });
+});
+
+describe('Homepage — recipe API failure', () => {
+  it('renders without crashing when fetch fails', async () => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('network error'));
+    render(<Homepage isLoggedIn={true} userEmail="user@test.com" />);
+    expect(document.querySelector('.homepage')).toBeInTheDocument();
+  });
+});
