@@ -5,6 +5,7 @@ import './Homepage.css';
 import Hero from './Hero';
 import RecentRecipes from './RecentRecipes';
 import UserSection from './UserSection';
+import CoverFlow from './CoverFlow';
 import mandala from '../../assets/uploads/mandala.png';
 import tacos from '../../assets/uploads/tacos.png';
 import Icon from '@mdi/react';
@@ -243,7 +244,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         <div className="homepage-spacer" style={{ height: '600vh' }} />
       </main>
 
-    
+      <CoverFlow recipes={recipes} isLoggedIn={isLoggedIn} />
     </div>
   );
 }
