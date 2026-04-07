@@ -214,7 +214,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
     let tl: gsap.core.Timeline;
 
     // Longest entry animation: delay 0.4 + duration 1.5 = 1.9s → wait 2s to be safe
-    const setup = gsap.delayedCall(2, () => {
+    const setup = gsap.delayedCall(0.0001, () => {
       // Query inside the callback so we get the live DOM at animation time
       const hero = document.querySelector('.homepage-hero') as HTMLElement;
       if (!hero) return;
@@ -271,7 +271,6 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
           left: 0,
           width: '100%',
           height: '100%',
-          pointerEvents: 'none',
           zIndex: 10,
           overflow: 'visible'
         }}
@@ -294,6 +293,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                style={{ pointerEvents: 'none' }}
               />
               <circle
                 ref={(el) => { circleRefs.current[index] = el; }}
@@ -301,6 +301,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 cy={tipY}
                 r="1.5"
                 fill="rgba(255, 255, 255, 0.6)"
+                style={{ pointerEvents: 'none' }}
               />
               <text
                 ref={(el) => { textRefs.current[index] = el; }}
@@ -313,6 +314,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 fontFamily="'Caveat', serif"
                 fontWeight="900"
                 letterSpacing="0.05em"
+                style={{ pointerEvents: 'auto', cursor: 'default' }}
+                onMouseEnter={(e) => gsap.to(e.currentTarget, { attr: { fontSize: 13 }, duration: 0.2, ease: 'back.out(2)', overwrite: true })}
+                onMouseLeave={(e) => gsap.to(e.currentTarget, { attr: { fontSize: 7  }, duration: 0.25, ease: 'power2.out', overwrite: true })}
               >
                 {callout.label}
               </text>

@@ -137,9 +137,46 @@ const MainHeroSection = () => {
 };
 
 const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
+  const leftRef  = useRef<HTMLElement>(null);
+  const rightRef = useRef<HTMLButtonElement>(null);
+
+  // Slide in from each side, delayed after the top-element animations (~1.9 s)
+  useEffect(() => {
+    if (leftRef.current) {
+      gsap.fromTo(leftRef.current,
+        { x: -180, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.9, delay: 2.1, ease: 'power3.out' }
+      );
+    }
+    if (rightRef.current) {
+      gsap.fromTo(rightRef.current,
+        { x: 180, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.9, delay: 2.1, ease: 'power3.out' }
+      );
+    }
+  }, []);
+
+  const handleViewRecipes = () => {
+    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
+    if (spacer) {
+      window.scrollTo({ top: spacer.offsetTop + spacer.offsetHeight, behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="homepage-hero">
       <MainHeroSection />
+
+      {/* Bottom-left: welcome back text OR register button */}
+      {isLoggedIn
+        ? <p ref={leftRef as React.RefObject<HTMLParagraphElement>} className="hero-welcome">Welcome Back</p>
+        : <a ref={leftRef as React.RefObject<HTMLAnchorElement>} href="/login" className="hero-corner-btn hero-corner-btn--left">Register now!</a>
+      }
+
+      {/* Bottom-right: always visible */}
+      <button ref={rightRef} className="hero-corner-btn hero-corner-btn--right" onClick={handleViewRecipes}>
+        View recipes
+      </button>
     </header>
   );
 };

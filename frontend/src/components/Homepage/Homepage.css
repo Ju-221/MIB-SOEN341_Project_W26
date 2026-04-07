@@ -100,6 +100,55 @@
   z-index: 4;
 }
 
+/* Welcome Back label — bottom-left when signed in */
+.hero-welcome {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 3vw;
+  margin: 0;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(26px, 4vw, 58px);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+  pointer-events: none;
+  z-index: 20;
+  letter-spacing: 0.03em;
+  opacity: 0; /* GSAP slides it in */
+}
+
+/* Shared rounded button style for hero corner CTAs */
+.hero-corner-btn {
+  position: absolute;
+  bottom: 2.5rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6em 1.5em;
+  font-family:  'Playfair Display', serif; ;
+  font-size: clamp(18px, 2.2vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: linear-gradient(160deg, #63340d 0%, #9a692a 100%);;
+ 
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: #11182722 0px 4px 12px, #11182711 0px 2px 4px;
+}
+
+.hero-corner-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: translateY(-3px);
+}
+
+.hero-corner-btn--left  { left: 3vw;  opacity: 0; }
+.hero-corner-btn--right { right: 3vw; opacity: 0; }
+
 .homepage-hero-content {
   max-width: 680px;
   margin: 0 auto;
@@ -170,25 +219,8 @@
   opacity: 0.92;
 }
 
-.homepage-hero-cta {
-  display: inline-block;
-  padding: 14px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  background: #ffffff;
-  color: #4caf50;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
 
-.homepage-hero-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  color: #45a049;
-}
+
 
 /* ── Main content ── */
 
