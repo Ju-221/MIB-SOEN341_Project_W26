@@ -23,7 +23,7 @@ describe('Navbar Component', () => {
         />
       )
       
-      const loginButton = screen.getByRole('button', { name: /login \/ sign up/i })
+      const loginButton = screen.getByRole('button', { name: /sign in/i })
       expect(loginButton).toBeInTheDocument()
     })
 
@@ -37,8 +37,8 @@ describe('Navbar Component', () => {
           userEmail={null}
         />
       )
-      
-      const loginButton = screen.getByRole('button', { name: /login \/ sign up/i })
+
+      const loginButton = screen.getByRole('button', { name: /sign in/i })
       await userEvent.click(loginButton)
       
       expect(mockOnLoginClick).toHaveBeenCalledTimes(1)
@@ -117,7 +117,7 @@ describe('Navbar Component', () => {
         />
       )
       
-      const loginButton = screen.queryByRole('button', { name: /login \/ sign up/i })
+      const loginButton = screen.queryByRole('button', { name: /sign in/i })
       expect(loginButton).not.toBeInTheDocument()
     })
 
