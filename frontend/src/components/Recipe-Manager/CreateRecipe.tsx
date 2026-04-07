@@ -33,6 +33,7 @@ export interface Recipe {
   cookTime: number;
   estimatedCost: number;
   heroImage?: string;
+  heroImageFile?: File | null;
   createdBy?: number;
   createdAt?: string;
   // Legacy fields for compatibility
@@ -116,6 +117,7 @@ const createEmptyFormData = (): RecipeFormData => ({
   cookTime: '',
   estimatedCost: 0,
   heroImage: '',
+  heroImageFile: null,
   image: '',
 });
 
@@ -350,6 +352,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       prepTime: recipe.prepTime ?? '',
       cookTime: recipe.cookTime ?? '',
       estimatedCost: recipe.estimatedCost ?? 0,
+      heroImageFile: null,
     });
     const customRecipeTags = recipe.categories.filter((tag) => !predefinedTags.includes(tag));
     setCustomTags(customRecipeTags);
@@ -417,7 +420,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        setFormData({ ...formData, image: result, heroImage: result });
+        setFormData({ ...formData, image: result, heroImage: result, heroImageFile: file });
       };
       reader.readAsDataURL(file);
     }
@@ -670,7 +673,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         const updatedRecipe = await updateRecipe(
           recipeData.id.toString(),
           recipeData,
-          getJwtToken()
+          getJwtToken(),
+          recipeData.heroImageFile
         );
 
         setRecipes(recipes.map((recipe) => (recipe.id === recipeData.id ? updatedRecipe : recipe)));
@@ -691,7 +695,11 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       };
       try {
         // API call
-        const potentialArray = await createRecipe(tempNewRecipe, getJwtToken());
+        const potentialArray = await createRecipe(
+          tempNewRecipe,
+          getJwtToken(),
+          tempNewRecipe.heroImageFile
+        );
         // Account for default recipe creation returning an array of recipes
         if (Array.isArray(potentialArray)) {
           const loadedRecipes = await Promise.all(potentialArray);

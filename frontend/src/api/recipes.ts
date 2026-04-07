@@ -30,7 +30,8 @@ export async function fetchRecipes() {
 
 export async function createRecipe(
   recipeObj: Recipe,
-  jwt_token: string
+  jwt_token: string,
+  heroImageFile?: File | null
 ): Promise<Recipe | Recipe[]> {
   if (recipeObj.title.toLowerCase() == 'default') {
     console.log('Making defaults');
@@ -42,7 +43,7 @@ export async function createRecipe(
     headers: {
       Authorization: `Bearer ${jwt_token}`,
     },
-    body: serializeRecipe(recipeObj),
+    body: serializeRecipe(recipeObj, heroImageFile),
   });
 
   if (!response.ok) {
@@ -57,13 +58,18 @@ export async function createRecipe(
   return data;
 }
 
-export async function updateRecipe(id: string, recipeObj: Recipe, jwt_token: string) {
+export async function updateRecipe(
+  id: string,
+  recipeObj: Recipe,
+  jwt_token: string,
+  heroImageFile?: File | null
+) {
   const response = await fetch(`${BASE_URL}/${id}`, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${jwt_token}`,
     },
-    body: serializeRecipe(recipeObj),
+    body: serializeRecipe(recipeObj, heroImageFile),
   });
 
   if (!response.ok) {
@@ -93,7 +99,7 @@ export async function deleteRecipe(id: string, jwt_token: string) {
   }
 }
 
-function serializeRecipe(recipe: Recipe) {
+function serializeRecipe(recipe: Recipe, heroImageFile?: File | null) {
   const formData = new FormData();
 
   // Regular attributes
@@ -116,11 +122,13 @@ function serializeRecipe(recipe: Recipe) {
   formData.append('categories', JSON.stringify(recipe.categories));
 
   // Image
-  if (recipe.heroImage) {
-    console.log('Serializing recipe with heroImage, length:', recipe.heroImage.length);
+  if (heroImageFile) {
+    formData.append('heroImage', heroImageFile);
+  } else if (recipe.heroImage?.startsWith('data:')) {
+    console.log('Serializing recipe with heroImage data URI, length:', recipe.heroImage.length);
     formData.append('heroImage', base64ToImageFile(recipe.heroImage));
   } else {
-    console.log('No heroImage found on recipe');
+    console.log('No heroImage file to upload');
   }
 
   return formData;
