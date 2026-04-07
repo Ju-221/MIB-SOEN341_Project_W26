@@ -111,6 +111,7 @@
 @media (max-width: 600px) {
   .app-nav-inner {
     padding: 0 16px;
+    gap: 12px;
   }
 
   .app-nav-links {
@@ -119,5 +120,15 @@
 
   .app-nav-user-email {
     display: none;
+  }
+
+  .app-nav-brand {
+    font-size: 18px;
+  }
+
+  .app-nav-button {
+    padding: 7px 12px;
+    font-size: 13px;
+    white-space: nowrap;
   }
 }

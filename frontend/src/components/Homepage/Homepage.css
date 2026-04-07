@@ -223,7 +223,7 @@
 
 @media (max-width: 900px) {
   .homepage-feature-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .homepage-recipe-grid {
@@ -247,6 +247,10 @@
   .homepage-main {
     padding: 24px 16px;
     gap: 32px;
+  }
+
+  .homepage-feature-grid {
+    grid-template-columns: 1fr;
   }
 
   .homepage-recipe-grid {

@@ -1161,4 +1161,49 @@
   .recipe-grid {
     grid-template-columns: 1fr;
   }
+
+  .recipe-manager {
+    padding: 1rem;
+  }
+
+  /* Ingredient rows: collapse 5-col grid to stacked layout */
+  .ingredient-header-row {
+    display: none;
+  }
+
+  .ingredient-row {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 0.5rem;
+    background: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .ingredient-row > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .ingredient-row .btn-remove {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* Detail modal hero image height */
+  .recipe-detail-hero {
+    height: 180px;
+  }
+
+  /* Detail stats: 2 cols instead of 3 */
+  .recipe-detail-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Modal content full-width */
+  .modal-content {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 12px 12px 0 0;
+    max-height: 95vh;
+  }
 }
