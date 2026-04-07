@@ -1,0 +1,279 @@
+/* ── Cover Flow section ── */
+
+.coverflow-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0 60px;
+  position: relative;
+  z-index: 5;          /* above the fixed goo layers (z-index 3) */
+  overflow: hidden;
+}
+
+/* Soft ambient warm glow from center-bottom */
+.coverflow-spotlight {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 60%;
+  background: radial-gradient(ellipse at 50% 100%,
+    rgba(154, 105, 42, 0.14) 0%,
+    rgba(200, 149, 108, 0.06) 50%,
+    transparent 75%);
+  pointer-events: none;
+}
+
+/* Section heading */
+.coverflow-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 3.5vw, 44px);
+  font-weight: 900;
+  color: #5c2020b1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 56px;
+  text-align: center;
+}
+
+/* ── 3D stage ── */
+
+.coverflow-stage {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  perspective: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+/* ── Individual cards ── */
+
+.coverflow-card {
+  position: absolute;
+  width: 220px;
+  height: 300px;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform  0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity    0.55s ease,
+    box-shadow 0.55s ease;
+  /* Mirror reflection — tinted to match the warm background */
+  -webkit-box-reflect: below 6px
+    linear-gradient(transparent 55%, rgba(200, 149, 108, 0.35) 100%);
+}
+
+.coverflow-card--active {
+  cursor: default;
+  box-shadow:
+    0 20px 60px rgba(100, 50, 10, 0.35),
+    0  0   36px rgba(154, 105, 42, 0.20);
+}
+
+.coverflow-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.coverflow-card-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #c8956c 0%, #9a692a 60%, #7a4a22 100%);
+}
+
+.coverflow-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 14px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+}
+
+.coverflow-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 3px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coverflow-card-meta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.03em;
+}
+
+/* ── Active card details below the stage ── */
+
+.coverflow-details {
+  margin-top: 90px;
+  text-align: center;
+  max-width: 420px;
+  padding: 0 24px;
+  min-height: 72px;
+}
+
+.coverflow-active-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 700;
+  color: #3d1c0a;
+  margin: 0 0 8px;
+}
+
+.coverflow-active-desc {
+  font-size: 13px;
+  color: rgba(61, 28, 10, 0.55);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Navigation ── */
+
+.coverflow-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.coverflow-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(92, 46, 10, 0.25);
+  background: rgba(154, 105, 42, 0.10);
+  color: rgba(61, 28, 10, 0.65);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.coverflow-nav-btn:hover:not(:disabled) {
+  background: rgba(154, 105, 42, 0.22);
+  border-color: rgba(92, 46, 10, 0.5);
+  color: #3d1c0a;
+}
+
+.coverflow-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.coverflow-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.coverflow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(92, 46, 10, 0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.coverflow-dot--active {
+  background: #9a692a;
+  transform: scale(1.5);
+}
+
+/* ── Logged-out gate ── */
+
+/* Fixed so it sits centred in the viewport; GSAP controls visibility/opacity */
+.coverflow-section--gate {
+  position: fixed;
+  inset: 0;
+  min-height: unset;
+  padding: 0;
+  z-index: 10;
+  pointer-events: none; /* passthrough until visible */
+}
+
+.coverflow-section--gate .coverflow-gate {
+  pointer-events: auto;
+}
+
+.coverflow-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 0 32px;
+}
+
+.coverflow-gate-label {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+  color: #3d1c0a;
+  margin: 0;
+}
+
+.coverflow-gate-sub {
+  font-size: 15px;
+  color: rgba(61, 28, 10, 0.55);
+  margin: 0;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.coverflow-signin-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 14px 40px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #c8956c 0%, #9a692a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 8px 28px rgba(154, 105, 42, 0.35);
+}
+
+.coverflow-signin-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+}
+
+/* ── Empty state ── */
+
+.coverflow-empty-text {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 28px;
+  color: rgba(61, 28, 10, 0.4);
+}
