@@ -293,12 +293,12 @@ export default function Recipes() {
                     {recipe.heroImage ? (
                       <img src={recipe.heroImage} alt={recipe.title} className="recipe-card-img" />
                     ) : (
-                      <div className="recipe-card-img-placeholder">🍽️</div>
+                      <div className="recipe-card-img-placeholder" />
                     )}
                     <div className="recipe-card-body">
                       <div className="recipe-card-tags">
                         <span className={difficultyColor(recipe.difficulty)}>{recipe.difficulty ?? 'Easy'}</span>
-                        <span className="recipes-badge time">⏱ {(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min</span>
+                        <span className="recipes-badge time">{(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min</span>
                       </div>
                       <h3 className="recipe-card-title">{recipe.title}</h3>
                       <p className="recipe-card-desc">{recipe.description}</p>
@@ -311,7 +311,7 @@ export default function Recipes() {
                         Edit
                       </button>
                       <button type="button" className="recipes-delete-btn" onClick={() => handleDelete(recipe)} title="Delete">
-                        🗑
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -334,7 +334,7 @@ export default function Recipes() {
         <div className="profile-shell">
           <header className="profile-header">
             <div>
-              <button type="button" className="recipes-back-btn" onClick={backToList}>← Back</button>
+              <button type="button" className="recipes-back-btn" onClick={backToList}>Back</button>
               <h1>{selected.title}</h1>
               <p className="profile-subtitle">Cooking Mode — follow the steps below</p>
             </div>
@@ -388,7 +388,7 @@ export default function Recipes() {
                     className={`recipes-ingredient-item ${checkedIngredients.has(idx) ? 'checked' : ''}`}
                     onClick={() => toggleIngredient(idx)}
                   >
-                    <span className="recipes-ingredient-check">{checkedIngredients.has(idx) ? '✓' : ''}</span>
+                    <span className="recipes-ingredient-check">{checkedIngredients.has(idx) ? 'v' : ''}</span>
                     <span className="recipes-ingredient-name">{ing.name}</span>
                     {(ing.amount || ing.unit) && (
                       <span className="recipes-ingredient-amount">
@@ -435,7 +435,7 @@ export default function Recipes() {
                   onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
                   disabled={currentStep === 0}
                 >
-                  ← Previous
+                  Previous
                 </button>
                 {currentStep < totalSteps - 1 ? (
                   <button
@@ -443,11 +443,11 @@ export default function Recipes() {
                     className="profile-button primary"
                     onClick={() => setCurrentStep((s) => s + 1)}
                   >
-                    Next Step →
+                    Next Step
                   </button>
                 ) : (
                   <button type="button" className="profile-button primary recipes-done-btn" onClick={backToList}>
-                    ✓ Done Cooking!
+                    Done Cooking!
                   </button>
                 )}
               </div>
@@ -468,7 +468,7 @@ export default function Recipes() {
         <div className="profile-shell">
           <header className="profile-header">
             <div>
-              <button type="button" className="recipes-back-btn" onClick={backToList}>← Back</button>
+              <button type="button" className="recipes-back-btn" onClick={backToList}>Back</button>
               <h1>{heading}</h1>
               <p className="profile-subtitle">{isAdding ? 'Fill in the details to add a new recipe.' : 'Make changes and save when ready.'}</p>
             </div>
@@ -623,7 +623,7 @@ export default function Recipes() {
                     value={ing.cost ?? ''}
                     onChange={(e) => updateIngredient(idx, 'cost', Number(e.target.value))}
                   />
-                  <button type="button" className="recipes-row-remove" onClick={() => removeIngredient(idx)} title="Remove">✕</button>
+                  <button type="button" className="recipes-row-remove" onClick={() => removeIngredient(idx)} title="Remove">x</button>
                 </div>
               ))}
               <button type="button" className="profile-button secondary recipes-add-row-btn" onClick={addIngredient}>
@@ -646,7 +646,7 @@ export default function Recipes() {
                     rows={2}
                     onChange={(e) => updateStep(idx, e.target.value)}
                   />
-                  <button type="button" className="recipes-row-remove" onClick={() => removeStep(idx)} title="Remove">✕</button>
+                  <button type="button" className="recipes-row-remove" onClick={() => removeStep(idx)} title="Remove">x</button>
                 </div>
               ))}
               <button type="button" className="profile-button secondary recipes-add-row-btn" onClick={addStep}>
