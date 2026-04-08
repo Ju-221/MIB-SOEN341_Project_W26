@@ -14,10 +14,10 @@ import { FaCalendarAlt } from 'react-icons/fa';
 
 const ZIGZAG_FEATURES = [
 
-  { heading: '•\tPlan Your Week',      body: 'Organize your meals with our meal planner.' },
-   { heading: '•\tCreate Your Recipes', body: 'Create from scratch or generate with AI!' },
-  { heading: '•\tGenerate Recipes',     body: 'Create new dishes with our AI recipe generator.' },
-  { heading: '•\tFigure Out What to Cook',     body: 'Play our decision-making game to discover what you\'re craving!' },
+  { id: 1, heading: '•\tPlan Your Week',      body: 'Organize your meals with our meal planner.' },
+  { id: 2, heading: '•\tCreate Your Recipes', body: 'Create from scratch or generate with AI!' },
+  { id: 3, heading: '•\tGenerate Recipes',     body: 'Create new dishes with our AI recipe generator.' },
+  { id: 4, heading: '•\tFigure Out What to Cook',     body: 'Play our decision-making game to discover what you\'re craving!' },
 ];
 
 gsap.registerPlugin(ScrollTrigger);
@@ -43,7 +43,6 @@ interface Recipe {
 // 1 = Create Your Recipes     → left   (HiPencilSquare)
 // 2 = Generate Recipes        → right  (AiFillStar)
 // 3 = Figure Out What to Cook → top    (mdiPodium)
-const FEATURE_ICON_MAP: Record<number, string> = { 0: 'bottom', 1: 'left', 2: 'right', 3: 'top' };
 const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
 function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
@@ -112,7 +111,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     // Title slides in first, then each card after it
     if (titleEl) tl.to(titleEl, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, 0);
     cards.forEach((card, i) => {
-      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, (i + 1) * 1.0);
+      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, (i + 1) * 1);
     });
 
     tl.to('.zigzag-mandala-wrapper', { scale: 4, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
@@ -240,6 +239,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
             {ZIGZAG_FEATURES.map((f, i) => (
               <div
                 key={i}
+                role='button'
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -254,6 +254,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
               <img className="zigzag-mandala" src={mandala} alt="" />
               <img className="tacos" src={tacos} alt="" />
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -261,6 +262,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
                 <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -268,6 +270,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
                 <span className="mandala-icon-inner"><AiFillStar /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -275,6 +278,7 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
                 <span className="mandala-icon-inner"><FaCalendarAlt /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
                 onMouseLeave={() => setHoveredFeature(null)}

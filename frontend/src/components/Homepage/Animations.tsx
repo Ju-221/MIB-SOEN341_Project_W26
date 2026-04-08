@@ -1,3 +1,8 @@
+/*# The following file was drafted originally, but enhanced with the assistance of Claude.
+#Prompt example: I want lines emerging from the the center of the round plate, with angles 30, 115, 245, and 315 degrees.
+Each line should travel diagonally outward, then  horizontal, with a small circle at the end, Like the draft lines of a blueprint
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,9 +11,7 @@ import { SplitText } from 'gsap/SplitText';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
 import roundPlate from '../../assets/uploads/round-plate.png';
 import chopsticks from '../../assets/uploads/chopsticks.png';
-import olives from '../../assets/uploads/olives.png';
-import mint from '../../assets/uploads/mint.png';
-import tomato from '../../assets/uploads/tomato.png';
+
 
 gsap.registerPlugin(SplitText, InertiaPlugin, ScrollTrigger);
 
@@ -92,9 +95,6 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const circleRefs = useRef<(SVGCircleElement | null)[]>([]);
   const chopstickRef = useRef<HTMLImageElement>(null);
-  const olivesRef = useRef<HTMLImageElement>(null);
-  const mintRef = useRef<HTMLImageElement>(null);
-  const tomatoRef = useRef<HTMLImageElement>(null);
 
 
 
@@ -364,7 +364,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         onDragStart={(e) => e.preventDefault()}
       />
 
-      {/* Chopsticks wrapper — right edge flush with the screen's right edge,
+      {/* Chopsticks wrapper : right edge flush with the screen's right edge,
           vertically centred alongside the bowl. The wrapper handles positioning;
           the img is what GSAP animates so there are no CSS-transform conflicts. */}
       <div

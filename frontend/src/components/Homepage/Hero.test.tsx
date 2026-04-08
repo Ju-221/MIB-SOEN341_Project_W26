@@ -66,7 +66,8 @@ describe('Hero — "View recipes" button', () => {
     fireEvent.click(screen.getByRole('button', { name: /view recipes/i }));
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 600, behavior: 'smooth' });
 
-    document.body.removeChild(spacer);
+    spacer.remove();
+    
   });
 
   it('does nothing if the spacer is not in the DOM', () => {

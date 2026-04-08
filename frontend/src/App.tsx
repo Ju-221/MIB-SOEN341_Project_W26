@@ -70,12 +70,7 @@ function App() {
     }
   }, [isLoggedIn, currentPage]);
 
-  useEffect(() => {
-    // On initial load, if user is logged in and there's no hash, go to home
-    if (isLoggedIn && !window.location.hash) {
-      window.location.hash = '#home';
-    }
-  }, [isLoggedIn]);
+
 
   const renderPage = () => {
     switch (currentPage) {

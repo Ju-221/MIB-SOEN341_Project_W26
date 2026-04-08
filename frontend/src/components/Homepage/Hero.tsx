@@ -187,12 +187,7 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
     };
   }, []);
 
-  const handleViewRecipes = () => {
-    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
-    if (spacer) {
-      window.scrollTo({ top: spacer.offsetTop + spacer.offsetHeight, behavior: 'smooth' });
-    }
-  };
+
 
   return (
     <header className="homepage-hero">
