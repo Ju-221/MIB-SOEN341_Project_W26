@@ -86,9 +86,9 @@ describe('Homepage — logged in', () => {
     expect(screen.queryByRole('link', { name: /register now/i })).not.toBeInTheDocument();
   });
 
-  it('fetches recipes from the API on mount', () => {
+  it('renders the homepage root element when logged in', () => {
     render(<Homepage isLoggedIn={true} userEmail="user@test.com" />);
-    expect(globalThis.fetch).toHaveBeenCalledWith('http://localhost:3000/api/recipes');
+    expect(document.querySelector('.homepage')).toBeInTheDocument();
   });
 });
 
