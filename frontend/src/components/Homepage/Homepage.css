@@ -1,34 +1,254 @@
-/* Homepage uses profile-page / profile-shell / profile-card base classes.
-   Only page-specific additions live here. */
+/* ── zigzag blob (slides in from top on scroll) ── */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+.zigzag-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200vw;
+  height: 220px;
+  background: linear-gradient(160deg, #c8956c 0%, #9a692a 100%);
+  /* Two tiles of the wavy bottom edge — right tile (100%→50%) then left tile (50%→0%) */
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100%   65%,
+    95.8%  88%, 91.7%  65%,
+    87.5%  88%, 83.3%  65%,
+    79.2%  88%, 75%    65%,
+    70.8%  88%, 66.7%  65%,
+    62.5%  88%, 58.3%  65%,
+    54.2%  88%, 50%    65%,
+    45.8%  88%, 41.7%  65%,
+    37.5%  88%, 33.3%  65%,
+    29.2%  88%, 25%    65%,
+    20.8%  88%, 16.7%  65%,
+    12.5%  88%, 8.3%   65%,
+    4.2%   88%, 0%     65%
+  );
+  transform: translateY(-100%);
+  transform-origin: top center;
+  animation: zigzag-drift 26s linear infinite;
+  z-index: 3;
+  pointer-events: none;
+}
 
-/* ── CTA link styled as a button ─────────────────────────────────────────── */
-.hp-cta {
-  display: inline-block;
+@keyframes zigzag-drift {
+  from { translate: 0 0; }
+  to   { translate: -100vw 0; }
+}
+
+/* ── zigzag blob at the bottom (mirror of zigzag-top) ── */
+
+.zigzag-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 200vw;
+  height: 220px;
+  background: linear-gradient(160deg, #c8956c 0%, #9a692a 100%);
+  /*
+    Complementary to zigzag-top: peaks (upward teeth) sit at zigzag-top's valley x-positions,
+    valleys sit at zigzag-top's peak x-positions — so the teeth interlock on close.
+    No animation-delay needed; the clip-path handles the half-period offset directly.
+  */
+  clip-path: polygon(
+    0%     12%,
+    4.2%   35%, 8.3%   12%,
+    12.5%  35%, 16.7%  12%,
+    20.8%  35%, 25%    12%,
+    29.2%  35%, 33.3%  12%,
+    37.5%  35%, 41.7%  12%,
+    45.8%  35%, 50%    12%,
+    54.2%  35%, 58.3%  12%,
+    62.5%  35%, 66.7%  12%,
+    70.8%  35%, 75%    12%,
+    79.2%  35%, 83.3%  12%,
+    87.5%  35%, 91.7%  12%,
+    95.8%  35%, 100%   12%,
+    100% 100%,
+    0%   100%
+  );
+  transform: translateY(100%);
+  transform-origin: bottom center;
+  animation: zigzag-drift 26s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Homepage root ── */
+
+.homepage {
+  min-height: 100%;
+  background: #f9dbae;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-x: clip; /* prevents side-items causing scroll but allows visible overflow on hero */
+}
+
+/* ── Hero ── */
+
+.homepage-hero {
+  background: linear-gradient(135deg, #d3b98560 0%, #9a692a 100%);
+  color: #ffffff;
+  padding: 0 32px 0;
+  text-align: center;
+  width: 100%;
+  border-bottom-left-radius: 100% 1000px;
+  border-bottom-right-radius: 100% 1000px;
+  position: relative;
+  z-index: 4;
+}
+
+/* Welcome Back label — bottom-left when signed in */
+.hero-welcome {
+  position: absolute;
+  bottom: 0rem;
+  left: 3vw;
+  margin: 0;
+  font-family: Playfair Display, serif;
+  font-size: clamp(40px, 6.5vw, 96px);
+  font-weight: 700;
+  color: #5c2020b1;
+  pointer-events: none;
+  z-index: 20;
+  letter-spacing: 0.03em;
+  opacity: 0; /* GSAP slides it in */
+}
+
+/* Shared rounded button style for hero corner CTAs */
+.hero-corner-btn {
+  position: absolute;
+  bottom: 2.5rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6em 1.5em;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(14px, 1.6vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: linear-gradient(160deg, #63340d 0%, #9a692a 100%);
+  border-radius: 100px;
+  cursor: pointer;
   text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: #11182722 0px 4px 12px, #11182711 0px 2px 4px;
   white-space: nowrap;
+  max-width: 44vw;           /* never overflow on narrow screens */
 }
 
-/* ── Feature grid ────────────────────────────────────────────────────────── */
-.hp-feature-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+.hero-corner-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.18);
 }
+
+.hero-corner-btn--left  { left: 3vw;  opacity: 0; }
+.hero-corner-btn--right { right: 3vw; opacity: 0; }
+
+/* ── Responsive adjustments ── */
+@media (max-width: 768px) {
+  .hero-corner-btn {
+    bottom: 1.5rem;
+    padding: 0.5em 1.1em;
+    font-size: clamp(12px, 3.5vw, 18px);
+  }
+  .hero-corner-btn--left  { left: 4vw; }
+  .hero-corner-btn--right { right: 4vw; }
+}
+
+@media (max-width: 480px) {
+  .hero-corner-btn {
+    bottom: 1rem;
+    padding: 0.45em 0.9em;
+    font-size: clamp(11px, 3.8vw, 15px);
+    letter-spacing: 0.02em;
+  }
+}
+
+.homepage-hero-content {
+  max-width: 680px;
+  margin: 0 auto;
+}
+/* Homepage.css */
+
+.meal-major-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0 0;
+}
+
+.title-image-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.text-container {
+  text-align: center;
+  position: relative;
+  width: 100%;
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.meal-major-title {
+  text-align: center;
+  font-size: 12vw !important; 
+  font-family: 'Playfair Display', serif; 
+  font-weight: 900;
+  line-height: 0.72;
+  margin: 0;
+  color: #5c2020b1;
+  text-transform: uppercase;
+}
+
+.plate-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  width: 32vw;
+  max-width: 480px;
+  margin-top: -4vw; /* Overlap the bottom of the title */
+  margin-bottom: 2vw; /* Pull hero boundary up to bowl's midpoint */
+}
+.homepage-hero h1 {
+  margin: 0 0 16px;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.homepage-hero p:not(.hero-welcome) {
+  margin: 0 0 28px;
+  font-size: 17px;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+
+
 
 .hp-feature-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 22px 18px;
-  border: 1px solid #eef2f7;
-  background: #f9fafb;
-  text-decoration: none;
-  color: inherit;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s,
-    background 0.2s;
+  gap: 48px;
+  position: relative;
+  z-index: 2;
 }
 
 .hp-feature-card:hover {
@@ -38,13 +258,267 @@
   box-shadow: 0 8px 20px rgba(34, 197, 94, 0.1);
 }
 
-.hp-feature-icon {
-  width: 32px;
-  height: 32px;
-  color: #22c55e;
-  flex-shrink: 0;
-  margin-bottom: 4px;
-  transition: color 0.2s;
+/* ── zigzag content panel (sits between zigzag-top and zigzag-bottom edges) ── */
+
+.zigzag-content {
+  position: fixed;
+  top: 0;
+  bottom: 220px;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0 clamp(16px, 4vw, 60px);
+  gap: 0;
+  opacity: 0;
+}
+
+.zigzag-section-title {
+  height: 220px;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: min(7vw, 9vh);
+  color: #54351a;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zigzag-content-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-height: 0;
+}
+
+.zigzag-features-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(6px, 1.5vh, 20px);
+  flex: 0 1 55%;
+  min-width: 0;
+}
+
+.zigzag-mandala-wrapper {
+  flex: 0 0 45%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: none;
+}
+
+.zigzag-mandala,
+.tacos {
+  width: min(8vw, 14vh);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.mandala-icon-ring {
+  position: relative;
+  width: min(8.2vw, 17vh);
+  height: min(8.2vw, 17vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mandala-icon {
+  position: absolute;
+  font-size: min(1.2vw, 2vh);
+  color: #583606;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.mandala-icon-inner {
+  display: flex;
+  transition: transform 0.25s ease;
+}
+
+.mandala-icon--active .mandala-icon-inner {
+  transform: scale(1.5);
+}
+
+.mandala-icon-top {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mandala-icon-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+
+.mandala-icon-left {
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mandala-icon-right {
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+}
+
+.zigzag-mandala {
+  position: relative;
+  z-index: 1;
+  animation: mandala-spin 40s linear infinite;
+}
+
+.tacos {
+  position: absolute;
+  z-index: 2;
+  width: min(10vw, 17vh);
+  animation: tacos-wiggle 1s ease-in-out infinite alternate;
+}
+
+@keyframes mandala-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes tacos-wiggle {
+  from { transform: rotate(10deg); }
+  to   { transform: rotate(17deg); }
+}
+
+@keyframes glossy-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes icon-shimmer {
+  0%   { color: #b833ff; filter: drop-shadow(0 0 5px #b833ffaa); }
+  50%  { color: #4ade80; filter: drop-shadow(0 0 5px #4ade80aa); }
+  100% { color: #b833ff; filter: drop-shadow(0 0 5px #b833ffaa); }
+}
+
+.zigzagzag-feature-card--generate h3 {
+  background: linear-gradient(90deg, #b833ff, #c084fc, #86efac, #4ade80, #c084fc, #b833ff);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glossy-shimmer 8s linear infinite;
+}
+
+.mandala-icon--generate .mandala-icon-inner {
+  animation: icon-shimmer 8s ease infinite;
+}
+
+.zigzag-feature-card {
+  width: 100%;
+  border-radius: 12px;
+  padding: clamp(8px, 1.5vh, 20px) clamp(10px, 2vw, 24px);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.zigzag-feature-card h3 {
+  margin: 0 0 4px;
+  font-size: min(4vw, 5.5vh);
+  font-weight: 700;
+  font-family: 'Permanent Marker', cursive;
+  color: #583606;
+  display: inline-block;
+  transform-origin: left center;
+}
+
+.zigzag-feature-card p {
+  margin: 0 0 4px;
+  font-size: min(2vw, 2.8vh);
+  font-weight: 700;
+  display: inline-block;
+  transform-origin: left center;
+  font-family: 'Permanent Marker', cursive;
+  color: #58360674;
+}
+
+
+/* ── Bon Appétit closing overlay ── */
+
+.bon-appetit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+  gap: 16px;
+}
+
+.bon-appetit-title {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(52px, 11vw, 130px);
+  font-weight: 900;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  opacity: 0;
+}
+
+.bon-appetit-sub {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 2.5vw, 32px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  letter-spacing: 0.04em;
+  opacity: 0;
+}
+
+.bon-appetit-mib {
+  background: linear-gradient(90deg, #b833ff, #c084fc, #86efac, #4ade80, #c084fc, #b833ff);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glossy-shimmer 8s linear infinite;
+}
+
+/* ── Features ── */
+
+.homepage-features {
+  overflow: hidden;
+}
+
+.homepage-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .hp-feature-card:hover .hp-feature-icon {
@@ -90,10 +564,8 @@
 .hp-recipe-card {
   border: 1px solid #eef2f7;
   overflow: hidden;
-  background: #ffffff;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .hp-recipe-card:hover {
@@ -193,6 +665,34 @@
   }
 }
 
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .zigzag-mandala-wrapper {
+    display: none;
+  }
+
+  .zigzag-features-list {
+    flex: 1;
+  }
+
+  .zigzag-content-row {
+    justify-content: center;
+  }
+
+  .zigzag-section-title {
+    font-size: min(9vw, 9vh);
+  }
+
+  .zigzag-feature-card h3 {
+    font-size: min(6vw, 5.5vh);
+  }
+
+  .zigzag-feature-card p {
+    font-size: min(3.5vw, 2.8vh);
+  }
+}
+
 @media (max-width: 900px) {
   .hp-recipe-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -200,7 +700,24 @@
 }
 
 @media (max-width: 600px) {
-  .hp-feature-grid {
+  .homepage-hero {
+    padding: 40px 16px;
+  }
+
+  .homepage-hero h1 {
+    font-size: 26px;
+  }
+
+  .homepage-hero p:not(.hero-welcome) {
+    font-size: 15px;
+  }
+
+  .homepage-main {
+    padding: 24px 16px;
+    gap: 32px;
+  }
+
+  .homepage-recipe-grid {
     grid-template-columns: 1fr;
   }
 

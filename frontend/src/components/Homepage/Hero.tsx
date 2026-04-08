@@ -87,8 +87,8 @@ const MainHeroSection = () => {
 
       {/* Mint — top-left corner */}
       <div style={{
-        position: 'absolute', left: '3vw', top: '6%',
-        width: '25vw', maxWidth: '5770px',
+        position: 'absolute', left: '2vw', top: '1%',
+        width: '36vw', maxWidth: '820px',
         pointerEvents: 'none', userSelect: 'none', zIndex: 15,
       }}>
         <img ref={mintRef} src={mint} alt="mint"
@@ -100,7 +100,7 @@ const MainHeroSection = () => {
       {/* Tomato — top-right corner */}
       <div style={{
         position: 'absolute', right: '4vw', top: '8%',
-        width: '12vw', maxWidth: '1055px',
+        width: '18vw', maxWidth: '360px',
         pointerEvents: 'none', userSelect: 'none', zIndex: 15,
       }}>
         <img ref={tomatoRef} src={tomato} alt="tomato"
@@ -111,8 +111,8 @@ const MainHeroSection = () => {
 
       {/* Olives — bottom-left, near the curve */}
       <div style={{
-        position: 'absolute', left: '10vw', bottom: '10%',
-        width: '20vw', maxWidth: '500px',
+        position: 'absolute', left: '5vw', bottom: '5%',
+        width: '27vw', maxWidth: '680px', rotate: '20deg',
         pointerEvents: 'none', userSelect: 'none', zIndex: 15,
       }}>
         <img ref={olivesRef} src={olives} alt="olives"
@@ -140,7 +140,7 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
   const leftRef  = useRef<HTMLElement>(null);
   const rightRef = useRef<HTMLButtonElement>(null);
 
-  // Slide in from each side, delayed after the top-element animations (~1.9 s)
+  // Slide in from each side
   useEffect(() => {
     if (leftRef.current) {
       gsap.fromTo(leftRef.current,
