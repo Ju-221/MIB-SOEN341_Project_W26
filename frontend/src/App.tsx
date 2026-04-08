@@ -20,6 +20,8 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const [userEmail, setUserEmail] = useState<string | null>(() => {
     const token = localStorage.getItem('token');
     if (!token) return localStorage.getItem('userEmail');
@@ -34,6 +36,10 @@ function App() {
   const handleLoadingComplete = useCallback(() => {
     setIsLoading(false);
   }, []);
+
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false)
+  }, [])
 
   const handleAuthSuccess = useCallback(() => {
     const token = localStorage.getItem('token');
@@ -78,6 +84,13 @@ function App() {
     }
   }, [isLoggedIn]);
 
+  useEffect(() => {
+  // On initial load, if user is logged in and there's no hash, go to home
+  if (isLoggedIn && !window.location.hash) {
+    window.location.hash = '#home'
+  }
+}, [isLoggedIn])
+
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':
@@ -102,6 +115,10 @@ function App() {
 
   if (isLoading) {
     return <LoadingScreen onReady={handleLoadingComplete} />;
+  }
+
+  if (isLoading) {
+    return <LoadingScreen onReady={handleLoadingComplete} />
   }
 
   return (
