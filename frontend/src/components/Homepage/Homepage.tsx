@@ -45,8 +45,8 @@ interface Recipe {
 // 3 = Figure Out What to Cook → top    (mdiPodium)
 const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
-function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+function Homepage({ isLoggedIn}: HomepageProps) {
+  const [setRecipes] = useState<Recipe[]>([]);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   useEffect(() => {
