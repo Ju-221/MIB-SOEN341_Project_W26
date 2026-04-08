@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type Page = 'home' | 'signin' | 'signup' | 'profile' | 'calendar' | 'unique' | 'aichat';
+type Page = 'home' | 'signin' | 'signup' | 'profile' | 'calendar' | 'unique' | 'aichat' | 'recipes';
 
 export function useHashNavigation(defaultPage: Page = 'home') {
   const [currentPage, setCurrentPage] = useState<Page>(defaultPage);
@@ -15,7 +15,8 @@ export function useHashNavigation(defaultPage: Page = 'home') {
         hash === 'profile' ||
         hash === 'calendar' ||
         hash === 'unique' ||
-        hash === 'aichat'
+        hash === 'aichat' ||
+        hash === 'recipes'
       ) {
         setCurrentPage(hash as Page);
       } else {

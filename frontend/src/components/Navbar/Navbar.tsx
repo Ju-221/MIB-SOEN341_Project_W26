@@ -38,6 +38,14 @@ function Navbar({ currentPage, isLoggedIn, onLoginClick, onLogout, userEmail }: 
           )}
           {isLoggedIn && (
             <a
+              href="#recipes"
+              className={`app-nav-link ${currentPage === 'recipes' ? 'active' : ''}`}
+            >
+              Recipes
+            </a>
+          )}
+          {isLoggedIn && (
+            <a
               href="#unique"
               className={`app-nav-link ${currentPage === 'unique' ? 'active' : ''}`}
             >
