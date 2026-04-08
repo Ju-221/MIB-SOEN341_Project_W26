@@ -1,104 +1,125 @@
-import { useState, useCallback, useEffect } from 'react'
-import { useHashNavigation } from './hooks/useHashNavigation'
-import { SignIn, SignUp } from './components/Auth'
-import Profile from './components/Profile/Profile'
-import Homepage from './components/Homepage/Homepage'
-import Navbar from './components/Navbar/Navbar'
-import Unique from './components/Unique/Unique'
-import AIChat from './components/AIChat/AIChat'
-import LoadingScreen from './components/LoadingScreen/LoadingScreen'
-import Calendar from './components/Calendar/Calendar'
-import './App.css'
+import { useState, useCallback, useEffect } from 'react';
+import { useHashNavigation } from './hooks/useHashNavigation';
+import { SignIn, SignUp } from './components/Auth';
+import Profile from './components/Profile/Profile';
+import Homepage from './components/Homepage/Homepage';
+import Navbar from './components/Navbar/Navbar';
+import Unique from './components/Unique/Unique';
+import AIChat from './components/AIChat/AIChat';
+import LoadingScreen from './components/LoadingScreen/LoadingScreen';
+import Calendar from './components/Calendar/Calendar';
+import Recipes from './components/Recipes/Recipes';
+import './App.css';
 
 function App() {
-  const currentPage = useHashNavigation('signin')
+  const currentPage = useHashNavigation('signin');
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('token') !== null
-  })
+    return localStorage.getItem('token') !== null;
+  });
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [userEmail, setUserEmail] = useState<string | null>(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return localStorage.getItem('userEmail')
+    const token = localStorage.getItem('token');
+    if (!token) return localStorage.getItem('userEmail');
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload.email || localStorage.getItem('userEmail')
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.email || localStorage.getItem('userEmail');
     } catch {
-      return localStorage.getItem('userEmail')
+      return localStorage.getItem('userEmail');
     }
-  })
+  });
 
   const handleLoadingComplete = useCallback(() => {
-    setIsLoading(false)
-  }, [])
+    setIsLoading(false);
+  }, []);
+
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
 
   const handleAuthSuccess = useCallback(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true)
-      setIsLoading(true)
+      setIsLoggedIn(true);
+      setIsLoading(true);
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        setUserEmail(payload.email || localStorage.getItem('userEmail'))
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUserEmail(payload.email || localStorage.getItem('userEmail'));
       } catch {
-        setUserEmail(localStorage.getItem('userEmail'))
+        setUserEmail(localStorage.getItem('userEmail'));
       }
     }
-    window.location.hash = '#home'
-  }, [])
+    window.location.hash = '#home';
+  }, []);
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('rememberMe')
-    sessionStorage.removeItem('aichat_messages')
-    setIsLoggedIn(false)
-    setUserEmail(null)
-    window.location.hash = '#signin'
-  }, [])
+    localStorage.removeItem('token');
+    localStorage.removeItem('rememberMe');
+    sessionStorage.removeItem('aichat_messages');
+    setIsLoggedIn(false);
+    setUserEmail(null);
+    window.location.hash = '#signin';
+  }, []);
 
   const openLoginModal = useCallback(() => {
-    window.location.hash = '#signin'
-  }, [])
+    window.location.hash = '#signin';
+  }, []);
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    const requiresAuth = currentPage === 'profile' || currentPage === 'unique'
+    const requiresAuth =
+      currentPage === 'profile' || currentPage === 'unique' || currentPage === 'recipes';
     if (!isLoggedIn && requiresAuth) {
-      window.location.hash = '#signin'
+      window.location.hash = '#signin';
     }
-  }, [isLoggedIn, currentPage])
+  }, [isLoggedIn, currentPage]);
 
   useEffect(() => {
-  // On initial load, if user is logged in and there's no hash, go to home
-  if (isLoggedIn && !window.location.hash) {
-    window.location.hash = '#home'
-  }
-}, [isLoggedIn])
+    // On initial load, if user is logged in and there's no hash, go to home
+    if (isLoggedIn && !window.location.hash) {
+      window.location.hash = '#home';
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    // On initial load, if user is logged in and there's no hash, go to home
+    if (isLoggedIn && !window.location.hash) {
+      window.location.hash = '#home';
+    }
+  }, [isLoggedIn]);
 
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':
-        return <Calendar />
+        return <Calendar />;
+      case 'recipes':
+        return <Recipes />;
       case 'profile':
-        return <Profile />
+        return <Profile />;
       case 'signin':
-        return <SignIn onSuccess={handleAuthSuccess} />
+        return <SignIn onSuccess={handleAuthSuccess} />;
       case 'unique':
-        return <Unique />
+        return <Unique />;
       case 'aichat':
-        return <AIChat />
+        return <AIChat />;
       case 'signup':
-        return <SignUp onSuccess={handleAuthSuccess} />
-    
+        return <SignUp onSuccess={handleAuthSuccess} />;
+
       default:
-        return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />
+        return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
     }
+  };
+
+  if (isLoading) {
+    return <LoadingScreen onReady={handleLoadingComplete} />;
   }
 
   if (isLoading) {
-    return <LoadingScreen onReady={handleLoadingComplete} />
+    return <LoadingScreen onReady={handleLoadingComplete} />;
   }
 
   return (
@@ -111,11 +132,9 @@ function App() {
         userEmail={userEmail}
       />
 
-      <div className="app-page-content">
-        {renderPage()}
-      </div>
+      <div className="app-page-content">{renderPage()}</div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

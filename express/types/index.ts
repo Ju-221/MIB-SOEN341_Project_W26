@@ -7,7 +7,12 @@ export interface CreateRecipeBody {
   cookTime: number;
   estimatedCost: number;
   difficulty: Difficulty;
-  ingredients: Array<{name: string; amount: number, unit:string, cost?: number}>;
+  ingredients: Array<{
+    name: string;
+    amount: number;
+    unit: string;
+    cost?: number;
+  }>;
   steps: string | unknown[];
   categories: string | unknown[];
   dietaryPreferences?: string | unknown[];
@@ -21,7 +26,12 @@ export interface UpdateRecipeBody {
   cookTime?: number;
   estimatedCost?: number;
   difficulty?: Difficulty;
-  ingredients?: Array<{name: string; amount: number, unit:string, cost?: number}>;
+  ingredients?: Array<{
+    name: string;
+    amount: number;
+    unit: string;
+    cost?: number;
+  }>;
   steps?: string | unknown[];
   categories?: string | unknown[];
   dietaryPreferences?: string | unknown[];
@@ -29,8 +39,8 @@ export interface UpdateRecipeBody {
 }
 
 export interface Calendar {
-  userId: number,
-  month: number,
-  year: number,
-  days: string
+  userId: number;
+  month: number;
+  year: number;
+  days: string;
 }

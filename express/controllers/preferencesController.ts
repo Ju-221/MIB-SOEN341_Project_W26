@@ -1,30 +1,41 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { allergies, dietaryPreferences } from '../db/schema.js';
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
 // SET PREFERENCES
-export const setPreferences = async (req:Request, res:Response) => {
+export const setPreferences = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { allergies: allergyData, dietaryPreferences: dietData } = req.body;
 
     //  allergies
     const existingAllergy = db.select().from(allergies).where(eq(allergies.userId, userId)).get();
-    
+
     if (existingAllergy) {
       db.update(allergies).set(allergyData).where(eq(allergies.userId, userId)).run();
     } else {
-      db.insert(allergies).values({ userId, ...allergyData }).run();
+      db.insert(allergies)
+        .values({ userId, ...allergyData })
+        .run();
     }
 
     //  dietary preferences
-    const existingDiet = db.select().from(dietaryPreferences).where(eq(dietaryPreferences.userId, userId)).get();
-    
+    const existingDiet = db
+      .select()
+      .from(dietaryPreferences)
+      .where(eq(dietaryPreferences.userId, userId))
+      .get();
+
     if (existingDiet) {
-      db.update(dietaryPreferences).set(dietData).where(eq(dietaryPreferences.userId, userId)).run();
+      db.update(dietaryPreferences)
+        .set(dietData)
+        .where(eq(dietaryPreferences.userId, userId))
+        .run();
     } else {
-      db.insert(dietaryPreferences).values({ userId, ...dietData }).run();
+      db.insert(dietaryPreferences)
+        .values({ userId, ...dietData })
+        .run();
     }
 
     res.json({ message: 'Preferences updated successfully' });
@@ -35,16 +46,20 @@ export const setPreferences = async (req:Request, res:Response) => {
 };
 
 // GET PREFERENCES
-export const getPreferences = async (req:Request, res:Response) => {
+export const getPreferences = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
 
     const userAllergies = db.select().from(allergies).where(eq(allergies.userId, userId)).get();
-    const userDiet = db.select().from(dietaryPreferences).where(eq(dietaryPreferences.userId, userId)).get();
+    const userDiet = db
+      .select()
+      .from(dietaryPreferences)
+      .where(eq(dietaryPreferences.userId, userId))
+      .get();
 
     res.json({
       allergies: userAllergies || {},
-      dietaryPreferences: userDiet || {}
+      dietaryPreferences: userDiet || {},
     });
   } catch (error) {
     console.error(error);

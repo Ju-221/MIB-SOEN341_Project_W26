@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load .env first, then .env.example as fallback
@@ -31,14 +30,14 @@ import recipesRoutes from './routes/recipes.js';
 app.use('/api/recipes', recipesRoutes);
 
 import calendarRoutes from './routes/calendar.js';
-app.use('/api/calendar',calendarRoutes)
+app.use('/api/calendar', calendarRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
-    res.json({ message: 'MealMajor API is running...' });
-})
+  res.json({ message: 'MealMajor API is running...' });
+});
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-})
+  console.log(`Server is running on port ${PORT}`);
+});

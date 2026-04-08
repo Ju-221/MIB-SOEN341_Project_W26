@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
-import {Request, Response} from 'express'
+import { Request, Response } from 'express';
 
 // SIGNUP
 export const signup = async (req: Request, res: Response) => {
@@ -20,22 +20,24 @@ export const signup = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const result = db.insert(users).values({
-      email,
-      password: hashedPassword
-    }).returning().get();
+    const result = db
+      .insert(users)
+      .values({
+        email,
+        password: hashedPassword,
+      })
+      .returning()
+      .get();
 
     // Generate token
     const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
-    const token = jwt.sign(
-      { id: result.id, email: result.email },
-      jwtSecret,
-      { expiresIn: '24h' }
-    );
+    const token = jwt.sign({ id: result.id, email: result.email }, jwtSecret, {
+      expiresIn: '24h',
+    });
 
-    res.status(201).json({ 
-      user: { id: result.id, email: result.email }, 
-      token 
+    res.status(201).json({
+      user: { id: result.id, email: result.email },
+      token,
     });
   } catch (error) {
     console.error(error);
@@ -44,7 +46,7 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 // SIGNIN
-export const signin = async (req : Request, res : Response) => {
+export const signin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -62,14 +64,12 @@ export const signin = async (req : Request, res : Response) => {
 
     // Generate token
     const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      jwtSecret,
-      { expiresIn: '24h' }
-    );
-    res.json({ 
-      user: { id: user.id, email: user.email }, 
-      token 
+    const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret, {
+      expiresIn: '24h',
+    });
+    res.json({
+      user: { id: user.id, email: user.email },
+      token,
     });
   } catch (error) {
     console.error(error);

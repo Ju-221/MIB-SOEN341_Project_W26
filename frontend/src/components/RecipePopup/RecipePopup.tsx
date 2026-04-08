@@ -1,75 +1,81 @@
-import React, { useEffect } from 'react'
-import './RecipePopup.css'
+import React, { useEffect } from 'react';
+import './RecipePopup.css';
 
 interface Ingredient {
-  name: string
-  amount?: string
-  unit?: string
+  name: string;
+  amount?: string;
+  unit?: string;
 }
 
 interface Recipe {
-  id: number
-  title: string
-  description: string
-  prepTime: number
-  cookTime: number
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  estimatedCost: number
-  heroImage: string | null
-  ingredients: (string | Ingredient)[]
-  steps: string[]
-  categories: string[]
-  createdAt?: string
-  dietaryPreferences?: string[]
-  allergies?: string[]
+  id: number;
+  title: string;
+  description: string;
+  prepTime: number;
+  cookTime: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  estimatedCost: number;
+  heroImage: string | null;
+  ingredients: (string | Ingredient)[];
+  steps: string[];
+  categories: string[];
+  createdAt?: string;
+  dietaryPreferences?: string[];
+  allergies?: string[];
 }
 
 interface RecipePopupProps {
-  recipe: Recipe
-  onClose: () => void
+  recipe: Recipe;
+  onClose: () => void;
 }
 
 const difficultyColor: Record<string, string> = {
-  Easy:   '#22c55e',
+  Easy: '#22c55e',
   Medium: '#f59e0b',
-  Hard:   '#ef4444',
-}
+  Hard: '#ef4444',
+};
 
 function formatIngredient(ing: string | Ingredient): string {
-  if (typeof ing === 'string') return ing
-  const parts = [ing.amount, ing.unit].filter(Boolean).join(' ')
-  return parts ? `${ing.name} — ${parts}` : ing.name
+  if (typeof ing === 'string') return ing;
+  const parts = [ing.amount, ing.unit].filter(Boolean).join(' ');
+  return parts ? `${ing.name} — ${parts}` : ing.name;
 }
 
 const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
   // Close on Escape key
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
-  const totalTime = recipe.prepTime + recipe.cookTime
+  const totalTime = recipe.prepTime + recipe.cookTime;
 
   return (
     <div className="popup-overlay" onClick={onClose}>
-      <div className="popup-card" onClick={e => e.stopPropagation()}>
-
+      <div className="popup-card" onClick={(e) => e.stopPropagation()}>
         {/* Hero image */}
         <div className="popup-hero">
           <img
-            src={recipe.heroImage
-              ? (recipe.heroImage.startsWith('data:') ? recipe.heroImage : `http://localhost:3000/uploads/${recipe.heroImage}`)
-              : 'http://localhost:3000/uploads/temp-1774310819405.jpeg'}
+            src={
+              recipe.heroImage
+                ? recipe.heroImage.startsWith('data:')
+                  ? recipe.heroImage
+                  : `http://localhost:3000/uploads/${recipe.heroImage}`
+                : 'http://localhost:3000/uploads/temp-1774310819405.jpeg'
+            }
             alt={recipe.title}
           />
           <div className="popup-hero-overlay" />
-          <button className="popup-close" onClick={onClose} aria-label="Close">✕</button>
+          <button className="popup-close" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
         </div>
 
         {/* Scrollable body */}
         <div className="popup-body">
-
           {/* Title + difficulty */}
           <div className="popup-title-row">
             <h2 className="popup-title">{recipe.title}</h2>
@@ -155,8 +161,10 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
               <div className="popup-tag-group">
                 <p className="popup-tag-label">Categories</p>
                 <div className="popup-tags">
-                  {recipe.categories.map(t => (
-                    <span key={t} className="popup-tag popup-tag--category">{t}</span>
+                  {recipe.categories.map((t) => (
+                    <span key={t} className="popup-tag popup-tag--category">
+                      {t}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -165,8 +173,10 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
               <div className="popup-tag-group">
                 <p className="popup-tag-label">Dietary</p>
                 <div className="popup-tags">
-                  {recipe.dietaryPreferences.map(t => (
-                    <span key={t} className="popup-tag popup-tag--diet">{t}</span>
+                  {recipe.dietaryPreferences.map((t) => (
+                    <span key={t} className="popup-tag popup-tag--diet">
+                      {t}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -175,18 +185,19 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
               <div className="popup-tag-group">
                 <p className="popup-tag-label">Allergens</p>
                 <div className="popup-tags">
-                  {recipe.allergies.map(t => (
-                    <span key={t} className="popup-tag popup-tag--allergy">{t}</span>
+                  {recipe.allergies.map((t) => (
+                    <span key={t} className="popup-tag popup-tag--allergy">
+                      {t}
+                    </span>
                   ))}
                 </div>
               </div>
             )}
           </section>
-
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RecipePopup
+export default RecipePopup;
