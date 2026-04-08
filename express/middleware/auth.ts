@@ -11,7 +11,10 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_jwt_secret_for_testing') as {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'default_jwt_secret_for_testing'
+    ) as {
       id: number;
       email: string;
     };

@@ -135,27 +135,27 @@ describe('RecipeManager Component', () => {
 
   describe('Create Recipe Form', () => {
     it('allows servings to be cleared without forcing zero back in', async () => {
-      const user = userEvent.setup()
-      render(<RecipeManager />)
+      const user = userEvent.setup();
+      render(<RecipeManager />);
 
-      await user.click(screen.getByRole('button', { name: /add recipe/i }))
+      await user.click(screen.getByRole('button', { name: /add recipe/i }));
 
-      const servingsInput = screen.getByLabelText(/servings/i)
-      await user.clear(servingsInput)
+      const servingsInput = screen.getByLabelText(/servings/i);
+      await user.clear(servingsInput);
 
-      expect(servingsInput).toHaveValue(null)
-    })
+      expect(servingsInput).toHaveValue(null);
+    });
 
     it('renders ingredient unit as a select-only dropdown', async () => {
-      const user = userEvent.setup()
-      render(<RecipeManager />)
+      const user = userEvent.setup();
+      render(<RecipeManager />);
 
-      await user.click(screen.getByRole('button', { name: /add recipe/i }))
+      await user.click(screen.getByRole('button', { name: /add recipe/i }));
 
-      const unitField = screen.getByLabelText(/ingredient 1 unit/i)
-      expect(unitField.tagName).toBe('SELECT')
-    })
-  })
+      const unitField = screen.getByLabelText(/ingredient 1 unit/i);
+      expect(unitField.tagName).toBe('SELECT');
+    });
+  });
 
   describe('Filter Tag Buttons', () => {
     it('filter section exists', async () => {

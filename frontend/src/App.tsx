@@ -20,7 +20,7 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const [userEmail, setUserEmail] = useState<string | null>(() => {
     const token = localStorage.getItem('token');
@@ -38,8 +38,8 @@ function App() {
   }, []);
 
   const handleLoadingComplete = useCallback(() => {
-    setIsLoading(false)
-  }, [])
+    setIsLoading(false);
+  }, []);
 
   const handleAuthSuccess = useCallback(() => {
     const token = localStorage.getItem('token');
@@ -71,7 +71,8 @@ function App() {
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    const requiresAuth = currentPage === 'profile' || currentPage === 'unique' || currentPage === 'recipes';
+    const requiresAuth =
+      currentPage === 'profile' || currentPage === 'unique' || currentPage === 'recipes';
     if (!isLoggedIn && requiresAuth) {
       window.location.hash = '#signin';
     }
@@ -85,11 +86,11 @@ function App() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-  // On initial load, if user is logged in and there's no hash, go to home
-  if (isLoggedIn && !window.location.hash) {
-    window.location.hash = '#home'
-  }
-}, [isLoggedIn])
+    // On initial load, if user is logged in and there's no hash, go to home
+    if (isLoggedIn && !window.location.hash) {
+      window.location.hash = '#home';
+    }
+  }, [isLoggedIn]);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -118,7 +119,7 @@ function App() {
   }
 
   if (isLoading) {
-    return <LoadingScreen onReady={handleLoadingComplete} />
+    return <LoadingScreen onReady={handleLoadingComplete} />;
   }
 
   return (

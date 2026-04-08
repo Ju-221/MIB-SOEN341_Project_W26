@@ -143,7 +143,10 @@ export default function Recipes() {
   const removeIngredient = (idx: number) => {
     setForm((f) => {
       const ingredients = f.ingredients.map(toIngredientObj).filter((_, i) => i !== idx);
-      return { ...f, ingredients: ingredients.length ? ingredients : [{ name: '', amount: '', unit: '' }] };
+      return {
+        ...f,
+        ingredients: ingredients.length ? ingredients : [{ name: '', amount: '', unit: '' }],
+      };
     });
   };
 
@@ -190,19 +193,29 @@ export default function Recipes() {
     try {
       if (viewMode === 'add') {
         const created = await createRecipe(
-          { ...form, id: '', prepTime: Number(form.prepTime), cookTime: Number(form.cookTime), estimatedCost: Number(form.estimatedCost) },
+          {
+            ...form,
+            id: '',
+            prepTime: Number(form.prepTime),
+            cookTime: Number(form.cookTime),
+            estimatedCost: Number(form.estimatedCost),
+          },
           token
         );
         const newRecipe = Array.isArray(created) ? created[0] : created;
         setRecipes((prev) => [newRecipe, ...prev]);
       } else if (viewMode === 'edit' && selected) {
-        const updated = await updateRecipe(String(selected.id), {
-          ...form,
-          id: selected.id,
-          prepTime: Number(form.prepTime),
-          cookTime: Number(form.cookTime),
-          estimatedCost: Number(form.estimatedCost),
-        }, token);
+        const updated = await updateRecipe(
+          String(selected.id),
+          {
+            ...form,
+            id: selected.id,
+            prepTime: Number(form.prepTime),
+            cookTime: Number(form.cookTime),
+            estimatedCost: Number(form.estimatedCost),
+          },
+          token
+        );
         setRecipes((prev) => prev.map((r) => (String(r.id) === String(selected.id) ? updated : r)));
         setSelected(updated);
       }
@@ -236,7 +249,20 @@ export default function Recipes() {
   const formIngredients = form.ingredients.map(toIngredientObj);
   const formSteps = form.steps.map(toStepObj);
 
-  const categoryTags = ['vegetarian', 'vegan', 'keto', 'quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free', 'high-protein', 'pescetarian', 'halal', 'kosher'];
+  const categoryTags = [
+    'vegetarian',
+    'vegan',
+    'keto',
+    'quick',
+    'healthy',
+    'budget-friendly',
+    'gluten-free',
+    'dairy-free',
+    'high-protein',
+    'pescetarian',
+    'halal',
+    'kosher',
+  ];
 
   const difficultyColor = (d?: string) => {
     if (d === 'Hard') return 'recipes-badge hard';
@@ -252,7 +278,9 @@ export default function Recipes() {
           <header className="profile-header">
             <div>
               <h1>My Recipes</h1>
-              <p className="profile-subtitle">Add, browse, cook and edit your personal recipe collection.</p>
+              <p className="profile-subtitle">
+                Add, browse, cook and edit your personal recipe collection.
+              </p>
             </div>
             <button type="button" className="profile-button primary" onClick={openAdd}>
               + Add Recipe
@@ -272,7 +300,9 @@ export default function Recipes() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <span className="recipes-count">{filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}</span>
+                <span className="recipes-count">
+                  {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}
+                </span>
               </div>
 
               {loading && <p className="recipes-status">Loading recipes…</p>}
@@ -297,20 +327,37 @@ export default function Recipes() {
                     )}
                     <div className="recipe-card-body">
                       <div className="recipe-card-tags">
-                        <span className={difficultyColor(recipe.difficulty)}>{recipe.difficulty ?? 'Easy'}</span>
-                        <span className="recipes-badge time">{(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min</span>
+                        <span className={difficultyColor(recipe.difficulty)}>
+                          {recipe.difficulty ?? 'Easy'}
+                        </span>
+                        <span className="recipes-badge time">
+                          {(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min
+                        </span>
                       </div>
                       <h3 className="recipe-card-title">{recipe.title}</h3>
                       <p className="recipe-card-desc">{recipe.description}</p>
                     </div>
                     <div className="recipe-card-actions">
-                      <button type="button" className="profile-button primary" onClick={() => openCook(recipe)}>
+                      <button
+                        type="button"
+                        className="profile-button primary"
+                        onClick={() => openCook(recipe)}
+                      >
                         Cook
                       </button>
-                      <button type="button" className="profile-button secondary" onClick={() => openEdit(recipe)}>
+                      <button
+                        type="button"
+                        className="profile-button secondary"
+                        onClick={() => openEdit(recipe)}
+                      >
                         Edit
                       </button>
-                      <button type="button" className="recipes-delete-btn" onClick={() => handleDelete(recipe)} title="Delete">
+                      <button
+                        type="button"
+                        className="recipes-delete-btn"
+                        onClick={() => handleDelete(recipe)}
+                        title="Delete"
+                      >
                         Delete
                       </button>
                     </div>
@@ -334,11 +381,17 @@ export default function Recipes() {
         <div className="profile-shell">
           <header className="profile-header">
             <div>
-              <button type="button" className="recipes-back-btn" onClick={backToList}>Back</button>
+              <button type="button" className="recipes-back-btn" onClick={backToList}>
+                Back
+              </button>
               <h1>{selected.title}</h1>
               <p className="profile-subtitle">Cooking Mode — follow the steps below</p>
             </div>
-            <button type="button" className="profile-button secondary" onClick={() => openEdit(selected)}>
+            <button
+              type="button"
+              className="profile-button secondary"
+              onClick={() => openEdit(selected)}
+            >
               Switch to Edit
             </button>
           </header>
@@ -352,7 +405,9 @@ export default function Recipes() {
 
           {/* Meta row */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Overview</h2></div>
+            <div className="profile-card-header">
+              <h2>Overview</h2>
+            </div>
             <div className="profile-card-body">
               <div className="recipes-meta-row">
                 <div className="recipes-meta-item">
@@ -365,7 +420,9 @@ export default function Recipes() {
                 </div>
                 <div className="recipes-meta-item">
                   <span className="recipes-meta-label">Difficulty</span>
-                  <span className={difficultyColor(selected.difficulty)}>{selected.difficulty ?? 'Easy'}</span>
+                  <span className={difficultyColor(selected.difficulty)}>
+                    {selected.difficulty ?? 'Easy'}
+                  </span>
                 </div>
                 <div className="recipes-meta-item">
                   <span className="recipes-meta-label">Est. Cost</span>
@@ -378,7 +435,9 @@ export default function Recipes() {
 
           {/* Ingredients checklist */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Ingredients</h2></div>
+            <div className="profile-card-header">
+              <h2>Ingredients</h2>
+            </div>
             <div className="profile-card-body">
               <p className="profile-card-subtitle">Check off each ingredient as you gather it.</p>
               <ul className="recipes-ingredient-list">
@@ -388,7 +447,9 @@ export default function Recipes() {
                     className={`recipes-ingredient-item ${checkedIngredients.has(idx) ? 'checked' : ''}`}
                     onClick={() => toggleIngredient(idx)}
                   >
-                    <span className="recipes-ingredient-check">{checkedIngredients.has(idx) ? 'v' : ''}</span>
+                    <span className="recipes-ingredient-check">
+                      {checkedIngredients.has(idx) ? 'v' : ''}
+                    </span>
                     <span className="recipes-ingredient-name">{ing.name}</span>
                     {(ing.amount || ing.unit) && (
                       <span className="recipes-ingredient-amount">
@@ -405,7 +466,9 @@ export default function Recipes() {
           <section className="profile-card">
             <div className="profile-card-header">
               <h2>Steps</h2>
-              <span className="recipes-step-counter">{currentStep + 1} / {totalSteps}</span>
+              <span className="recipes-step-counter">
+                {currentStep + 1} / {totalSteps}
+              </span>
             </div>
             <div className="profile-card-body">
               {/* Progress bar */}
@@ -446,7 +509,11 @@ export default function Recipes() {
                     Next Step
                   </button>
                 ) : (
-                  <button type="button" className="profile-button primary recipes-done-btn" onClick={backToList}>
+                  <button
+                    type="button"
+                    className="profile-button primary recipes-done-btn"
+                    onClick={backToList}
+                  >
                     Done Cooking!
                   </button>
                 )}
@@ -468,28 +535,40 @@ export default function Recipes() {
         <div className="profile-shell">
           <header className="profile-header">
             <div>
-              <button type="button" className="recipes-back-btn" onClick={backToList}>Back</button>
+              <button type="button" className="recipes-back-btn" onClick={backToList}>
+                Back
+              </button>
               <h1>{heading}</h1>
-              <p className="profile-subtitle">{isAdding ? 'Fill in the details to add a new recipe.' : 'Make changes and save when ready.'}</p>
+              <p className="profile-subtitle">
+                {isAdding
+                  ? 'Fill in the details to add a new recipe.'
+                  : 'Make changes and save when ready.'}
+              </p>
             </div>
             {!isAdding && selected && (
-              <button type="button" className="profile-button secondary" onClick={() => openCook(selected)}>
+              <button
+                type="button"
+                className="profile-button secondary"
+                onClick={() => openCook(selected)}
+              >
                 Switch to Cook
               </button>
             )}
           </header>
 
-          {formError && (
-            <div className="recipes-form-error">{formError}</div>
-          )}
+          {formError && <div className="recipes-form-error">{formError}</div>}
 
           {/* Basic Info */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Basic Info</h2></div>
+            <div className="profile-card-header">
+              <h2>Basic Info</h2>
+            </div>
             <div className="profile-card-body">
               <div className="profile-grid one">
                 <div className="profile-field">
-                  <label htmlFor="r-title">Title <span className="required">*</span></label>
+                  <label htmlFor="r-title">
+                    Title <span className="required">*</span>
+                  </label>
                   <input
                     id="r-title"
                     type="text"
@@ -542,7 +621,9 @@ export default function Recipes() {
                     onChange={(e) => setForm((f) => ({ ...f, difficulty: e.target.value }))}
                   >
                     {DIFFICULTIES.map((d) => (
-                      <option key={d} value={d}>{d}</option>
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -554,7 +635,9 @@ export default function Recipes() {
                     min={0}
                     step={0.01}
                     value={form.estimatedCost}
-                    onChange={(e) => setForm((f) => ({ ...f, estimatedCost: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, estimatedCost: Number(e.target.value) }))
+                    }
                   />
                 </div>
               </div>
@@ -563,20 +646,30 @@ export default function Recipes() {
 
           {/* Hero Image */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Photo</h2></div>
+            <div className="profile-card-header">
+              <h2>Photo</h2>
+            </div>
             <div className="profile-card-body recipes-image-section">
               {imagePreview && (
                 <img src={imagePreview} alt="Preview" className="recipes-image-preview" />
               )}
               <label className="profile-button secondary recipes-image-label">
                 {imagePreview ? 'Change Photo' : 'Upload Photo'}
-                <input type="file" accept="image/*" onChange={handleImageChange} className="recipes-image-input" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="recipes-image-input"
+                />
               </label>
               {imagePreview && (
                 <button
                   type="button"
                   className="profile-button secondary"
-                  onClick={() => { setImagePreview(null); setForm((f) => ({ ...f, heroImage: '' })); }}
+                  onClick={() => {
+                    setImagePreview(null);
+                    setForm((f) => ({ ...f, heroImage: '' }));
+                  }}
                 >
                   Remove Photo
                 </button>
@@ -586,7 +679,9 @@ export default function Recipes() {
 
           {/* Ingredients */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Ingredients</h2></div>
+            <div className="profile-card-header">
+              <h2>Ingredients</h2>
+            </div>
             <div className="profile-card-body">
               <div className="recipes-ingredients-header">
                 <span className="recipes-col-label">Name</span>
@@ -623,10 +718,21 @@ export default function Recipes() {
                     value={ing.cost ?? ''}
                     onChange={(e) => updateIngredient(idx, 'cost', Number(e.target.value))}
                   />
-                  <button type="button" className="recipes-row-remove" onClick={() => removeIngredient(idx)} title="Remove">x</button>
+                  <button
+                    type="button"
+                    className="recipes-row-remove"
+                    onClick={() => removeIngredient(idx)}
+                    title="Remove"
+                  >
+                    x
+                  </button>
                 </div>
               ))}
-              <button type="button" className="profile-button secondary recipes-add-row-btn" onClick={addIngredient}>
+              <button
+                type="button"
+                className="profile-button secondary recipes-add-row-btn"
+                onClick={addIngredient}
+              >
                 + Add Ingredient
               </button>
             </div>
@@ -634,7 +740,9 @@ export default function Recipes() {
 
           {/* Steps */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Steps</h2></div>
+            <div className="profile-card-header">
+              <h2>Steps</h2>
+            </div>
             <div className="profile-card-body">
               {formSteps.map((step, idx) => (
                 <div key={idx} className="recipes-step-edit-row">
@@ -646,10 +754,21 @@ export default function Recipes() {
                     rows={2}
                     onChange={(e) => updateStep(idx, e.target.value)}
                   />
-                  <button type="button" className="recipes-row-remove" onClick={() => removeStep(idx)} title="Remove">x</button>
+                  <button
+                    type="button"
+                    className="recipes-row-remove"
+                    onClick={() => removeStep(idx)}
+                    title="Remove"
+                  >
+                    x
+                  </button>
                 </div>
               ))}
-              <button type="button" className="profile-button secondary recipes-add-row-btn" onClick={addStep}>
+              <button
+                type="button"
+                className="profile-button secondary recipes-add-row-btn"
+                onClick={addStep}
+              >
                 + Add Step
               </button>
             </div>
@@ -657,7 +776,9 @@ export default function Recipes() {
 
           {/* Categories */}
           <section className="profile-card">
-            <div className="profile-card-header"><h2>Tags &amp; Categories</h2></div>
+            <div className="profile-card-header">
+              <h2>Tags &amp; Categories</h2>
+            </div>
             <div className="profile-card-body">
               <p className="profile-card-subtitle">Select any that apply to this recipe.</p>
               <div className="profile-chip-grid">
@@ -680,7 +801,12 @@ export default function Recipes() {
             <button type="button" className="profile-button secondary" onClick={backToList}>
               Cancel
             </button>
-            <button type="button" className="profile-button primary" onClick={handleSave} disabled={saving}>
+            <button
+              type="button"
+              className="profile-button primary"
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving ? 'Saving…' : isAdding ? 'Create Recipe' : 'Save Changes'}
             </button>
           </div>
