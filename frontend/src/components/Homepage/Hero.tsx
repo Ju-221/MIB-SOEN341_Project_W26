@@ -145,46 +145,15 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
     if (leftRef.current) {
       gsap.fromTo(leftRef.current,
         { x: -180, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.9, delay: 0.7, ease: 'power3.out' }
+        { x: 0, opacity: 1, duration: 0.9, delay: 2.1, ease: 'power3.out' }
       );
     }
     if (rightRef.current) {
       gsap.fromTo(rightRef.current,
         { x: 180, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.9, delay: 0.7, ease: 'power3.out' }
+        { x: 0, opacity: 1, duration: 0.9, delay: 2.1, ease: 'power3.out' }
       );
     }
-  }, []);
-
-  // Scroll-driven reverse — slide off screen as hero scrolls away
-  useEffect(() => {
-    let tl: gsap.core.Timeline;
-
-    const setup = gsap.delayedCall(1.6, () => {
-      const hero = document.querySelector('.homepage-hero') as HTMLElement;
-      if (!hero) return;
-
-      tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: hero,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 2,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      if (leftRef.current)  tl.to(leftRef.current,  { x: -180, opacity: 0 }, 0);
-      if (rightRef.current) tl.to(rightRef.current, { x: 180,  opacity: 0 }, 0);
-
-      ScrollTrigger.refresh();
-    });
-
-    return () => {
-      setup.kill();
-      tl?.scrollTrigger?.kill();
-      tl?.kill();
-    };
   }, []);
 
   const handleViewRecipes = () => {
@@ -204,7 +173,10 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
         : <a ref={leftRef as React.RefObject<HTMLAnchorElement>} href="/login" className="hero-corner-btn hero-corner-btn--left">Register now!</a>
       }
 
-     
+      {/* Bottom-right: always visible */}
+      <button ref={rightRef} className="hero-corner-btn hero-corner-btn--right" onClick={handleViewRecipes}>
+        View recipes
+      </button>
     </header>
   );
 };

@@ -8,6 +8,7 @@ import Unique from './components/Unique/Unique';
 import AIChat from './components/AIChat/AIChat';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Calendar from './components/Calendar/Calendar';
+import Recipes from './components/Recipes/Recipes';
 import './App.css';
 
 function App() {
@@ -16,6 +17,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null;
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,6 +32,10 @@ function App() {
       return localStorage.getItem('userEmail');
     }
   });
+
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
 
   const handleLoadingComplete = useCallback(() => {
     setIsLoading(false);
@@ -64,7 +71,8 @@ function App() {
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    const requiresAuth = currentPage === 'profile' || currentPage === 'unique';
+    const requiresAuth =
+      currentPage === 'profile' || currentPage === 'unique' || currentPage === 'recipes';
     if (!isLoggedIn && requiresAuth) {
       window.location.hash = '#signin';
     }
@@ -77,10 +85,19 @@ function App() {
     }
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    // On initial load, if user is logged in and there's no hash, go to home
+    if (isLoggedIn && !window.location.hash) {
+      window.location.hash = '#home';
+    }
+  }, [isLoggedIn]);
+
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':
         return <Calendar />;
+      case 'recipes':
+        return <Recipes />;
       case 'profile':
         return <Profile />;
       case 'signin':
@@ -96,6 +113,10 @@ function App() {
         return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
     }
   };
+
+  if (isLoading) {
+    return <LoadingScreen onReady={handleLoadingComplete} />;
+  }
 
   if (isLoading) {
     return <LoadingScreen onReady={handleLoadingComplete} />;
