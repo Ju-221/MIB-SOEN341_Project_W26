@@ -347,10 +347,6 @@
   background-color: #eef2ff !important;
   color: #3730a3 !important;
 }
-.cal-meal-slot.snack {
-  background-color: #faf5ff !important;
-  color: #7c3aed !important;
-}
 
 .cal-meal-slot:not(:disabled):hover {
   transform: translateY(-1px);
@@ -365,9 +361,6 @@
 }
 .cal-meal-slot.dinner:not(:disabled):hover {
   background-color: #e0e7ff !important;
-}
-.cal-meal-slot.snack:not(:disabled):hover {
-  background-color: #f3e8ff !important;
 }
 
 .cal-meal-label {
