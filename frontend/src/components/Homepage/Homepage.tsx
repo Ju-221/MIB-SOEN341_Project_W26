@@ -160,15 +160,21 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         onLeave: () => {
           (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'hidden';
           // Teeth are fully closed — reveal Bon Appétit
+          const overlay = document.querySelector('.bon-appetit-overlay') as HTMLElement;
+          if (overlay) overlay.style.visibility = 'visible';
+          gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
           gsap.set('.bon-appetit-title, .bon-appetit-sub', { y: 50, filter: 'blur(16px)' });
           gsap.to('.bon-appetit-title', { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power3.out' });
           gsap.to('.bon-appetit-sub',   { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, delay: 0.5, ease: 'power3.out' });
         },
         onEnterBack: () => {
           (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'visible';
-          // Teeth are re-opening — hide Bon Appétit
-          gsap.to('.bon-appetit-title', { y: 50, opacity: 0, filter: 'blur(16px)', duration: 0.4, ease: 'power2.in' });
-          gsap.to('.bon-appetit-sub',   { y: 50, opacity: 0, filter: 'blur(16px)', duration: 0.4, ease: 'power2.in' });
+          // Teeth are re-opening — instantly kill and hide Bon Appétit so fast
+          // scrolling can't leave it stranded mid-screen
+          gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
+          gsap.set('.bon-appetit-title, .bon-appetit-sub', { opacity: 0, y: 50, filter: 'blur(16px)' });
+          const overlay = document.querySelector('.bon-appetit-overlay') as HTMLElement;
+          if (overlay) overlay.style.visibility = 'hidden';
         },
       },
     });
@@ -207,6 +213,13 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
         zigzagContent.style.visibility = 'hidden';
       } else if (!scrollingDown && scrolled < 0.72) {
         zigzagContent.style.visibility = 'visible';
+        // Guard: if user scrubs back above the closing zone, force-hide the overlay
+        const overlay = document.querySelector('.bon-appetit-overlay') as HTMLElement;
+        if (overlay && overlay.style.visibility !== 'hidden') {
+          gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
+          gsap.set('.bon-appetit-title, .bon-appetit-sub', { opacity: 0, y: 50, filter: 'blur(16px)' });
+          overlay.style.visibility = 'hidden';
+        }
       }
     };
 
