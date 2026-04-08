@@ -1,5 +1,26 @@
 import { useState, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Homepage.css';
+import Hero from './Hero';
+
+import mandala from '../../assets/uploads/mandala.png';
+import tacos from '../../assets/uploads/tacos.png';
+import Icon from '@mdi/react';
+import { mdiPodium } from '@mdi/js';
+import { AiFillStar } from 'react-icons/ai';
+import { HiPencilSquare } from 'react-icons/hi2';
+import { FaCalendarAlt } from 'react-icons/fa';
+
+const ZIGZAG_FEATURES = [
+
+  { heading: '•\tPlan Your Week',      body: 'Organize your meals with our meal planner.' },
+   { heading: '•\tCreate Your Recipes', body: 'Create from scratch or generate with AI!' },
+  { heading: '•\tGenerate Recipes',     body: 'Create new dishes with our AI recipe generator.' },
+  { heading: '•\tFigure Out What to Cook',     body: 'Play our decision-making game to discover what you\'re craving!' },
+];
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface HomepageProps {
   isLoggedIn: boolean;
@@ -17,8 +38,182 @@ interface Recipe {
   categories: string[];
 }
 
+// Maps feature index → which icon slot lights up
+// 0 = Plan Your Week          → bottom (FaCalendarAlt)
+// 1 = Create Your Recipes     → left   (HiPencilSquare)
+// 2 = Generate Recipes        → right  (AiFillStar)
+// 3 = Figure Out What to Cook → top    (mdiPodium)
+const FEATURE_ICON_MAP: Record<number, string> = { 0: 'bottom', 1: 'left', 2: 'right', 3: 'top' };
+const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
+
 function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadRecipes();
+  }, []);
+
+  useEffect(() => {
+    const hero = document.querySelector('.homepage-hero') as HTMLElement;
+    if (!hero) return;
+
+    // Slide the zigzag (top + bottom) and reveal the zigzag-content panel together
+    const zigzagAnim = gsap.to('.zigzag-top, .zigzag-bottom', {
+      y: '0%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'bottom top',
+        end: '+=250',
+        scrub: 1.5,
+      },
+    });
+
+    const contentReveal = gsap.to('.zigzag-content', {
+      opacity: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'bottom top',
+        end: '+=250',
+        scrub: 1.5,
+      },
+    });
+
+    return () => {
+      zigzagAnim.scrollTrigger?.kill();
+      zigzagAnim.kill();
+      contentReveal.scrollTrigger?.kill();
+      contentReveal.kill();
+    };
+  }, []);
+
+  useEffect(() => {
+    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
+    if (!spacer) return;
+
+    const titleEl = document.querySelector('.zigzag-section-title') as HTMLElement;
+    const cards = gsap.utils.toArray<HTMLElement>('.zigzag-feature-card');
+    if (titleEl) gsap.set(titleEl, { x: '-110vw', opacity: 0, filter: 'blur(16px)' });
+    gsap.set(cards, { x: '-110vw', opacity: 0, filter: 'blur(16px)' });
+    gsap.set('.zigzag-mandala-wrapper', { scale: 0.2, filter: 'blur(20px)', opacity: 0 });
+    gsap.set('.tacos', { scale: 0.2, filter: 'blur(20px)', opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        start: 'top top',
+        end: '+=170vh',
+        scrub: 2,
+      },
+    });
+
+    // Title slides in first, then each card after it
+    if (titleEl) tl.to(titleEl, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, 0);
+    cards.forEach((card, i) => {
+      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, (i + 1) * 1.0);
+    });
+
+    tl.to('.zigzag-mandala-wrapper', { scale: 4, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
+    tl.to('.tacos', { scale: 1, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, []);
+
+  // Drive h3/p scale with GSAP so it works regardless of CSS stacking/transform conflicts
+  useEffect(() => {
+    const cards = document.querySelectorAll<HTMLElement>('.zigzag-feature-card');
+    cards.forEach((card, i) => {
+      const h3 = card.querySelector<HTMLElement>('h3');
+      const p  = card.querySelector<HTMLElement>('p');
+      const active = hoveredFeature === i;
+      if (h3) gsap.to(h3, { scale: active ? 1.1 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
+      if (p)  gsap.to(p,  { scale: active ? 1.07 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
+    });
+  }, [hoveredFeature]);
+
+  // Closing animation — zigzag teeth close together after the feature section
+  useEffect(() => {
+    const spacer = document.querySelector('.homepage-spacer') as HTMLElement;
+    if (!spacer) return;
+
+    gsap.set('.bon-appetit-title, .bon-appetit-sub', { opacity: 0, y: 50, filter: 'blur(16px)' });
+
+    const closingTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        start: '43% top',
+        // innerHeight * 1.3 (~130vh) keeps the end well within the page's max scroll
+        end: () => '+=' + window.innerHeight * 1.3,
+        scrub: 1.5,
+        onUpdate: (self) => {
+          if (self.direction === 1 && self.progress > 0.85) {
+            const opacity = gsap.getProperty('.zigzag-content', 'opacity') as number;
+            if (opacity > 0.05) {
+              (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'hidden';
+            }
+          }
+        },
+        onLeave: () => {
+          (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'hidden';
+          // Teeth are fully closed — reveal Bon Appétit
+          gsap.set('.bon-appetit-title, .bon-appetit-sub', { y: 50, filter: 'blur(16px)' });
+          gsap.to('.bon-appetit-title', { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power3.out' });
+          gsap.to('.bon-appetit-sub',   { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, delay: 0.5, ease: 'power3.out' });
+        },
+        onEnterBack: () => {
+          (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'visible';
+          // Teeth are re-opening — hide Bon Appétit
+          gsap.to('.bon-appetit-title', { y: 50, opacity: 0, filter: 'blur(16px)', duration: 0.4, ease: 'power2.in' });
+          gsap.to('.bon-appetit-sub',   { y: 50, opacity: 0, filter: 'blur(16px)', duration: 0.4, ease: 'power2.in' });
+        },
+      },
+    });
+
+    // Teeth close over the full scroll window; features fade out in sync with the teeth
+    // so users see the content disappearing as the jaws close around it.
+    closingTl
+      .to('.zigzag-top',     { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
+      .to('.zigzag-bottom',  { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
+      .to('.zigzag-section-title, .zigzag-feature-card, .zigzag-mandala-wrapper, .tacos',
+          { opacity: 0, ease: 'power1.in', duration: 0.7 }, 0)
+      .to('.zigzag-content', { opacity: 0, ease: 'power1.in', duration: 0.8 }, 0.1);
+
+    return () => {
+      closingTl.scrollTrigger?.kill();
+      closingTl.kill();
+    };
+  }, []);
+
+  // Hard scroll-position guard: past 75% of page height the features must be invisible.
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const scrolled = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      const scrollingDown = scrollY > lastScrollY;
+      lastScrollY = scrollY;
+
+      const zigzagContent = document.querySelector('.zigzag-content') as HTMLElement;
+      if (!zigzagContent) return;
+
+      if (scrollingDown && scrolled >= 0.72) {
+        // Only flip visibility — never touch GSAP-owned opacity values so the
+        // reverse animation can play freely when scrolling back up.
+        zigzagContent.style.visibility = 'hidden';
+      } else if (!scrollingDown && scrolled < 0.72) {
+        zigzagContent.style.visibility = 'visible';
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const loadRecipes = async () => {
     try {
@@ -32,98 +227,81 @@ function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
     }
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadRecipes();
-  }, []);
-
   return (
     <div className="homepage">
-      <header className="homepage-hero">
-        <div className="homepage-hero-content">
-          <h1>Plan Meals. Save Money. Eat Well.</h1>
-          <p>
-            MealMajor helps university students plan weekly meals, discover budget-friendly recipes,
-            and manage grocery lists -- all in one place.
-          </p>
-          {!isLoggedIn && (
-            <a href="#signin" className="homepage-hero-cta">
-              Get Started
-            </a>
-          )}
+      {/* Zigzag blob that drips in from the top after the hero scrolls away */}
+      <div className="zigzag-top" aria-hidden="true" />
+
+      {/* Content panel that sits between the two zigzag edges */}
+      <div className="zigzag-content" aria-hidden="true">
+        <h2 className="zigzag-section-title">Our features</h2>
+        <div className="zigzag-content-row">
+          <div className="zigzag-features-list">
+            {ZIGZAG_FEATURES.map((f, i) => (
+              <div
+                key={i}
+                className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
+                onMouseEnter={() => setHoveredFeature(i)}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <h3>{f.heading}</h3>
+                <p>{f.body}</p>
+              </div>
+            ))}
+          </div>
+          <span className="zigzag-mandala-wrapper">
+            <div className="mandala-icon-ring">
+              <img className="zigzag-mandala" src={mandala} alt="" />
+              <img className="tacos" src={tacos} alt="" />
+              <span
+                className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><AiFillStar /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><FaCalendarAlt /></span>
+              </span>
+              <span
+                className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
+                onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <span className="mandala-icon-inner"><HiPencilSquare /></span>
+              </span>
+            </div>
+          </span>
         </div>
-      </header>
+      </div>
+
+      <div className="zigzag-bottom" aria-hidden="true" />
+
+      {/* Bon Appétit closing overlay — appears after zigzag teeth fully close */}
+      <div className="bon-appetit-overlay" aria-hidden="true">
+        <h2 className="bon-appetit-title">Bon Appétit!</h2>
+        <p className="bon-appetit-sub">
+          Powered by: The <span className="bon-appetit-mib">MIB</span> Team
+        </p>
+      </div>
+
+      <Hero isLoggedIn={isLoggedIn} />
 
       <main className="homepage-main">
-        <section className="homepage-features">
-          <h2 className="homepage-section-title">What You Can Do</h2>
-          <div className="homepage-feature-grid">
-            <div className="homepage-feature-card">
-              <h3>Discover Recipes</h3>
-              <p>Browse and search recipes tailored to your dietary preferences and budget.</p>
-            </div>
-            <div className="homepage-feature-card">
-              <h3>Plan Your Week</h3>
-              <p>Organize meals for the entire week and generate smart grocery lists.</p>
-            </div>
-            <div className="homepage-feature-card">
-              <h3>Save Money</h3>
-              <p>Find affordable meal options with estimated cost breakdowns per recipe.</p>
-            </div>
-          </div>
-        </section>
-
-        {recipes.length > 0 && (
-          <section className="homepage-recipes">
-            <h2 className="homepage-section-title">Recent Recipes</h2>
-            <div className="homepage-recipe-grid">
-              {recipes.map((recipe) => (
-                <div key={recipe.id} className="homepage-recipe-card">
-                  <div className="homepage-recipe-image">
-                    <img
-                      src={
-                        recipe.heroImage
-                          ? `http://localhost:3000/uploads/${recipe.heroImage}`
-                          : 'http://localhost:3000/uploads/1.jpeg'
-                      }
-                      alt={recipe.title}
-                    />
-                  </div>
-                  <div className="homepage-recipe-body">
-                    <h3>{recipe.title}</h3>
-                    <p className="homepage-recipe-desc">{recipe.description}</p>
-                    <div className="homepage-recipe-meta">
-                      <span>{recipe.prepTime + recipe.cookTime} min</span>
-                      <span>${recipe.estimatedCost.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {isLoggedIn && (
-          <section className="homepage-user-section">
-            <h2 className="homepage-section-title">Your Activity</h2>
-            <div className="homepage-activity-card">
-              <div className="homepage-activity-content">
-                <p className="homepage-activity-welcome">
-                  Welcome back, <strong>{userEmail}</strong>
-                </p>
-                <p className="homepage-activity-hint">
-                  Head over to your <a href="#profile">Profile</a> to update your dietary
-                  preferences and allergies, so we can recommend the best recipes for you.
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
+        <div className="homepage-spacer" style={{ height: '460vh' }} />
       </main>
 
-      <footer className="homepage-footer">
-        <p>MealMajor -- Built for university students, by university students.</p>
-      </footer>
     </div>
   );
 }
