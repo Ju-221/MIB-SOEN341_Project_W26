@@ -8,6 +8,7 @@ import Unique from './components/Unique/Unique';
 import AIChat from './components/AIChat/AIChat';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Calendar from './components/Calendar/Calendar';
+import Recipes from './components/Recipes/Recipes';
 import './App.css';
 
 function App() {
@@ -64,7 +65,7 @@ function App() {
 
   // Redirect unauthenticated users to sign in
   useEffect(() => {
-    const requiresAuth = currentPage === 'profile' || currentPage === 'unique';
+    const requiresAuth = currentPage === 'profile' || currentPage === 'unique' || currentPage === 'recipes';
     if (!isLoggedIn && requiresAuth) {
       window.location.hash = '#signin';
     }
@@ -81,6 +82,8 @@ function App() {
     switch (currentPage) {
       case 'calendar':
         return <Calendar />;
+      case 'recipes':
+        return <Recipes />;
       case 'profile':
         return <Profile />;
       case 'signin':
