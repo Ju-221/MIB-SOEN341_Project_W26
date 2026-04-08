@@ -154,8 +154,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       try {
         const data = await fetchRecipes();
         setRecipes(data);
-      } catch {
-        // silently ignore load error
+      } catch (error) {
+        console.error(error);
       }
     }
 
@@ -405,8 +405,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       setRecipes(recipes.filter((recipe) => recipe.id !== selectedRecipeId));
       setShowDeleteConfirm(false);
       setSelectedRecipeId(null);
-    } catch {
-      // silently ignore delete error
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -447,8 +447,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     subfield?: string
   ) => {
     if (!formData[field]) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentArray = Array.isArray(formData[field])
-      ? [...(formData[field] as string[])]
+      ? [...(formData[field] as (string | any)[])]
       : [];
 
     if (field === 'ingredients') {
@@ -590,7 +591,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           reader.readAsDataURL(blob);
         });
       } catch (error) {
-        void error;
+        console.error('Failed to load default image:', error);
         return '';
       }
     };
@@ -678,6 +679,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
         );
         onRecipeSaved?.(updatedRecipe);
       } catch (error) {
+        console.error(error);
         setSaveError(error instanceof Error ? error.message : 'Failed to update recipe.');
         return;
       }
@@ -701,6 +703,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           onRecipeSaved?.(returnedRecipe);
         }
       } catch (error) {
+        console.error(error);
         setSaveError(error instanceof Error ? error.message : 'Failed to create recipe.');
         return;
       }

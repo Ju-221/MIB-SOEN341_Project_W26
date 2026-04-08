@@ -32,7 +32,8 @@ export async function createRecipe(
   recipeObj: Recipe,
   jwt_token: string
 ): Promise<Recipe | Recipe[]> {
-  if (recipeObj.title.toLowerCase() === 'default') {
+  if (recipeObj.title.toLowerCase() == 'default') {
+    console.log('Making defaults');
     return createDefaultRecipes(jwt_token);
   }
 
@@ -116,13 +117,17 @@ function serializeRecipe(recipe: Recipe) {
 
   // Image
   if (recipe.heroImage) {
+    console.log('Serializing recipe with heroImage, length:', recipe.heroImage.length);
     formData.append('heroImage', base64ToImageFile(recipe.heroImage));
+  } else {
+    console.log('No heroImage found on recipe');
   }
 
   return formData;
 }
 
 function base64ToImageFile(b64Str: string) {
+  console.log('Converting base64 to image file, starts with:', b64Str.substring(0, 50));
   const arr = b64Str.split(',');
   const mime = arr[0].match(/:(.*?);/)?.[1] || ''; // Prefix to file data
   const bstr = atob(arr[1]); // Base64 file into binary text

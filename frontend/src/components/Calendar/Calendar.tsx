@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import RecipeManager, { type Recipe } from '../Recipe-Manager/CreateRecipe';
+import type { Recipe } from '../Recipe-Manager/CreateRecipe';
+import RecipeManager from '../Recipe-Manager/CreateRecipe';
+import type { CalendarDay, MealType, ViewMode } from './types';
 import {
-  type CalendarDay,
-  type MealType,
-  type ViewMode,
   MONTH_NAMES,
   DAY_LABELS,
   MEAL_TYPES,

@@ -27,6 +27,17 @@ interface HomepageProps {
   userEmail: string | null;
 }
 
+interface Recipe {
+  id: number;
+  title: string;
+  description: string;
+  prepTime: number;
+  cookTime: number;
+  estimatedCost: number;
+  heroImage: string | null;
+  categories: string[];
+}
+
 // Maps feature index → which icon slot lights up
 // 0 = Plan Your Week          → bottom (FaCalendarAlt)
 // 1 = Create Your Recipes     → left   (HiPencilSquare)
@@ -34,8 +45,13 @@ interface HomepageProps {
 // 3 = Figure Out What to Cook → top    (mdiPodium)
 const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
-function Homepage({ isLoggedIn }: HomepageProps) {
+function Homepage({ isLoggedIn, userEmail }: HomepageProps) {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadRecipes();
+  }, []);
 
   useEffect(() => {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
@@ -211,6 +227,18 @@ function Homepage({ isLoggedIn }: HomepageProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const loadRecipes = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/recipes');
+      if (response.ok) {
+        const data = await response.json();
+        setRecipes(data.slice(0, 6));
+      }
+    } catch (error) {
+      console.error('Error loading recipes:', error);
+    }
+  };
+
   return (
     <div className="homepage">
       {/* Zigzag blob that drips in from the top after the hero scrolls away */}
@@ -224,6 +252,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
             {ZIGZAG_FEATURES.map((f, i) => (
               <div
                 key={i}
+                role='button'
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -238,6 +267,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
               <img className="zigzag-mandala" src={mandala} alt="" />
               <img className="tacos" src={tacos} alt="" />
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -245,6 +275,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
                 <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -252,6 +283,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
                 <span className="mandala-icon-inner"><AiFillStar /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -259,6 +291,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
                 <span className="mandala-icon-inner"><FaCalendarAlt /></span>
               </span>
               <span
+              role='button'
                 className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
                 onMouseLeave={() => setHoveredFeature(null)}

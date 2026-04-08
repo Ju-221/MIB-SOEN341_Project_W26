@@ -1,4 +1,5 @@
-import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useState, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import RecipeManager from '../Recipe-Manager/CreateRecipe';
 
 import './Profile.css';
@@ -42,8 +43,8 @@ function Profile() {
       if (response.ok) {
         await response.json();
       }
-    } catch {
-      // silently ignore preference load errors
+    } catch (error) {
+      console.error('Error loading preferences:', error);
     }
   };
 
@@ -110,8 +111,8 @@ function Profile() {
       if (response.ok) {
         alert('Preferences saved!');
       }
-    } catch {
-      alert('Failed to save preferences.');
+    } catch (error) {
+      console.error('Failed to save:', error);
     }
   };
 
