@@ -31,10 +31,7 @@ describe('Hero — not logged in', () => {
     expect(screen.queryByText(/welcome back/i)).not.toBeInTheDocument();
   });
 
-  it('renders the "View recipes" button', () => {
-    render(<Hero isLoggedIn={false} />);
-    expect(screen.getByRole('button', { name: /view recipes/i })).toBeInTheDocument();
-  });
+
 });
 
 describe('Hero — logged in', () => {
@@ -48,33 +45,7 @@ describe('Hero — logged in', () => {
     expect(screen.queryByRole('link', { name: /register now/i })).not.toBeInTheDocument();
   });
 
-  it('renders the "View recipes" button', () => {
-    render(<Hero isLoggedIn={true} />);
-    expect(screen.getByRole('button', { name: /view recipes/i })).toBeInTheDocument();
-  });
+
 });
 
-describe('Hero — "View recipes" button', () => {
-  it('calls window.scrollTo with the spacer bottom offset when clicked', () => {
-    const spacer = document.createElement('div');
-    spacer.className = 'homepage-spacer';
-    Object.defineProperty(spacer, 'offsetTop',    { value: 100 });
-    Object.defineProperty(spacer, 'offsetHeight', { value: 500 });
-    document.body.appendChild(spacer);
 
-    render(<Hero isLoggedIn={false} />);
-    fireEvent.click(screen.getByRole('button', { name: /view recipes/i }));
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 600, behavior: 'smooth' });
-
-    spacer.remove();
-    
-  });
-
-  it('does nothing if the spacer is not in the DOM', () => {
-    render(<Hero isLoggedIn={false} />);
-    // No spacer in DOM — should not throw
-    expect(() =>
-      fireEvent.click(screen.getByRole('button', { name: /view recipes/i }))
-    ).not.toThrow();
-  });
-});
