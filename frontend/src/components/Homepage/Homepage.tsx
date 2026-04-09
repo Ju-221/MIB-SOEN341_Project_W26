@@ -46,8 +46,6 @@ interface HomepageProps {
   userEmail: string | null;
 }
 
-
-
 // Maps feature index → which icon slot lights up
 // 0 = Plan Your Week          → bottom (FaCalendarAlt)
 // 1 = Create Your Recipes     → left   (HiPencilSquare)
