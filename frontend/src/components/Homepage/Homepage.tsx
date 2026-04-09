@@ -13,11 +13,10 @@ import { HiPencilSquare } from 'react-icons/hi2';
 import { FaCalendarAlt } from 'react-icons/fa';
 
 const ZIGZAG_FEATURES = [
-
-  { id: 1, heading: '•\tPlan Your Week',      body: 'Organize your meals with our meal planner.' },
-  { id: 2, heading: '•\tCreate Your Recipes', body: 'Create from scratch or generate with AI!' },
-  { id: 3, heading: '•\tGenerate Recipes',     body: 'Create new dishes with our AI recipe generator.' },
-  { id: 4, heading: '•\tFigure Out What to Cook',     body: 'Play our decision-making game to discover what you\'re craving!' },
+  { id: 1, heading: '•\tPlan Your Week',           body: 'Organize your meals with our meal planner.',            route: '#calendar' },
+  { id: 2, heading: '•\tCreate Your Recipes',      body: 'Create from scratch or generate with AI!',              route: '#recipes'  },
+  { id: 3, heading: '•\tGenerate Recipes',          body: 'Create new dishes with our AI recipe generator.',       route: '#aichat'   },
+  { id: 4, heading: '•\tFigure Out What to Cook',  body: 'Play our decision-making game to discover what you\'re craving!', route: '#unique' },
 ];
 
 gsap.registerPlugin(ScrollTrigger);
@@ -48,6 +47,18 @@ const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2,
 function Homepage({ isLoggedIn}: HomepageProps) {
   const [setRecipes] = useState<Recipe[]>([]);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+
+  const loadRecipes = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/recipes');
+      if (response.ok) {
+        const data = await response.json();
+        setRecipes(data.slice(0, 6));
+      }
+    } catch (error) {
+      console.error('Error loading recipes:', error);
+    }
+  };
 
   useEffect(() => {
     loadRecipes();
@@ -227,18 +238,6 @@ function Homepage({ isLoggedIn}: HomepageProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const loadRecipes = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/recipes');
-      if (response.ok) {
-        const data = await response.json();
-        setRecipes(data.slice(0, 6));
-      }
-    } catch (error) {
-      console.error('Error loading recipes:', error);
-    }
-  };
-
   return (
     <div className="homepage">
       {/* Zigzag blob that drips in from the top after the hero scrolls away */}
@@ -256,6 +255,7 @@ function Homepage({ isLoggedIn}: HomepageProps) {
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
+                onClick={() => { window.location.hash = f.route; }}
               >
                 <h3>{f.heading}</h3>
                 <p>{f.body}</p>
@@ -271,6 +271,7 @@ function Homepage({ isLoggedIn}: HomepageProps) {
                 className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
                 onMouseLeave={() => setHoveredFeature(null)}
+                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['top']].route; }}
               >
                 <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
               </span>
@@ -279,6 +280,7 @@ function Homepage({ isLoggedIn}: HomepageProps) {
                 className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
                 onMouseLeave={() => setHoveredFeature(null)}
+                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['right']].route; }}
               >
                 <span className="mandala-icon-inner"><AiFillStar /></span>
               </span>
@@ -287,6 +289,7 @@ function Homepage({ isLoggedIn}: HomepageProps) {
                 className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
                 onMouseLeave={() => setHoveredFeature(null)}
+                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['bottom']].route; }}
               >
                 <span className="mandala-icon-inner"><FaCalendarAlt /></span>
               </span>
@@ -295,6 +298,7 @@ function Homepage({ isLoggedIn}: HomepageProps) {
                 className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
                 onMouseLeave={() => setHoveredFeature(null)}
+                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['left']].route; }}
               >
                 <span className="mandala-icon-inner"><HiPencilSquare /></span>
               </span>
