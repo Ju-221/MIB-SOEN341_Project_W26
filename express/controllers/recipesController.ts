@@ -298,7 +298,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
         `;
 
     const result = await model.generateContent(systemPrompt);
-    const text =result.response.text();
+    const text = result.response.text();
 
     if (!text.trim()) {
       const details = {

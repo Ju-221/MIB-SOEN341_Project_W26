@@ -375,9 +375,7 @@ const AIChat: React.FC = () => {
           code: err.details?.code,
           message: err.details?.message ?? err.message,
         };
-        console.error(
-          `AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`
-        );
+        console.error(`AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`);
         throw new Error(err.message ?? 'Failed to generate recipe');
       }
 
