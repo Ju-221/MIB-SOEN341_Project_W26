@@ -46,16 +46,7 @@ interface HomepageProps {
   userEmail: string | null;
 }
 
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-  prepTime: number;
-  cookTime: number;
-  estimatedCost: number;
-  heroImage: string | null;
-  categories: string[];
-}
+
 
 // Maps feature index → which icon slot lights up
 // 0 = Plan Your Week          → bottom (FaCalendarAlt)
