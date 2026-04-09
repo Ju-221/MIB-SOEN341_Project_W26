@@ -335,10 +335,12 @@ export const generateRecipe = async (req: Request, res: Response) => {
     try {
       recipe = JSON.parse(json);
     } catch (err) {
+      const parseError = errorHelpers.getErrorDetails(err);
       const details = {
         type: 'GeminiResponseError',
         code: 'INVALID_JSON',
         message: 'Gemini returned malformed JSON.',
+        cause: parseError,
       };
 
       console.error('Gemini recipe generation failed: invalid JSON response', {

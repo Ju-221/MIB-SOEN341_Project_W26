@@ -1,8 +1,8 @@
 export function getErrorDetails(err: unknown) {
   if (err instanceof Error) {
-    const statusMatch = err.message.match(/\[(\d{3}) [^\]]+\]/);
-    const reasonMatch = err.message.match(/"reason":"([^"]+)"/);
-    const localizedMessageMatch = err.message.match(/"message":"([^"]+)"/);
+    const statusMatch = /\[(\d{3}) [^\]]+\]/.exec(err.message);
+    const reasonMatch = /"reason":"([^"]+)"/.exec(err.message);
+    const localizedMessageMatch = /"message":"([^"]+)"/.exec(err.message);
 
     return {
       type: err.name,
