@@ -67,9 +67,6 @@ const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2,
 function Homepage({ isLoggedIn }: HomepageProps) {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
-
-  
-
   useEffect(() => {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
     if (!hero) return;
