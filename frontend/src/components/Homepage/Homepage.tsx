@@ -65,24 +65,10 @@ interface Recipe {
 const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
 function Homepage({ isLoggedIn }: HomepageProps) {
-  const [setRecipes] = useState<Recipe[]>([]);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
-  const loadRecipes = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/recipes');
-      if (response.ok) {
-        const data = await response.json();
-        setRecipes(data.slice(0, 6));
-      }
-    } catch (error) {
-      console.error('Error loading recipes:', error);
-    }
-  };
 
-  useEffect(() => {
-    loadRecipes();
-  }, []);
+  
 
   useEffect(() => {
     const hero = document.querySelector('.homepage-hero') as HTMLElement;
