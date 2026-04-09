@@ -71,8 +71,6 @@ function App() {
     }
   }, [isLoggedIn, currentPage]);
 
-
-
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':

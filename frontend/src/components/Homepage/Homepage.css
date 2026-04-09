@@ -17,19 +17,31 @@
   clip-path: polygon(
     0% 0%,
     100% 0%,
-    100%   65%,
-    95.8%  88%, 91.7%  65%,
-    87.5%  88%, 83.3%  65%,
-    79.2%  88%, 75%    65%,
-    70.8%  88%, 66.7%  65%,
-    62.5%  88%, 58.3%  65%,
-    54.2%  88%, 50%    65%,
-    45.8%  88%, 41.7%  65%,
-    37.5%  88%, 33.3%  65%,
-    29.2%  88%, 25%    65%,
-    20.8%  88%, 16.7%  65%,
-    12.5%  88%, 8.3%   65%,
-    4.2%   88%, 0%     65%
+    100% 65%,
+    95.8% 88%,
+    91.7% 65%,
+    87.5% 88%,
+    83.3% 65%,
+    79.2% 88%,
+    75% 65%,
+    70.8% 88%,
+    66.7% 65%,
+    62.5% 88%,
+    58.3% 65%,
+    54.2% 88%,
+    50% 65%,
+    45.8% 88%,
+    41.7% 65%,
+    37.5% 88%,
+    33.3% 65%,
+    29.2% 88%,
+    25% 65%,
+    20.8% 88%,
+    16.7% 65%,
+    12.5% 88%,
+    8.3% 65%,
+    4.2% 88%,
+    0% 65%
   );
   transform: translateY(-100%);
   transform-origin: top center;
@@ -39,8 +51,12 @@
 }
 
 @keyframes zigzag-drift {
-  from { translate: 0 0; }
-  to   { translate: -100vw 0; }
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -100vw 0;
+  }
 }
 
 /*  zigzag blob at the bottom (mirror of zigzag-top)  */
@@ -58,21 +74,33 @@
     No animation-delay needed; the clip-path handles the half-period offset directly.
   */
   clip-path: polygon(
-    0%     12%,
-    4.2%   35%, 8.3%   12%,
-    12.5%  35%, 16.7%  12%,
-    20.8%  35%, 25%    12%,
-    29.2%  35%, 33.3%  12%,
-    37.5%  35%, 41.7%  12%,
-    45.8%  35%, 50%    12%,
-    54.2%  35%, 58.3%  12%,
-    62.5%  35%, 66.7%  12%,
-    70.8%  35%, 75%    12%,
-    79.2%  35%, 83.3%  12%,
-    87.5%  35%, 91.7%  12%,
-    95.8%  35%, 100%   12%,
+    0% 12%,
+    4.2% 35%,
+    8.3% 12%,
+    12.5% 35%,
+    16.7% 12%,
+    20.8% 35%,
+    25% 12%,
+    29.2% 35%,
+    33.3% 12%,
+    37.5% 35%,
+    41.7% 12%,
+    45.8% 35%,
+    50% 12%,
+    54.2% 35%,
+    58.3% 12%,
+    62.5% 35%,
+    66.7% 12%,
+    70.8% 35%,
+    75% 12%,
+    79.2% 35%,
+    83.3% 12%,
+    87.5% 35%,
+    91.7% 12%,
+    95.8% 35%,
+    100% 12%,
     100% 100%,
-    0%   100%
+    0% 100%
   );
   transform: translateY(100%);
   transform-origin: bottom center;
@@ -112,7 +140,9 @@
   bottom: 0rem;
   left: 3vw;
   margin: 0;
-  font-family: Playfair Display, serif;
+  font-family:
+    Playfair Display,
+    serif;
   font-size: clamp(40px, 6.5vw, 96px);
   font-weight: 700;
   color: #5c2020b1;
@@ -141,10 +171,15 @@
   cursor: pointer;
   text-decoration: none;
   backdrop-filter: blur(6px);
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  box-shadow: #11182722 0px 4px 12px, #11182711 0px 2px 4px;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow:
+    #11182722 0px 4px 12px,
+    #11182711 0px 2px 4px;
   white-space: nowrap;
-  max-width: 44vw;           /* never overflow on narrow screens */
+  max-width: 44vw; /* never overflow on narrow screens */
 }
 
 .hero-corner-btn:hover {
@@ -153,8 +188,14 @@
   box-shadow: 0 8px 24px rgba(17, 24, 39, 0.18);
 }
 
-.hero-corner-btn--left  { left: 3vw;  opacity: 0; }
-.hero-corner-btn--right { right: 3vw; opacity: 0; }
+.hero-corner-btn--left {
+  left: 3vw;
+  opacity: 0;
+}
+.hero-corner-btn--right {
+  right: 3vw;
+  opacity: 0;
+}
 
 /*  Responsive adjustments  */
 @media (max-width: 768px) {
@@ -163,8 +204,12 @@
     padding: 0.5em 1.1em;
     font-size: clamp(12px, 3.5vw, 18px);
   }
-  .hero-corner-btn--left  { left: 4vw; }
-  .hero-corner-btn--right { right: 4vw; }
+  .hero-corner-btn--left {
+    left: 4vw;
+  }
+  .hero-corner-btn--right {
+    right: 4vw;
+  }
 }
 
 @media (max-width: 480px) {
@@ -245,9 +290,6 @@
   line-height: 1.6;
   opacity: 0.92;
 }
-
-
-
 
 /*  Main content  */
 
@@ -408,25 +450,48 @@
 }
 
 @keyframes mandala-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes tacos-wiggle {
-  from { transform: rotate(10deg); }
-  to   { transform: rotate(17deg); }
+  from {
+    transform: rotate(10deg);
+  }
+  to {
+    transform: rotate(17deg);
+  }
 }
 
 @keyframes glossy-shimmer {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes icon-shimmer {
-  0%   { color: #b833ff; filter: drop-shadow(0 0 5px #b833ffaa); }
-  50%  { color: #4ade80; filter: drop-shadow(0 0 5px #4ade80aa); }
-  100% { color: #b833ff; filter: drop-shadow(0 0 5px #b833ffaa); }
+  0% {
+    color: #b833ff;
+    filter: drop-shadow(0 0 5px #b833ffaa);
+  }
+  50% {
+    color: #4ade80;
+    filter: drop-shadow(0 0 5px #4ade80aa);
+  }
+  100% {
+    color: #b833ff;
+    filter: drop-shadow(0 0 5px #b833ffaa);
+  }
 }
 
 .zigzag-feature-card--generate h3 {
@@ -469,7 +534,6 @@
   font-family: 'Permanent Marker', cursive;
   color: #58360674;
 }
-
 
 /*  Bon Appétit closing overlay  */
 

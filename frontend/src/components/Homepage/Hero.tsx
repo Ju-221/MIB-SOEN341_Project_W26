@@ -15,31 +15,37 @@ interface HeroProps {
 
 const MainHeroSection = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const mintRef    = useRef<HTMLImageElement>(null);
-  const tomatoRef  = useRef<HTMLImageElement>(null);
-  const olivesRef  = useRef<HTMLImageElement>(null);
+  const mintRef = useRef<HTMLImageElement>(null);
+  const tomatoRef = useRef<HTMLImageElement>(null);
+  const olivesRef = useRef<HTMLImageElement>(null);
 
   // Entry animations
-  useGSAP(() => {
-    if (mintRef.current) {
-      gsap.fromTo(mintRef.current,
-        { x: -220, y: -180, opacity: 0, rotation: -35 },
-        { x: 0,    y: 0,    opacity: 1, rotation: 20,  duration: 1.4, delay: 0.2, ease: 'power3.out' }
-      );
-    }
-    if (tomatoRef.current) {
-      gsap.fromTo(tomatoRef.current,
-        { x: 220,  y: -180, opacity: 0, rotation: 30 },
-        { x: 0,    y: 0,    opacity: 1, rotation: -18, duration: 1.4, delay: 0.35, ease: 'power3.out' }
-      );
-    }
-    if (olivesRef.current) {
-      gsap.fromTo(olivesRef.current,
-        { x: -200, y: 280, opacity: 0, rotation: 40 },
-        { x: 0,    y: 0,   opacity: 1, rotation: -12, duration: 1.4, delay: 0.5, ease: 'power3.out' }
-      );
-    }
-  }, { scope: wrapperRef });
+  useGSAP(
+    () => {
+      if (mintRef.current) {
+        gsap.fromTo(
+          mintRef.current,
+          { x: -220, y: -180, opacity: 0, rotation: -35 },
+          { x: 0, y: 0, opacity: 1, rotation: 20, duration: 1.4, delay: 0.2, ease: 'power3.out' }
+        );
+      }
+      if (tomatoRef.current) {
+        gsap.fromTo(
+          tomatoRef.current,
+          { x: 220, y: -180, opacity: 0, rotation: 30 },
+          { x: 0, y: 0, opacity: 1, rotation: -18, duration: 1.4, delay: 0.35, ease: 'power3.out' }
+        );
+      }
+      if (olivesRef.current) {
+        gsap.fromTo(
+          olivesRef.current,
+          { x: -200, y: 280, opacity: 0, rotation: 40 },
+          { x: 0, y: 0, opacity: 1, rotation: -12, duration: 1.4, delay: 0.5, ease: 'power3.out' }
+        );
+      }
+    },
+    { scope: wrapperRef }
+  );
 
   // Scroll-driven reversal — delayed until entry animations finish so
   // gsap.to captures the correct resting state as the "from" value
@@ -66,10 +72,13 @@ const MainHeroSection = () => {
       // Flatten the hero curve as user scrolls
       tl.to(hero, { borderBottomLeftRadius: '0% 0px', borderBottomRightRadius: '0% 0px' }, 0);
 
-      if (titleEl)           tl.to(titleEl,           { y: -80, opacity: 0 },                        0);
-      if (mintRef.current)   tl.to(mintRef.current,   { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
-      if (tomatoRef.current) tl.to(tomatoRef.current, { x: 220,  y: -180, opacity: 0, rotation: 30  }, 0);
-      if (olivesRef.current) tl.to(olivesRef.current, { x: -200, y: 280,  opacity: 0, rotation: 40  }, 0);
+      if (titleEl) tl.to(titleEl, { y: -80, opacity: 0 }, 0);
+      if (mintRef.current)
+        tl.to(mintRef.current, { x: -220, y: -180, opacity: 0, rotation: -35 }, 0);
+      if (tomatoRef.current)
+        tl.to(tomatoRef.current, { x: 220, y: -180, opacity: 0, rotation: 30 }, 0);
+      if (olivesRef.current)
+        tl.to(olivesRef.current, { x: -200, y: 280, opacity: 0, rotation: 40 }, 0);
 
       // Force ScrollTrigger to recalculate positions after delayed creation
       ScrollTrigger.refresh();
@@ -84,38 +93,68 @@ const MainHeroSection = () => {
 
   return (
     <div ref={wrapperRef} className="meal-major-container" style={{ position: 'relative' }}>
-
       {/* Mint — top-left corner */}
-      <div style={{
-        position: 'absolute', left: '2vw', top: '1%',
-        width: '36vw', maxWidth: '820px',
-        pointerEvents: 'none', userSelect: 'none', zIndex: 15,
-      }}>
-        <img ref={mintRef} src={mint} alt="mint"
+      <div
+        style={{
+          position: 'absolute',
+          left: '2vw',
+          top: '1%',
+          width: '36vw',
+          maxWidth: '820px',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 15,
+        }}
+      >
+        <img
+          ref={mintRef}
+          src={mint}
+          alt="mint"
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onDragStart={(e) => e.preventDefault()}
         />
       </div>
 
       {/* Tomato — top-right corner */}
-      <div style={{
-        position: 'absolute', right: '4vw', top: '8%',
-        width: '18vw', maxWidth: '360px',
-        pointerEvents: 'none', userSelect: 'none', zIndex: 15,
-      }}>
-        <img ref={tomatoRef} src={tomato} alt="tomato"
+      <div
+        style={{
+          position: 'absolute',
+          right: '4vw',
+          top: '8%',
+          width: '18vw',
+          maxWidth: '360px',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 15,
+        }}
+      >
+        <img
+          ref={tomatoRef}
+          src={tomato}
+          alt="tomato"
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onDragStart={(e) => e.preventDefault()}
         />
       </div>
 
       {/* Olives — bottom-left, near the curve */}
-      <div style={{
-        position: 'absolute', left: '5vw', bottom: '5%',
-        width: '27vw', maxWidth: '680px', rotate: '20deg',
-        pointerEvents: 'none', userSelect: 'none', zIndex: 15,
-      }}>
-        <img ref={olivesRef} src={olives} alt="olives"
+      <div
+        style={{
+          position: 'absolute',
+          left: '5vw',
+          bottom: '5%',
+          width: '27vw',
+          maxWidth: '680px',
+          rotate: '20deg',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 15,
+        }}
+      >
+        <img
+          ref={olivesRef}
+          src={olives}
+          alt="olives"
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onDragStart={(e) => e.preventDefault()}
         />
@@ -137,19 +176,21 @@ const MainHeroSection = () => {
 };
 
 const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
-  const leftRef  = useRef<HTMLElement>(null);
+  const leftRef = useRef<HTMLElement>(null);
   const rightRef = useRef<HTMLButtonElement>(null);
 
   // Slide in from each side
   useEffect(() => {
     if (leftRef.current) {
-      gsap.fromTo(leftRef.current,
+      gsap.fromTo(
+        leftRef.current,
         { x: -180, opacity: 0 },
         { x: 0, opacity: 1, duration: 0.9, delay: 0.7, ease: 'power3.out' }
       );
     }
     if (rightRef.current) {
-      gsap.fromTo(rightRef.current,
+      gsap.fromTo(
+        rightRef.current,
         { x: 180, opacity: 0 },
         { x: 0, opacity: 1, duration: 0.9, delay: 0.7, ease: 'power3.out' }
       );
@@ -174,8 +215,8 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
         },
       });
 
-      if (leftRef.current)  tl.to(leftRef.current,  { x: -180, opacity: 0 }, 0);
-      if (rightRef.current) tl.to(rightRef.current, { x: 180,  opacity: 0 }, 0);
+      if (leftRef.current) tl.to(leftRef.current, { x: -180, opacity: 0 }, 0);
+      if (rightRef.current) tl.to(rightRef.current, { x: 180, opacity: 0 }, 0);
 
       ScrollTrigger.refresh();
     });
@@ -187,19 +228,24 @@ const Hero: React.FC<HeroProps> = ({ isLoggedIn }) => {
     };
   }, []);
 
-
-
   return (
     <header className="homepage-hero">
       <MainHeroSection />
 
       {/* Bottom-left: welcome back text OR register button */}
-      {isLoggedIn
-        ? <p ref={leftRef as React.RefObject<HTMLParagraphElement>} className="hero-welcome">Welcome Back</p>
-        : <a ref={leftRef as React.RefObject<HTMLAnchorElement>} href="/login" className="hero-corner-btn hero-corner-btn--left">Register now!</a>
-      }
-
-     
+      {isLoggedIn ? (
+        <p ref={leftRef as React.RefObject<HTMLParagraphElement>} className="hero-welcome">
+          Welcome Back
+        </p>
+      ) : (
+        <a
+          ref={leftRef as React.RefObject<HTMLAnchorElement>}
+          href="/login"
+          className="hero-corner-btn hero-corner-btn--left"
+        >
+          Register now!
+        </a>
+      )}
     </header>
   );
 };

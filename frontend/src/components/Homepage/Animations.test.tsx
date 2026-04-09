@@ -9,11 +9,15 @@ import { RotatingImageWithCallouts } from './Animations';
 vi.mock('gsap', () => import('../../test/gsapMock'));
 vi.mock('gsap/ScrollTrigger', () => ({ ScrollTrigger: { refresh: vi.fn() } }));
 vi.mock('@gsap/react', () => ({ useGSAP: (fn: () => void) => fn() }));
-vi.mock('gsap/SplitText',     () => ({ SplitText: class { chars = []; } }));
+vi.mock('gsap/SplitText', () => ({
+  SplitText: class {
+    chars = [];
+  },
+}));
 vi.mock('gsap/InertiaPlugin', () => ({ InertiaPlugin: {} }));
 
 vi.mock('../../assets/uploads/round-plate.png', () => ({ default: 'round-plate.png' }));
-vi.mock('../../assets/uploads/chopsticks.png',  () => ({ default: 'chopsticks.png' }));
+vi.mock('../../assets/uploads/chopsticks.png', () => ({ default: 'chopsticks.png' }));
 
 describe('RotatingImageWithCallouts', () => {
   it('renders the default callout labels', () => {
@@ -27,7 +31,7 @@ describe('RotatingImageWithCallouts', () => {
     render(
       <RotatingImageWithCallouts
         callouts={[
-          { id: 'a', angle: 45,  label: 'Custom A' },
+          { id: 'a', angle: 45, label: 'Custom A' },
           { id: 'b', angle: 225, label: 'Custom B' },
         ]}
       />
@@ -37,11 +41,7 @@ describe('RotatingImageWithCallouts', () => {
   });
 
   it('does not render labels that are not in the callouts prop', () => {
-    render(
-      <RotatingImageWithCallouts
-        callouts={[{ id: '1', angle: 135, label: 'Add tags' }]}
-      />
-    );
+    render(<RotatingImageWithCallouts callouts={[{ id: '1', angle: 135, label: 'Add tags' }]} />);
     expect(screen.queryByText('Be organized')).not.toBeInTheDocument();
   });
 
@@ -59,7 +59,7 @@ describe('RotatingImageWithCallouts', () => {
     const { container } = render(
       <RotatingImageWithCallouts
         callouts={[
-          { id: '1', angle: 45,  label: 'One' },
+          { id: '1', angle: 45, label: 'One' },
           { id: '2', angle: 135, label: 'Two' },
           { id: '3', angle: 225, label: 'Three' },
         ]}
@@ -72,7 +72,7 @@ describe('RotatingImageWithCallouts', () => {
     const { container } = render(
       <RotatingImageWithCallouts
         callouts={[
-          { id: '1', angle: 45,  label: 'One' },
+          { id: '1', angle: 45, label: 'One' },
           { id: '2', angle: 135, label: 'Two' },
         ]}
       />

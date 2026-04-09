@@ -13,10 +13,30 @@ import { HiPencilSquare } from 'react-icons/hi2';
 import { FaCalendarAlt } from 'react-icons/fa';
 
 const ZIGZAG_FEATURES = [
-  { id: 1, heading: '•\tPlan Your Week',           body: 'Organize your meals with our meal planner.',            route: '#calendar' },
-  { id: 2, heading: '•\tCreate Your Recipes',      body: 'Create from scratch or generate with AI!',              route: '#recipes'  },
-  { id: 3, heading: '•\tGenerate Recipes',          body: 'Create new dishes with our AI recipe generator.',       route: '#aichat'   },
-  { id: 4, heading: '•\tFigure Out What to Cook',  body: 'Play our decision-making game to discover what you\'re craving!', route: '#unique' },
+  {
+    id: 1,
+    heading: '•\tPlan Your Week',
+    body: 'Organize your meals with our meal planner.',
+    route: '#calendar',
+  },
+  {
+    id: 2,
+    heading: '•\tCreate Your Recipes',
+    body: 'Create from scratch or generate with AI!',
+    route: '#recipes',
+  },
+  {
+    id: 3,
+    heading: '•\tGenerate Recipes',
+    body: 'Create new dishes with our AI recipe generator.',
+    route: '#aichat',
+  },
+  {
+    id: 4,
+    heading: '•\tFigure Out What to Cook',
+    body: "Play our decision-making game to discover what you're craving!",
+    route: '#unique',
+  },
 ];
 
 gsap.registerPlugin(ScrollTrigger);
@@ -44,7 +64,7 @@ interface Recipe {
 // 3 = Figure Out What to Cook → top    (mdiPodium)
 const ICON_FEATURE_MAP: Record<string, number> = { bottom: 0, left: 1, right: 2, top: 3 };
 
-function Homepage({ isLoggedIn}: HomepageProps) {
+function Homepage({ isLoggedIn }: HomepageProps) {
   const [setRecipes] = useState<Recipe[]>([]);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
@@ -120,13 +140,30 @@ function Homepage({ isLoggedIn}: HomepageProps) {
     });
 
     // Title slides in first, then each card after it
-    if (titleEl) tl.to(titleEl, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, 0);
+    if (titleEl)
+      tl.to(
+        titleEl,
+        { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' },
+        0
+      );
     cards.forEach((card, i) => {
-      tl.to(card, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, (i + 1) * 1);
+      tl.to(
+        card,
+        { x: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' },
+        (i + 1) * 1
+      );
     });
 
-    tl.to('.zigzag-mandala-wrapper', { scale: 4, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
-    tl.to('.tacos', { scale: 1, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' }, 0.5);
+    tl.to(
+      '.zigzag-mandala-wrapper',
+      { scale: 4, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' },
+      0.5
+    );
+    tl.to(
+      '.tacos',
+      { scale: 1, filter: 'blur(0px)', opacity: 1, duration: 2, ease: 'power2.out' },
+      0.5
+    );
 
     return () => {
       tl.scrollTrigger?.kill();
@@ -139,10 +176,22 @@ function Homepage({ isLoggedIn}: HomepageProps) {
     const cards = document.querySelectorAll<HTMLElement>('.zigzag-feature-card');
     cards.forEach((card, i) => {
       const h3 = card.querySelector<HTMLElement>('h3');
-      const p  = card.querySelector<HTMLElement>('p');
+      const p = card.querySelector<HTMLElement>('p');
       const active = hoveredFeature === i;
-      if (h3) gsap.to(h3, { scale: active ? 1.1 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
-      if (p)  gsap.to(p,  { scale: active ? 1.07 : 1, duration: 0.2, ease: 'power2.out', overwrite: true });
+      if (h3)
+        gsap.to(h3, {
+          scale: active ? 1.1 : 1,
+          duration: 0.2,
+          ease: 'power2.out',
+          overwrite: true,
+        });
+      if (p)
+        gsap.to(p, {
+          scale: active ? 1.07 : 1,
+          duration: 0.2,
+          ease: 'power2.out',
+          overwrite: true,
+        });
     });
   }, [hoveredFeature]);
 
@@ -164,7 +213,8 @@ function Homepage({ isLoggedIn}: HomepageProps) {
           if (self.direction === 1 && self.progress > 0.85) {
             const opacity = gsap.getProperty('.zigzag-content', 'opacity') as number;
             if (opacity > 0.05) {
-              (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'hidden';
+              (document.querySelector('.zigzag-content') as HTMLElement).style.visibility =
+                'hidden';
             }
           }
         },
@@ -175,15 +225,32 @@ function Homepage({ isLoggedIn}: HomepageProps) {
           if (overlay) overlay.style.visibility = 'visible';
           gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
           gsap.set('.bon-appetit-title, .bon-appetit-sub', { y: 50, filter: 'blur(16px)' });
-          gsap.to('.bon-appetit-title', { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power3.out' });
-          gsap.to('.bon-appetit-sub',   { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, delay: 0.5, ease: 'power3.out' });
+          gsap.to('.bon-appetit-title', {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.9,
+            ease: 'power3.out',
+          });
+          gsap.to('.bon-appetit-sub', {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.9,
+            delay: 0.5,
+            ease: 'power3.out',
+          });
         },
         onEnterBack: () => {
           (document.querySelector('.zigzag-content') as HTMLElement).style.visibility = 'visible';
           // Teeth are re-opening — instantly kill and hide Bon Appétit so fast
           // scrolling can't leave it stranded mid-screen
           gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
-          gsap.set('.bon-appetit-title, .bon-appetit-sub', { opacity: 0, y: 50, filter: 'blur(16px)' });
+          gsap.set('.bon-appetit-title, .bon-appetit-sub', {
+            opacity: 0,
+            y: 50,
+            filter: 'blur(16px)',
+          });
           const overlay = document.querySelector('.bon-appetit-overlay') as HTMLElement;
           if (overlay) overlay.style.visibility = 'hidden';
         },
@@ -193,10 +260,13 @@ function Homepage({ isLoggedIn}: HomepageProps) {
     // Teeth close over the full scroll window; features fade out in sync with the teeth
     // so users see the content disappearing as the jaws close around it.
     closingTl
-      .to('.zigzag-top',     { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
-      .to('.zigzag-bottom',  { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
-      .to('.zigzag-section-title, .zigzag-feature-card, .zigzag-mandala-wrapper, .tacos',
-          { opacity: 0, ease: 'power1.in', duration: 0.7 }, 0)
+      .to('.zigzag-top', { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
+      .to('.zigzag-bottom', { height: '64vh', ease: 'power2.inOut', duration: 1 }, 0)
+      .to(
+        '.zigzag-section-title, .zigzag-feature-card, .zigzag-mandala-wrapper, .tacos',
+        { opacity: 0, ease: 'power1.in', duration: 0.7 },
+        0
+      )
       .to('.zigzag-content', { opacity: 0, ease: 'power1.in', duration: 0.8 }, 0.1);
 
     return () => {
@@ -228,7 +298,11 @@ function Homepage({ isLoggedIn}: HomepageProps) {
         const overlay = document.querySelector('.bon-appetit-overlay') as HTMLElement;
         if (overlay && overlay.style.visibility !== 'hidden') {
           gsap.killTweensOf('.bon-appetit-title, .bon-appetit-sub');
-          gsap.set('.bon-appetit-title, .bon-appetit-sub', { opacity: 0, y: 50, filter: 'blur(16px)' });
+          gsap.set('.bon-appetit-title, .bon-appetit-sub', {
+            opacity: 0,
+            y: 50,
+            filter: 'blur(16px)',
+          });
           overlay.style.visibility = 'hidden';
         }
       }
@@ -251,11 +325,13 @@ function Homepage({ isLoggedIn}: HomepageProps) {
             {ZIGZAG_FEATURES.map((f, i) => (
               <div
                 key={i}
-                role='button'
+                role="button"
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
-                onClick={() => { window.location.hash = f.route; }}
+                onClick={() => {
+                  window.location.hash = f.route;
+                }}
               >
                 <h3>{f.heading}</h3>
                 <p>{f.body}</p>
@@ -267,40 +343,56 @@ function Homepage({ isLoggedIn}: HomepageProps) {
               <img className="zigzag-mandala" src={mandala} alt="" />
               <img className="tacos" src={tacos} alt="" />
               <span
-              role='button'
+                role="button"
                 className={`mandala-icon mandala-icon-top${hoveredFeature === ICON_FEATURE_MAP['top'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['top'])}
                 onMouseLeave={() => setHoveredFeature(null)}
-                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['top']].route; }}
+                onClick={() => {
+                  window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['top']].route;
+                }}
               >
-                <span className="mandala-icon-inner"><Icon path={mdiPodium} size="1em" /></span>
+                <span className="mandala-icon-inner">
+                  <Icon path={mdiPodium} size="1em" />
+                </span>
               </span>
               <span
-              role='button'
+                role="button"
                 className={`mandala-icon mandala-icon-right mandala-icon--generate${hoveredFeature === ICON_FEATURE_MAP['right'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['right'])}
                 onMouseLeave={() => setHoveredFeature(null)}
-                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['right']].route; }}
+                onClick={() => {
+                  window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['right']].route;
+                }}
               >
-                <span className="mandala-icon-inner"><AiFillStar /></span>
+                <span className="mandala-icon-inner">
+                  <AiFillStar />
+                </span>
               </span>
               <span
-              role='button'
+                role="button"
                 className={`mandala-icon mandala-icon-bottom${hoveredFeature === ICON_FEATURE_MAP['bottom'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['bottom'])}
                 onMouseLeave={() => setHoveredFeature(null)}
-                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['bottom']].route; }}
+                onClick={() => {
+                  window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['bottom']].route;
+                }}
               >
-                <span className="mandala-icon-inner"><FaCalendarAlt /></span>
+                <span className="mandala-icon-inner">
+                  <FaCalendarAlt />
+                </span>
               </span>
               <span
-              role='button'
+                role="button"
                 className={`mandala-icon mandala-icon-left${hoveredFeature === ICON_FEATURE_MAP['left'] ? ' mandala-icon--active' : ''}`}
                 onMouseEnter={() => setHoveredFeature(ICON_FEATURE_MAP['left'])}
                 onMouseLeave={() => setHoveredFeature(null)}
-                onClick={() => { window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['left']].route; }}
+                onClick={() => {
+                  window.location.hash = ZIGZAG_FEATURES[ICON_FEATURE_MAP['left']].route;
+                }}
               >
-                <span className="mandala-icon-inner"><HiPencilSquare /></span>
+                <span className="mandala-icon-inner">
+                  <HiPencilSquare />
+                </span>
               </span>
             </div>
           </span>
@@ -322,7 +414,6 @@ function Homepage({ isLoggedIn}: HomepageProps) {
       <main className="homepage-main">
         <div className="homepage-spacer" style={{ height: '460vh' }} />
       </main>
-
     </div>
   );
 }

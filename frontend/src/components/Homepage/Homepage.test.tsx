@@ -10,24 +10,44 @@ import Homepage from './Homepage';
 vi.mock('gsap', () => import('../../test/gsapMock'));
 vi.mock('gsap/ScrollTrigger', () => ({ ScrollTrigger: { refresh: vi.fn() } }));
 vi.mock('@gsap/react', () => ({ useGSAP: (fn: () => void) => fn() }));
-vi.mock('gsap/SplitText',     () => ({ SplitText: class { chars = []; } }));
+vi.mock('gsap/SplitText', () => ({
+  SplitText: class {
+    chars = [];
+  },
+}));
 vi.mock('gsap/InertiaPlugin', () => ({ InertiaPlugin: {} }));
 
 // ── Asset mocks ───────────────────────────────────────────────────────────────
-vi.mock('../../assets/uploads/mandala.png',    () => ({ default: 'mandala.png' }));
-vi.mock('../../assets/uploads/tacos.png',      () => ({ default: 'tacos.png' }));
-vi.mock('../../assets/uploads/round-plate.png',() => ({ default: 'round-plate.png' }));
+vi.mock('../../assets/uploads/mandala.png', () => ({ default: 'mandala.png' }));
+vi.mock('../../assets/uploads/tacos.png', () => ({ default: 'tacos.png' }));
+vi.mock('../../assets/uploads/round-plate.png', () => ({ default: 'round-plate.png' }));
 vi.mock('../../assets/uploads/chopsticks.png', () => ({ default: 'chopsticks.png' }));
-vi.mock('../../assets/uploads/olives.png',     () => ({ default: 'olives.png' }));
-vi.mock('../../assets/uploads/mint.png',       () => ({ default: 'mint.png' }));
-vi.mock('../../assets/uploads/tomato.png',     () => ({ default: 'tomato.png' }));
+vi.mock('../../assets/uploads/olives.png', () => ({ default: 'olives.png' }));
+vi.mock('../../assets/uploads/mint.png', () => ({ default: 'mint.png' }));
+vi.mock('../../assets/uploads/tomato.png', () => ({ default: 'tomato.png' }));
 
 // ── Fetch mock ────────────────────────────────────────────────────────────────
 const mockRecipes = [
-  { id: 1, title: 'Pasta', description: 'Italian', prepTime: 10, cookTime: 20,
-    estimatedCost: 8, heroImage: null, categories: ['Italian'] },
-  { id: 2, title: 'Sushi', description: 'Japanese', prepTime: 15, cookTime: 5,
-    estimatedCost: 12, heroImage: null, categories: ['Japanese'] },
+  {
+    id: 1,
+    title: 'Pasta',
+    description: 'Italian',
+    prepTime: 10,
+    cookTime: 20,
+    estimatedCost: 8,
+    heroImage: null,
+    categories: ['Italian'],
+  },
+  {
+    id: 2,
+    title: 'Sushi',
+    description: 'Japanese',
+    prepTime: 15,
+    cookTime: 5,
+    estimatedCost: 12,
+    heroImage: null,
+    categories: ['Japanese'],
+  },
 ];
 
 beforeEach(() => {
@@ -38,7 +58,9 @@ beforeEach(() => {
   }) as unknown as typeof fetch;
 });
 
-afterEach(() => { vi.restoreAllMocks(); });
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -61,14 +83,10 @@ describe('Homepage — not logged in', () => {
     expect(screen.getByText(/figure out what to cook/i)).toBeInTheDocument();
   });
 
-
-
   it('shows "Register now!" hero button', () => {
     render(<Homepage isLoggedIn={false} userEmail={null} />);
     expect(screen.getByRole('link', { name: /register now/i })).toBeInTheDocument();
   });
-
-
 });
 
 describe('Homepage — logged in', () => {

@@ -20,7 +20,15 @@ interface Recipe {
 
 function IconRecipes() {
   return (
-    <svg className="hp-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="hp-feature-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="8" y1="6" x2="21" y2="6" />
       <line x1="8" y1="12" x2="21" y2="12" />
       <line x1="8" y1="18" x2="21" y2="18" />
@@ -33,7 +41,15 @@ function IconRecipes() {
 
 function IconCalendar() {
   return (
-    <svg className="hp-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="hp-feature-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="3" y="4" width="18" height="18" rx="2" />
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
@@ -46,7 +62,15 @@ function IconCalendar() {
 
 function IconAI() {
   return (
-    <svg className="hp-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="hp-feature-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
       <path d="M8 12h8M12 8v8" />
       <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" opacity="0.2" />
@@ -56,7 +80,15 @@ function IconAI() {
 
 function IconProfile() {
   return (
-    <svg className="hp-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="hp-feature-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="8" r="4" />
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
@@ -65,7 +97,15 @@ function IconProfile() {
 
 function IconImage() {
   return (
-    <svg className="hp-recipe-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="hp-recipe-placeholder-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <circle cx="8.5" cy="8.5" r="1.5" />
       <path d="M21 15l-5-5L5 21" />
@@ -119,14 +159,17 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
   return (
     <div className="profile-page">
       <div className="profile-shell">
-
         {/* ── Header ──────────────────────────────────────────────── */}
         <header className="profile-header">
           <div>
-            <h1>{isLoggedIn ? `Welcome back${userEmail ? `, ${userEmail.split('@')[0]}` : ''}` : 'Welcome to MealMajor'}</h1>
+            <h1>
+              {isLoggedIn
+                ? `Welcome back${userEmail ? `, ${userEmail.split('@')[0]}` : ''}`
+                : 'Welcome to MealMajor'}
+            </h1>
             <p className="profile-subtitle">
               {isLoggedIn
-                ? 'Here\'s a quick look at your app. Jump in from any section below.'
+                ? "Here's a quick look at your app. Jump in from any section below."
                 : 'Plan meals, discover recipes, and eat well on a budget. Sign in to get started.'}
             </p>
           </div>
@@ -145,11 +188,7 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
           <div className="profile-card-body">
             <div className="hp-feature-grid">
               {FEATURES.map((f) => (
-                <a
-                  key={f.href}
-                  href={isLoggedIn ? f.href : '#signin'}
-                  className="hp-feature-card"
-                >
+                <a key={f.href} href={isLoggedIn ? f.href : '#signin'} className="hp-feature-card">
                   {f.icon}
                   <h3 className="hp-feature-title">{f.title}</h3>
                   <p className="hp-feature-desc">{f.desc}</p>
@@ -165,7 +204,9 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
             <div className="profile-card-header">
               <h2>Recent Recipes</h2>
               {isLoggedIn && (
-                <a href="#recipes" className="hp-see-all">See all</a>
+                <a href="#recipes" className="hp-see-all">
+                  See all
+                </a>
               )}
             </div>
             <div className="profile-card-body">
@@ -202,7 +243,6 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
             </div>
           </section>
         )}
-
       </div>
     </div>
   );
