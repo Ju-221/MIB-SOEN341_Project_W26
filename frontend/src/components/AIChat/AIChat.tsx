@@ -42,6 +42,16 @@ interface GeneratedRecipe {
   allergies?: string[];
 }
 
+interface GenerateRecipeErrorResponse {
+  message?: string;
+  details?: {
+    type?: string;
+    statusCode?: string;
+    code?: string;
+    message?: string;
+  };
+}
+
 type Message =
   | { kind: 'user'; text: string }
   | { kind: 'model'; text: string }
@@ -357,7 +367,17 @@ const AIChat: React.FC = () => {
       });
 
       if (!response.ok) {
-        const err = (await response.json()) as { message?: string };
+        const err = (await response.json()) as GenerateRecipeErrorResponse;
+        const logDetails = {
+          status: response.status,
+          type: err.details?.type,
+          statusCode: err.details?.statusCode,
+          code: err.details?.code,
+          message: err.details?.message ?? err.message,
+        };
+        console.error(
+          `AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`
+        );
         throw new Error(err.message ?? 'Failed to generate recipe');
       }
 

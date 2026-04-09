@@ -32,6 +32,16 @@ interface GridCell {
   fullDate: Date;
 }
 
+interface GenerateRecipeErrorResponse {
+  message?: string;
+  details?: {
+    type?: string;
+    statusCode?: string;
+    code?: string;
+    message?: string;
+  };
+}
+
 function Calendar() {
   const today = useMemo(() => new Date(), []);
   const baseMonthDate = useMemo(() => new Date(today.getFullYear(), today.getMonth(), 1), [today]);
@@ -398,7 +408,17 @@ function Calendar() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as GenerateRecipeErrorResponse;
+        const logDetails = {
+          status: res.status,
+          type: data.details?.type,
+          statusCode: data.details?.statusCode,
+          code: data.details?.code,
+          message: data.details?.message ?? data.message,
+        };
+        console.error(
+          `Calendar AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`
+        );
         throw new Error(data.message || 'Generation failed');
       }
 
