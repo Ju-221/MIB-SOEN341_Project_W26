@@ -1,14 +1,16 @@
+/*# The following file was drafted originally, but enhanced with the assistance of Claude.
+#Prompt example: I want lines emerging from the the center of the round plate, with angles 30, 115, 245, and 315 degrees.
+Each line should travel diagonally outward, then  horizontal, with a small circle at the end, Like the draft lines of a blueprint
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
-import {InertiaPlugin} from 'gsap/InertiaPlugin';
+import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import roundPlate from '../../assets/uploads/round-plate.png';
 import chopsticks from '../../assets/uploads/chopsticks.png';
-import olives from '../../assets/uploads/olives.png';
-import mint from '../../assets/uploads/mint.png';
-import tomato from '../../assets/uploads/tomato.png';
 
 gsap.registerPlugin(SplitText, InertiaPlugin, ScrollTrigger);
 
@@ -27,16 +29,18 @@ interface RotatingImageWithCalloutsProps {
 const SquareAnimation = () => {
   const container = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-
-    gsap.to(".box", {
-      x: 200,
-      rotation: 360,
-      duration: 2,
-      repeat: -1,
-      yoyo: true
-    });
-  }, { scope: container });
+  useGSAP(
+    () => {
+      gsap.to('.box', {
+        x: 200,
+        rotation: 360,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+      });
+    },
+    { scope: container }
+  );
 
   return (
     <div ref={container} style={{ padding: '20px' }}>
@@ -49,21 +53,26 @@ const SquareAnimation = () => {
 const TextAnimation = () => {
   const container = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    const split = new SplitText(".meal-major-title", { type: "chars, words" });
+  useGSAP(
+    () => {
+      const split = new SplitText('.meal-major-title', { type: 'chars, words' });
 
-    gsap.from(split.chars, {
-      opacity: 0,
-      y: 50,
-      stagger: 0.05,
-      duration: 1.5,
-      ease: "back.out"
-    });
-  }, { scope: container });
+      gsap.from(split.chars, {
+        opacity: 0,
+        y: 50,
+        stagger: 0.05,
+        duration: 1.5,
+        ease: 'back.out',
+      });
+    },
+    { scope: container }
+  );
 
   return (
     <div ref={container}>
-      <h1 className="meal-major-title">MEAL <br/> MAJOR</h1>
+      <h1 className="meal-major-title">
+        MEAL <br /> MAJOR
+      </h1>
     </div>
   );
 };
@@ -81,7 +90,7 @@ const TextAnimation = () => {
 const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   callouts = [
     { id: '1', angle: 315, label: 'Filter your meals' },
-    { id: '2', angle:30,  label: 'Write recipes' },
+    { id: '2', angle: 30, label: 'Write recipes' },
     { id: '3', angle: 115, label: 'Add tags' },
     { id: '4', angle: 245, label: 'Be organized' },
   ],
@@ -92,11 +101,6 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const circleRefs = useRef<(SVGCircleElement | null)[]>([]);
   const chopstickRef = useRef<HTMLImageElement>(null);
-  const olivesRef = useRef<HTMLImageElement>(null);
-  const mintRef = useRef<HTMLImageElement>(null);
-  const tomatoRef = useRef<HTMLImageElement>(null);
-
-
 
   /**
    * Convert polar coordinates (angle, distance) to Cartesian (x, y)
@@ -123,12 +127,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
     const centerX = 50;
     const centerY = 50;
 
-    const [elbowX, elbowY] = polarToCartesian(
-      centerX,
-      centerY,
-      imageRadius + elbowDistance,
-      angle
-    );
+    const [elbowX, elbowY] = polarToCartesian(centerX, centerY, imageRadius + elbowDistance, angle);
 
     const isRightSide = angle < 180;
     const tipX = isRightSide ? elbowX + horizontalLength : elbowX - horizontalLength;
@@ -145,68 +144,70 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
 
   const textRefs = useRef<(SVGTextElement | null)[]>([]);
 
-  useGSAP(() => {
-    if (!svgRef.current) return;
+  useGSAP(
+    () => {
+      if (!svgRef.current) return;
 
-    // Rotate bowl
-    if (imageRef.current) {
-      gsap.to(imageRef.current, {
-        rotation: 360,
-        duration: 40,
-        repeat: -1,
-        ease: 'none',
-      });
-    }
-
-    // Animate callout lines, circles and labels
-    pathRefs.current.forEach((path, index) => {
-      if (!path) return;
-      const length = path.getTotalLength();
-      gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-      gsap.to(path, {
-        strokeDashoffset: 0,
-        duration: 1.2,
-        delay: index * 0.2,
-        ease: 'power2.out',
-      });
-
-      const circle = circleRefs.current[index];
-      if (circle) {
-        gsap.set(circle, { opacity: 0, scale: 0 });
-        gsap.to(circle, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          delay: index * 0.2 + 1.2, // Starts after line animation ends
-          ease: 'back.out',
+      // Rotate bowl
+      if (imageRef.current) {
+        gsap.to(imageRef.current, {
+          rotation: 360,
+          duration: 40,
+          repeat: -1,
+          ease: 'none',
         });
       }
 
-      const text = textRefs.current[index];
-      if (text) {
-        gsap.set(text, {
-          opacity: 0,
-        });
-
-        gsap.to(text, {
-          opacity: 1,
-          duration: 0.5,
-          delay: index * 0.2 + 1.2,
+      // Animate callout lines, circles and labels
+      pathRefs.current.forEach((path, index) => {
+        if (!path) return;
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+        gsap.to(path, {
+          strokeDashoffset: 0,
+          duration: 1.2,
+          delay: index * 0.2,
           ease: 'power2.out',
         });
+
+        const circle = circleRefs.current[index];
+        if (circle) {
+          gsap.set(circle, { opacity: 0, scale: 0 });
+          gsap.to(circle, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.4,
+            delay: index * 0.2 + 1.2, // Starts after line animation ends
+            ease: 'back.out',
+          });
+        }
+
+        const text = textRefs.current[index];
+        if (text) {
+          gsap.set(text, {
+            opacity: 0,
+          });
+
+          gsap.to(text, {
+            opacity: 1,
+            duration: 0.5,
+            delay: index * 0.2 + 1.2,
+            ease: 'power2.out',
+          });
+        }
+      });
+
+      // Chopstick: slide up from below and fade in
+      if (chopstickRef.current) {
+        gsap.fromTo(
+          chopstickRef.current,
+          { y: 500, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.5, delay: 0.4, ease: 'power3.out' }
+        );
       }
-    });
-
-    // Chopstick: slide up from below and fade in
-    if (chopstickRef.current) {
-      gsap.fromTo(
-        chopstickRef.current,
-        { y: 500, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.5, delay: 0.4, ease: 'power3.out' }
-      );
-    }
-
-  }, { scope: containerRef });
+    },
+    { scope: containerRef }
+  );
 
   // Scroll-driven reversal — delayed until entry animations finish so
   // gsap.to captures the correct resting state as the "from" value
@@ -229,9 +230,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         },
       });
 
-      if (imageRef.current)     tl.to(imageRef.current,     { y: -60, scale: 0.5, opacity: 0 }, 0);
-      if (chopstickRef.current) tl.to(chopstickRef.current, { y: 500, opacity: 0 },             0);
-      if (svgRef.current)       tl.to(svgRef.current,       { opacity: 0 },                     0);
+      if (imageRef.current) tl.to(imageRef.current, { y: -60, scale: 0.5, opacity: 0 }, 0);
+      if (chopstickRef.current) tl.to(chopstickRef.current, { y: 500, opacity: 0 }, 0);
+      if (svgRef.current) tl.to(svgRef.current, { opacity: 0 }, 0);
 
       // Force ScrollTrigger to recalculate positions after delayed creation
       ScrollTrigger.refresh();
@@ -261,8 +262,8 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
   // Ratio clamped to [0.35, 1] so labels never become unreadably tiny
   const ratio = Math.min(Math.max(containerW / 480, 0.35), 1);
 
-  const IMAGE_RADIUS     = 35;
-  const ELBOW_DISTANCE   = 15;
+  const IMAGE_RADIUS = 35;
+  const ELBOW_DISTANCE = 15;
   const HORIZONTAL_LENGTH = Math.round(40 * ratio); // shrinks on small screens
 
   // Font is expressed in SVG user-units (viewBox 0 0 100 100).
@@ -294,7 +295,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
           width: '100%',
           height: '100%',
           zIndex: 10,
-          overflow: 'visible'
+          overflow: 'visible',
         }}
       >
         {callouts.map((callout, index) => {
@@ -308,7 +309,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
           return (
             <g key={callout.id}>
               <path
-                ref={(el) => { pathRefs.current[index] = el; }}
+                ref={(el) => {
+                  pathRefs.current[index] = el;
+                }}
                 d={pathData}
                 stroke="rgba(255, 255, 255, 0.4)"
                 strokeWidth="1"
@@ -318,7 +321,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 style={{ pointerEvents: 'none' }}
               />
               <circle
-                ref={(el) => { circleRefs.current[index] = el; }}
+                ref={(el) => {
+                  circleRefs.current[index] = el;
+                }}
                 cx={tipX}
                 cy={tipY}
                 r="1.5"
@@ -326,7 +331,9 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 style={{ pointerEvents: 'none' }}
               />
               <text
-                ref={(el) => { textRefs.current[index] = el; }}
+                ref={(el) => {
+                  textRefs.current[index] = el;
+                }}
                 x={labelX}
                 y={labelY}
                 textAnchor={callout.angle < 180 ? 'start' : 'end'}
@@ -337,8 +344,22 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
                 fontWeight="900"
                 letterSpacing="0.05em"
                 style={{ pointerEvents: 'auto', cursor: 'default' }}
-                onMouseEnter={(e) => gsap.to(e.currentTarget, { attr: { fontSize: LABEL_FONT_SIZE * 1.9 }, duration: 0.2, ease: 'back.out(2)', overwrite: true })}
-                onMouseLeave={(e) => gsap.to(e.currentTarget, { attr: { fontSize: LABEL_FONT_SIZE      }, duration: 0.25, ease: 'power2.out', overwrite: true })}
+                onMouseEnter={(e) =>
+                  gsap.to(e.currentTarget, {
+                    attr: { fontSize: LABEL_FONT_SIZE * 1.9 },
+                    duration: 0.2,
+                    ease: 'back.out(2)',
+                    overwrite: true,
+                  })
+                }
+                onMouseLeave={(e) =>
+                  gsap.to(e.currentTarget, {
+                    attr: { fontSize: LABEL_FONT_SIZE },
+                    duration: 0.25,
+                    ease: 'power2.out',
+                    overwrite: true,
+                  })
+                }
               >
                 {callout.label}
               </text>
@@ -364,7 +385,7 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
         onDragStart={(e) => e.preventDefault()}
       />
 
-      {/* Chopsticks wrapper — right edge flush with the screen's right edge,
+      {/* Chopsticks wrapper : right edge flush with the screen's right edge,
           vertically centred alongside the bowl. The wrapper handles positioning;
           the img is what GSAP animates so there are no CSS-transform conflicts. */}
       <div
