@@ -8,7 +8,7 @@ import Unique from './components/Unique/Unique';
 import AIChat from './components/AIChat/AIChat';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Calendar from './components/Calendar/Calendar';
-import RecipesPage from '../RecipesPage/RecipesPage';
+import RecipesPage from './components/RecipesPage/RecipesPage';
 import './App.css';
 
 function App() {
