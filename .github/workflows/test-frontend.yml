@@ -11,13 +11,8 @@ on:
   # Also run on direct pushes/PRs to frontend
   push:
     branches: [main, Dev]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/test-frontend.yml'
   pull_request:
     branches: [main, Dev]
-    paths:
-      - 'frontend/**'
 
 jobs:
   test-frontend:
