@@ -4,6 +4,26 @@ import RecipeManager from '../Recipe-Manager/CreateRecipe';
 
 import './Profile.css';
 
+function getInitial(email: string): string {
+  if (!email) return '?';
+  return email.charAt(0).toUpperCase();
+}
+
+const CheckIcon = () => (
+  <span className="chip-check" aria-hidden="true">
+    <svg
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+    </svg>
+  </span>
+);
+
 function Profile() {
   const [profileEmail, setProfileEmail] = useState('');
 
@@ -70,7 +90,6 @@ function Profile() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Map your selected arrays to the backend format
     const allergyData = {
       peanuts: selectedAllergies.includes('Peanuts'),
       treeNuts: selectedAllergies.includes('Nuts'),
@@ -211,15 +230,34 @@ function Profile() {
     <div className="profile-page">
       <div className="profile-shell">
         <header className="profile-header">
+          <div className="profile-avatar" aria-hidden="true">
+            {getInitial(profileEmail)}
+          </div>
           <div>
             <h1>Profile</h1>
             <p className="profile-subtitle">
-              Manage your personal information and food information.
+              Manage your personal information and food preferences.
             </p>
           </div>
         </header>
+
+        {/* Personal Information */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
             <h2>Personal Information</h2>
           </div>
           <div className="profile-card-body">
@@ -247,14 +285,29 @@ function Profile() {
           </div>
         </section>
 
+        {/* Diet Preferences */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z" />
+                <path d="M12 8v4l3 3" />
+              </svg>
+            </div>
             <h2>Diet Preferences</h2>
           </div>
           <div className="profile-card-body">
             <p className="profile-card-title">Select your dietary preferences</p>
             <p className="profile-card-subtitle">
-              Select your preferences and we will recommend recipes that match your lifestyle.
+              We&apos;ll recommend recipes that match your lifestyle.
             </p>
             <div className="profile-chip-grid">
               {dietOptions.map((option) => {
@@ -266,8 +319,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -280,8 +333,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -328,14 +381,30 @@ function Profile() {
           </div>
         </section>
 
+        {/* Allergies */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
             <h2>Allergies &amp; Intolerances</h2>
           </div>
           <div className="profile-card-body">
             <p className="profile-card-title">Select any allergies or food intolerances</p>
             <p className="profile-card-subtitle">
-              We'll exclude these ingredients from recipe recommendations.
+              We&apos;ll exclude these ingredients from recipe recommendations.
             </p>
             <div className="profile-chip-grid">
               {allergyOptions.map((option) => {
@@ -347,8 +416,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -361,8 +430,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -408,6 +477,7 @@ function Profile() {
             </div>
           </div>
         </section>
+
         <div className="profile-actions">
           <button type="button" className="profile-button secondary" onClick={handleReset}>
             Reset Changes
@@ -419,15 +489,20 @@ function Profile() {
           >
             Manage Recipes
           </button>
-          <button type="button" onClick={handleSave} className="profile-button primary">
+          <button type="button" className="profile-button primary" onClick={handleSave}>
             Save Changes
           </button>
         </div>
       </div>
+
       {showRecipeManager && (
         <div className="modal-overlay-profile" onClick={() => setShowRecipeManager(false)}>
           <div className="modal-content-profile" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-profile" onClick={() => setShowRecipeManager(false)}>
+            <button
+              className="modal-close-profile"
+              onClick={() => setShowRecipeManager(false)}
+              aria-label="Close"
+            >
               ×
             </button>
             <RecipeManager />
