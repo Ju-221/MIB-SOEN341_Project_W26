@@ -67,7 +67,9 @@
   color: var(--clr-text-muted, #6b7280);
   text-decoration: none;
   border-radius: var(--radius-md, 10px);
-  transition: color var(--ease, 0.2s ease), background var(--ease, 0.2s ease);
+  transition:
+    color var(--ease, 0.2s ease),
+    background var(--ease, 0.2s ease);
 }
 
 .app-nav-link:hover {
@@ -123,7 +125,9 @@
   font-weight: 600;
   border-radius: var(--radius-md, 10px);
   cursor: pointer;
-  transition: transform var(--ease, 0.2s ease), box-shadow var(--ease, 0.2s ease);
+  transition:
+    transform var(--ease, 0.2s ease),
+    box-shadow var(--ease, 0.2s ease);
   white-space: nowrap;
 }
 
@@ -174,7 +178,9 @@
   height: 2px;
   background: var(--clr-text, #111827);
   border-radius: 1px;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
   transform-origin: center;
 }
 
@@ -213,7 +219,9 @@
   color: var(--clr-text-muted, #6b7280);
   text-decoration: none;
   border-bottom: 1px solid var(--clr-border, #eef2f7);
-  transition: color var(--ease, 0.2s ease), background var(--ease, 0.2s ease);
+  transition:
+    color var(--ease, 0.2s ease),
+    background var(--ease, 0.2s ease);
 }
 
 .app-nav-mobile-link:hover,
@@ -235,7 +243,9 @@
   border-radius: 0;
   border-top: none;
   cursor: pointer;
-  transition: color var(--ease, 0.2s ease), background var(--ease, 0.2s ease);
+  transition:
+    color var(--ease, 0.2s ease),
+    background var(--ease, 0.2s ease);
 }
 
 .app-nav-mobile-logout:hover {
