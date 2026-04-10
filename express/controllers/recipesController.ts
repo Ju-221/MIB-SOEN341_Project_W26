@@ -3,9 +3,10 @@ import path from 'path';
 import multer from 'multer';
 import { eq, like } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { allergies, dietaryPreferences, recipes } from '../db/schema.js';
+import { recipes } from '../db/schema.js';
 import { Request, Response } from 'express';
 import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
+import errorHelpers from '../utils/errorHelpers.js';
 
 type RecipeIngredient = {
   name: string;
@@ -251,12 +252,30 @@ const parseJsonArrayField = <T>(value: unknown): T[] => {
 };
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { error } from 'console';
 
 export const generateRecipe = async (req: Request, res: Response) => {
+  const { prompt } = req.body;
+  const createdBy = req.user!.id; // ! asserts that user object is non null
+  const promptPreview = typeof prompt === 'string' ? prompt.slice(0, 200) : undefined;
+
   try {
-    const { prompt } = req.body;
-    const createdBy = req.user!.id; // ! asserts that user object is non null
+    if (!process.env.GEMINI_API_KEY) {
+      const details = {
+        type: 'ConfigurationError',
+        code: 'MISSING_GEMINI_API_KEY',
+        message: 'Gemini API key is missing from server configuration.',
+      };
+
+      console.error('Gemini recipe generation failed: missing GEMINI_API_KEY', {
+        userId: createdBy,
+        hasPrompt: typeof prompt === 'string' && prompt.trim().length > 0,
+        promptPreview,
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
 
     const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAi.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -281,9 +300,61 @@ export const generateRecipe = async (req: Request, res: Response) => {
     const result = await model.generateContent(systemPrompt);
     const text = result.response.text();
 
+    if (!text.trim()) {
+      const details = {
+        type: 'GeminiResponseError',
+        code: 'EMPTY_RESPONSE',
+        message: 'Gemini returned an empty response.',
+      };
+
+      console.error('Gemini recipe generation failed: empty response text', {
+        userId: createdBy,
+        model: 'gemini-2.5-flash',
+        promptPreview,
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
+
     // strip away the markdown syntax
     const json = text.replace(/```json|```/g, '').trim();
-    const recipe = JSON.parse(json);
+    let recipe: {
+      title: string;
+      description: string;
+      prepTime: number;
+      cookTime: number;
+      estimatedCost: number;
+      difficulty: Difficulty;
+      ingredients: RecipeIngredient[];
+      steps: string[];
+      categories: string[];
+    };
+
+    try {
+      recipe = JSON.parse(json);
+    } catch (err) {
+      const parseError = errorHelpers.getErrorDetails(err);
+      const details = {
+        type: 'GeminiResponseError',
+        code: 'INVALID_JSON',
+        message: 'Gemini returned malformed JSON.',
+        cause: parseError,
+      };
+
+      console.error('Gemini recipe generation failed: invalid JSON response', {
+        userId: createdBy,
+        model: 'gemini-2.5-flash',
+        promptPreview,
+        rawResponsePreview: text.slice(0, 500),
+        cleanedResponsePreview: json.slice(0, 500),
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
 
     console.log(recipe);
 
@@ -309,7 +380,14 @@ export const generateRecipe = async (req: Request, res: Response) => {
 
     res.status(201).json(parseRecipe(saved));
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to generate recipe' });
+    const details = errorHelpers.getErrorDetails(err);
+
+    console.error('Gemini recipe generation failed', {
+      userId: createdBy,
+      model: 'gemini-2.5-flash',
+      promptPreview,
+      error: details,
+    });
+    res.status(500).json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
   }
 };
