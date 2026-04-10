@@ -29,7 +29,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   color: #ffffff;
   font-size: 22px;
   font-weight: 700;
@@ -234,7 +234,7 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: var(--clr-primary, #4caf50);
+  background: #2e7d32;
   color: #fff;
   flex-shrink: 0;
 }
@@ -377,7 +377,7 @@
 
 .modal-close-profile:hover {
   background: #fee2e2;
-  color: #ef4444;
+  color: #b91c1c;
 }
 
 /* ── Responsive ── */

@@ -9,6 +9,21 @@ function getInitial(email: string): string {
   return email.charAt(0).toUpperCase();
 }
 
+const CheckIcon = () => (
+  <span className="chip-check" aria-hidden="true">
+    <svg
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+    </svg>
+  </span>
+);
+
 function Profile() {
   const [profileEmail, setProfileEmail] = useState('');
 
@@ -210,21 +225,6 @@ function Profile() {
     setCustomDietInput('');
     setCustomAllergyInput('');
   };
-
-  const CheckIcon = () => (
-    <span className="chip-check" aria-hidden="true">
-      <svg
-        viewBox="0 0 10 10"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polyline points="1.5,5 4,7.5 8.5,2.5" />
-      </svg>
-    </span>
-  );
 
   return (
     <div className="profile-page">
