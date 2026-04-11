@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe, IMAGES_URL } from '../../api/recipes';
+import {
+  fetchRecipes,
+  createRecipe,
+  updateRecipe,
+  deleteRecipe,
+  loadHeroImage,
+} from '../../api/recipes';
 import RecipePopup from '../RecipePopup/RecipePopup';
 
 export interface Ingredient {
@@ -41,16 +47,6 @@ export interface Recipe {
   servings?: number;
   image?: string;
   instructions?: string[];
-}
-
-export function loadHeroImage(recipe: Recipe) {
-  if (!recipe.heroImage) {
-    return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (recipe.heroImage.startsWith('data:')) {
-    return recipe.heroImage;
-  } else {
-    return `${IMAGES_URL}/${recipe.heroImage}`;
-  }
 }
 
 interface RecipeFormData extends Omit<
@@ -940,11 +936,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               style={{ cursor: 'pointer' }}
             >
               <div className="recipe-image-container">
-                <img
-                  src={loadHeroImage(recipe)}
-                  alt={recipe.title}
-                  className="recipe-image"
-                />
+                <img src={loadHeroImage(recipe)} alt={recipe.title} className="recipe-image" />
               </div>
               <div className="recipe-content">
                 <h2>{recipe.title || recipe.name}</h2>

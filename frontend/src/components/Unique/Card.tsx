@@ -104,10 +104,7 @@ const Card: React.FC<Recipe> = (recipe) => {
           <div className="recipe-flip-card-front">
             <div className="recipe-image-container">
               <div className="recipe-image">
-                <img
-                  src={loadHeroImage(recipe)}
-                  alt={title}
-                />
+                <img src={loadHeroImage(recipe)} alt={title} />
               </div>
               <div className="recipe-image-overlay" />
               <span

@@ -33,7 +33,6 @@ export async function createRecipe(
   jwt_token: string,
   heroImageFile?: File | null
 ): Promise<Recipe | Recipe[]> {
-
   const response = await fetch(BASE_URL, {
     method: 'POST',
     headers: {
@@ -170,4 +169,14 @@ async function filenameToBase64(imageName: string) {
   });
 
   return imagePromise;
+}
+
+export function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return `${IMAGES_URL}/default_image.jpeg`;
+  } else if (recipe.heroImage.startsWith('data:')) {
+    return recipe.heroImage;
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
 }

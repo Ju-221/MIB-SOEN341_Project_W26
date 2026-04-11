@@ -69,10 +69,7 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
       <div className="popup-card" onClick={(e) => e.stopPropagation()}>
         {/* Hero image */}
         <div className="popup-hero">
-          <img
-            src={loadHeroImage(recipe)}
-            alt={recipe.title}
-          />
+          <img src={loadHeroImage(recipe)} alt={recipe.title} />
           <div className="popup-hero-overlay" />
           <button className="popup-close" onClick={onClose} aria-label="Close">
             ✕

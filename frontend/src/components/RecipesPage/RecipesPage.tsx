@@ -114,7 +114,7 @@ function IconImage() {
   );
 }
 
-export function loadHeroImage(recipe: Recipe) {
+function loadHeroImage(recipe: Recipe) {
   if (!recipe.heroImage) {
     return `${IMAGES_URL}/default_image.jpeg`;
   } else if (recipe.heroImage.startsWith('data:')) {
@@ -229,7 +229,7 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
                         src={loadHeroImage(recipe)}
                         alt={recipe.title}
                         className="hp-recipe-img"
-                      />            
+                      />
                     }
                     <div className="hp-recipe-body">
                       <div className="hp-recipe-tags">
