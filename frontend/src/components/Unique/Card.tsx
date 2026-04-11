@@ -35,13 +35,13 @@ const difficultyColor: Record<string, string> = {
   Hard: '#ef4444',
 };
 
-function loadHeroImage(recipe: Recipe) {
-  if (!recipe.heroImage) {
+function loadHeroImage(heroImage: string | null) {
+  if (!heroImage) {
     return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (recipe.heroImage.startsWith('data:')) {
-    return recipe.heroImage;
+  } else if (heroImage.startsWith('data:')) {
+    return heroImage;
   } else {
-    return `${IMAGES_URL}/${recipe.heroImage}`;
+    return `${IMAGES_URL}/${heroImage}`;
   }
 }
 
@@ -104,7 +104,7 @@ const Card: React.FC<Recipe> = (recipe) => {
           <div className="recipe-flip-card-front">
             <div className="recipe-image-container">
               <div className="recipe-image">
-                <img src={loadHeroImage(recipe)} alt={title} />
+                <img src={loadHeroImage(heroImage)} alt={title} />
               </div>
               <div className="recipe-image-overlay" />
               <span
