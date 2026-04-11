@@ -116,9 +116,7 @@ function IconProfile() {
 
 function loadHeroImage(recipe: Recipe) {
   if (!recipe.heroImage) {
-    return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (recipe.heroImage.startsWith('data:')) {
-    return recipe.heroImage;
+    return '/food-clipart.jpg';
   } else {
     return `${IMAGES_URL}/${recipe.heroImage}`;
   }
@@ -159,6 +157,7 @@ function difficultyBadgeClass(d?: string) {
 
 function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [heroImageCache, setHeroImageCache] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
     fetch('http://localhost:3000/api/recipes')
@@ -222,11 +221,17 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
             </div>
             <div className="profile-card-body">
               <div className="hp-recipe-grid">
-                {recipes.map((recipe) => (
+                {recipes.map((recipe) => {
+                  const cachedImage = heroImageCache.get(recipe.id);
+                  if (!cachedImage) {
+                    const imageUrl = loadHeroImage(recipe);
+                    setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+                  }
+                  return (
                   <div key={recipe.id} className="hp-recipe-card">
                     {
                       <img
-                        src={loadHeroImage(recipe)}
+                        src={cachedImage || loadHeroImage(recipe)}
                         alt={recipe.title}
                         className="hp-recipe-img"
                       />
@@ -245,7 +250,8 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
                       <span className="hp-recipe-cost">${recipe.estimatedCost.toFixed(2)}</span>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

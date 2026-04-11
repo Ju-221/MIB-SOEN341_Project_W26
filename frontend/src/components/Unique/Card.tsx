@@ -37,9 +37,7 @@ const difficultyColor: Record<string, string> = {
 
 function loadHeroImage(heroImage: string | null) {
   if (!heroImage) {
-    return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (heroImage.startsWith('data:')) {
-    return heroImage;
+    return '/food-clipart.jpg';
   } else {
     return `${IMAGES_URL}/${heroImage}`;
   }
@@ -66,6 +64,7 @@ const Card: React.FC<Recipe> = (recipe) => {
   const [ingLimit, setIngLimit] = useState(ingredients.length);
   const [stepLimit, setStepLimit] = useState(steps.length);
   const [hasEllipsis, setHasEllipsis] = useState(false);
+  const [heroImageCache, setHeroImageCache] = useState<Map<number, string>>(new Map());
 
   const backRef = useRef<HTMLDivElement>(null);
   const adjusted = useRef(false);
@@ -104,7 +103,14 @@ const Card: React.FC<Recipe> = (recipe) => {
           <div className="recipe-flip-card-front">
             <div className="recipe-image-container">
               <div className="recipe-image">
-                <img src={loadHeroImage(heroImage)} alt={title} />
+                {(() => {
+                  const cachedImage = heroImageCache.get(recipe.id);
+                  if (!cachedImage) {
+                    const imageUrl = loadHeroImage(heroImage);
+                    setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+                  }
+                  return <img src={cachedImage || loadHeroImage(heroImage)} alt={title} />;
+                })()}
               </div>
               <div className="recipe-image-overlay" />
               <span

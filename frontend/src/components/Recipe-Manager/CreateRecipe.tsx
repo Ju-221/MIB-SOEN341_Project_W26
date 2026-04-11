@@ -5,7 +5,6 @@ import {
   createRecipe,
   updateRecipe,
   deleteRecipe,
-  loadHeroImage,
 } from '../../api/recipes';
 import RecipePopup from '../RecipePopup/RecipePopup';
 
@@ -180,6 +179,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
   const [imagePreview, setImagePreview] = useState<string>('');
   const [saveError, setSaveError] = useState('');
   const [recipeSearchQuery, setRecipeSearchQuery] = useState('');
+  const [heroImageCache, setHeroImageCache] = useState<Map<string | number, string>>(new Map());
   const [ingredientFilterQuery, setIngredientFilterQuery] = useState('');
   const [maxPrepTimeFilter, setMaxPrepTimeFilter] = useState('');
   const [maxCookTimeFilter, setMaxCookTimeFilter] = useState('');
@@ -199,6 +199,14 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     if (!value.trim()) return null;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const loadHeroImage = (recipe: Recipe) => {
+    if (!recipe.heroImage) {
+      return '/food-clipart.jpg';
+    } else {
+      return `http://localhost:3000/uploads/${recipe.heroImage}`;
+    }
   };
 
   const getRecipeIngredientNames = (recipe: Recipe): string[] =>
@@ -588,23 +596,6 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       return;
     }
 
-    // Load default image if no image is provided
-    const getDefaultImage = async (): Promise<string> => {
-      try {
-        const response = await fetch('/default_image.jpg');
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      } catch (error) {
-        console.error('Failed to load default image:', error);
-        return '';
-      }
-    };
-
     // Preserve the previously saved total for legacy recipes whose per-ingredient costs were not stored.
     const ingredientCostTotal = getIngredientCostTotal(formData);
     const totalCost = ingredientCostTotal > 0 ? ingredientCostTotal : formData.estimatedCost || 0;
@@ -662,17 +653,11 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       cookTime: formData.cookTime === '' ? 0 : formData.cookTime,
       estimatedCost: totalCost,
     };
-    const defaultImage =
-      !baseRecipeData.heroImage && !baseRecipeData.image ? await getDefaultImage() : null;
     const recipeData: Recipe = {
       ...baseRecipeData,
-      heroImage: baseRecipeData.heroImage || defaultImage || undefined,
-      image: baseRecipeData.image || defaultImage || undefined,
+      heroImage: baseRecipeData.heroImage || undefined,
+      image: baseRecipeData.image || undefined,
     };
-
-    if (defaultImage) {
-      setImagePreview(defaultImage);
-    }
 
     if (isEditing) {
       try {
@@ -928,6 +913,13 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
           // Calculate total ingredient cost
           const totalIngredientCost = getRecipeDisplayCost(recipe);
 
+          // Load hero image
+          const cachedImage = heroImageCache.get(recipe.id);
+          if (!cachedImage) {
+            const imageUrl = loadHeroImage(recipe);
+            setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+          }
+
           return (
             <div
               key={recipe.id}
@@ -936,7 +928,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
               style={{ cursor: 'pointer' }}
             >
               <div className="recipe-image-container">
-                <img src={loadHeroImage(recipe)} alt={recipe.title} className="recipe-image" />
+                <img src={cachedImage || ''} alt={recipe.title} className="recipe-image" />
               </div>
               <div className="recipe-content">
                 <h2>{recipe.title || recipe.name}</h2>
@@ -984,11 +976,20 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
             {/* Recipe Hero Image */}
             <div className="recipe-detail-hero">
-              <img
-                src={loadHeroImage(selectedRecipe)}
-                alt={selectedRecipe.title || selectedRecipe.name}
-                className="recipe-detail-image"
-              />
+              {(() => {
+                const cachedImage = heroImageCache.get(selectedRecipe.id);
+                if (!cachedImage) {
+                  const imageUrl = loadHeroImage(selectedRecipe);
+                  setHeroImageCache((prev) => new Map(prev).set(selectedRecipe.id, imageUrl));
+                }
+                return (
+                  <img
+                    src={cachedImage || ''}
+                    alt={selectedRecipe.title || selectedRecipe.name}
+                    className="recipe-detail-image"
+                  />
+                );
+              })()}
             </div>
 
             {/* Recipe Title */}
@@ -1103,7 +1104,9 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                       className="image-placeholder"
                       onClick={() => document.getElementById('image-upload')?.click()}
                     >
-                      <span>Click to upload image</span>
+                      <div className="image-overlay">
+                        <span>Click to upload image</span>
+                      </div>
                     </div>
                   )}
                   <input

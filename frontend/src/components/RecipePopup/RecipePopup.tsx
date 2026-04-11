@@ -44,15 +44,15 @@ function formatIngredient(ing: string | Ingredient): string {
 
 function loadHeroImage(recipe: Recipe) {
   if (!recipe.heroImage) {
-    return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (recipe.heroImage.startsWith('data:')) {
-    return recipe.heroImage;
+    return '/food-clipart.jpg';
   } else {
     return `${IMAGES_URL}/${recipe.heroImage}`;
   }
 }
 
 const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
+  const [heroImageCache, setHeroImageCache] = React.useState<Map<number, string>>(new Map());
+
   // Close on Escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -69,7 +69,16 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
       <div className="popup-card" onClick={(e) => e.stopPropagation()}>
         {/* Hero image */}
         <div className="popup-hero">
-          <img src={loadHeroImage(recipe)} alt={recipe.title} />
+          {(() => {
+            const cachedImage = heroImageCache.get(recipe.id);
+            const imageUrl = cachedImage || loadHeroImage(recipe);
+            if (!cachedImage) {
+              setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+            }
+            return (
+              <img src={imageUrl} alt={recipe.title} />
+            );
+          })()}
           <div className="popup-hero-overlay" />
           <button className="popup-close" onClick={onClose} aria-label="Close">
             ✕

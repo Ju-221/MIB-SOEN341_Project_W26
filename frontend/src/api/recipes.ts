@@ -15,17 +15,8 @@ export async function fetchRecipes() {
   }
 
   const data: Recipe[] = await response.json(); // Parse
-  // Convert image files to base64 for frontend
-  const filesConverted = await Promise.all(
-    data.map(async (recipe) => {
-      if (recipe.heroImage) {
-        recipe.heroImage = (await filenameToBase64(recipe.heroImage)) as string;
-      }
-      return recipe;
-    })
-  );
 
-  return filesConverted;
+  return data;
 }
 
 export async function createRecipe(
@@ -38,7 +29,7 @@ export async function createRecipe(
     headers: {
       Authorization: `Bearer ${jwt_token}`,
     },
-    body: serializeRecipe(recipeObj, heroImageFile),
+    body: await serializeRecipe(recipeObj, heroImageFile),
   });
 
   if (!response.ok) {
@@ -47,9 +38,6 @@ export async function createRecipe(
   }
 
   const data: Recipe = await response.json();
-  if (data.heroImage) {
-    data.heroImage = (await filenameToBase64(data.heroImage)) as string;
-  }
   return data;
 }
 
@@ -64,7 +52,7 @@ export async function updateRecipe(
     headers: {
       Authorization: `Bearer ${jwt_token}`,
     },
-    body: serializeRecipe(recipeObj, heroImageFile),
+    body: await serializeRecipe(recipeObj, heroImageFile),
   });
 
   if (!response.ok) {
@@ -73,10 +61,6 @@ export async function updateRecipe(
   }
 
   const data: Recipe = await response.json();
-  if (data.heroImage) {
-    data.heroImage = (await filenameToBase64(data.heroImage)) as string;
-  }
-
   return data;
 }
 
@@ -94,7 +78,7 @@ export async function deleteRecipe(id: string, jwt_token: string) {
   }
 }
 
-function serializeRecipe(recipe: Recipe, heroImageFile?: File | null) {
+async function serializeRecipe(recipe: Recipe, heroImageFile?: File | null): Promise<FormData> {
   const formData = new FormData();
 
   // Regular attributes
@@ -116,15 +100,14 @@ function serializeRecipe(recipe: Recipe, heroImageFile?: File | null) {
   formData.append('steps', JSON.stringify(recipe.steps, ['text'])); // Assuming no image for steps
   formData.append('categories', JSON.stringify(recipe.categories));
 
-  // Image
+  // Image - only send if user selected an image
   if (heroImageFile) {
     formData.append('heroImage', heroImageFile);
   } else if (recipe.heroImage?.startsWith('data:')) {
     console.log('Serializing recipe with heroImage data URI, length:', recipe.heroImage.length);
     formData.append('heroImage', base64ToImageFile(recipe.heroImage));
-  } else {
-    console.log('No heroImage file to upload');
   }
+  // If no image selected, don't send anything - backend will handle default display
 
   return formData;
 }
@@ -145,37 +128,9 @@ function base64ToImageFile(b64Str: string) {
   return new File([u8arr], `name_doesn't_matter.${fileExtension}`, { type: mime });
 }
 
-async function filenameToBase64(imageName: string) {
-  const imageUrl = `${IMAGES_URL}/${imageName}`;
-  const response = await fetch(imageUrl);
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error('Error loading image:', errorData.message);
-  }
-
-  const blob = await response.blob();
-
-  const imagePromise = new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      resolve(reader.result);
-    };
-
-    reader.onerror = reject;
-
-    reader.readAsDataURL(blob); // Converts to base64
-  });
-
-  return imagePromise;
-}
-
 export function loadHeroImage(recipe: Recipe) {
   if (!recipe.heroImage) {
-    return `${IMAGES_URL}/default_image.jpeg`;
-  } else if (recipe.heroImage.startsWith('data:')) {
-    return recipe.heroImage;
+    return `${IMAGES_URL}/food-clipart.jpg`;
   } else {
     return `${IMAGES_URL}/${recipe.heroImage}`;
   }
