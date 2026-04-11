@@ -8,6 +8,7 @@ import Unique from './components/Unique/Unique';
 import AIChat from './components/AIChat/AIChat';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Calendar from './components/Calendar/Calendar';
+import RecipesPage from './components/RecipesPage/RecipesPage';
 import './App.css';
 
 function App() {
@@ -70,13 +71,6 @@ function App() {
     }
   }, [isLoggedIn, currentPage]);
 
-  useEffect(() => {
-    // On initial load, if user is logged in and there's no hash, go to home
-    if (isLoggedIn && !window.location.hash) {
-      window.location.hash = '#home';
-    }
-  }, [isLoggedIn]);
-
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':
@@ -87,6 +81,8 @@ function App() {
         return <SignIn onSuccess={handleAuthSuccess} />;
       case 'unique':
         return <Unique />;
+      case 'recipes':
+        return <RecipesPage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
       case 'aichat':
         return <AIChat />;
       case 'signup':

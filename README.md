@@ -2,6 +2,10 @@
 
 [![Backend API Tests](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
 [![Frontend UI Tests](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-frontend.yml/badge.svg)](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-frontend.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Ju-221_MIB-SOEN341_Project_W26&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Ju-221_MIB-SOEN341_Project_W26)
+
+## Static Scanner
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=Ju-221_MIB-SOEN341_Project_W26)
 ## DEV_POST
 
 If you're seeing this, this is the main branch for testing new features, our nightly build if anything. This is branch is expected to be experimental while bugs are caught slowly. pull at your own risk, but this should be the most up to date in features developed branch. 
