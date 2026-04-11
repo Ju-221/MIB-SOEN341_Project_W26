@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
-import {
-  fetchRecipes,
-  createRecipe,
-  updateRecipe,
-  deleteRecipe,
-} from '../../api/recipes';
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
 import RecipePopup from '../RecipePopup/RecipePopup';
 
 export interface Ingredient {

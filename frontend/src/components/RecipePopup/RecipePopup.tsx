@@ -75,9 +75,7 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
             if (!cachedImage) {
               setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
             }
-            return (
-              <img src={imageUrl} alt={recipe.title} />
-            );
+            return <img src={imageUrl} alt={recipe.title} />;
           })()}
           <div className="popup-hero-overlay" />
           <button className="popup-close" onClick={onClose} aria-label="Close">

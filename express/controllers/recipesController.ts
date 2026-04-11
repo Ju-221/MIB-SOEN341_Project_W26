@@ -192,7 +192,6 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
         const newPath = path.join('./uploads', newName);
         fs.renameSync(req.file.path, newPath);
         heroImage = newName;
-
       } catch (fileError) {
         console.error('Failed to process uploaded image:', fileError);
         // Clean up temp file

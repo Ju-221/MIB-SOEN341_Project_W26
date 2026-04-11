@@ -228,28 +228,28 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
                     setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
                   }
                   return (
-                  <div key={recipe.id} className="hp-recipe-card">
-                    {
-                      <img
-                        src={cachedImage || loadHeroImage(recipe)}
-                        alt={recipe.title}
-                        className="hp-recipe-img"
-                      />
-                    }
-                    <div className="hp-recipe-body">
-                      <div className="hp-recipe-tags">
-                        <span className={difficultyBadgeClass(recipe.difficulty)}>
-                          {recipe.difficulty ?? 'Easy'}
-                        </span>
-                        <span className="hp-badge time">
-                          {recipe.prepTime + recipe.cookTime} min
-                        </span>
+                    <div key={recipe.id} className="hp-recipe-card">
+                      {
+                        <img
+                          src={cachedImage || loadHeroImage(recipe)}
+                          alt={recipe.title}
+                          className="hp-recipe-img"
+                        />
+                      }
+                      <div className="hp-recipe-body">
+                        <div className="hp-recipe-tags">
+                          <span className={difficultyBadgeClass(recipe.difficulty)}>
+                            {recipe.difficulty ?? 'Easy'}
+                          </span>
+                          <span className="hp-badge time">
+                            {recipe.prepTime + recipe.cookTime} min
+                          </span>
+                        </div>
+                        <h3 className="hp-recipe-title">{recipe.title}</h3>
+                        <p className="hp-recipe-desc">{recipe.description}</p>
+                        <span className="hp-recipe-cost">${recipe.estimatedCost.toFixed(2)}</span>
                       </div>
-                      <h3 className="hp-recipe-title">{recipe.title}</h3>
-                      <p className="hp-recipe-desc">{recipe.description}</p>
-                      <span className="hp-recipe-cost">${recipe.estimatedCost.toFixed(2)}</span>
                     </div>
-                  </div>
                   );
                 })}
               </div>
