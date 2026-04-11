@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './RecipePopup.css';
+import { IMAGES_URL } from '../../api/recipes';
 
 interface Ingredient {
   name: string;
@@ -41,6 +42,16 @@ function formatIngredient(ing: string | Ingredient): string {
   return parts ? `${ing.name} — ${parts}` : ing.name;
 }
 
+function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return `${IMAGES_URL}/default_image.jpeg`;
+  } else if (recipe.heroImage.startsWith('data:')) {
+    return recipe.heroImage;
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
+}
+
 const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
   // Close on Escape key
   useEffect(() => {
@@ -59,13 +70,7 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
         {/* Hero image */}
         <div className="popup-hero">
           <img
-            src={
-              recipe.heroImage
-                ? recipe.heroImage.startsWith('data:')
-                  ? recipe.heroImage
-                  : `http://localhost:3000/uploads/${recipe.heroImage}`
-                : 'http://localhost:3000/uploads/temp-1774310819405.jpeg'
-            }
+            src={loadHeroImage(recipe)}
             alt={recipe.title}
           />
           <div className="popup-hero-overlay" />

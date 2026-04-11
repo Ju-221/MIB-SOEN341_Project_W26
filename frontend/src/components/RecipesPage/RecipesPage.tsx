@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './RecipesPage.css';
+import { IMAGES_URL } from '../../api/recipes';
 
 interface RecipesPageProps {
   isLoggedIn: boolean;
@@ -113,6 +114,16 @@ function IconImage() {
   );
 }
 
+export function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return `${IMAGES_URL}/default_image.jpeg`;
+  } else if (recipe.heroImage.startsWith('data:')) {
+    return recipe.heroImage;
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
+}
+
 const FEATURES = [
   {
     icon: <IconRecipes />,
@@ -213,17 +224,13 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
               <div className="hp-recipe-grid">
                 {recipes.map((recipe) => (
                   <div key={recipe.id} className="hp-recipe-card">
-                    {recipe.heroImage ? (
+                    {
                       <img
-                        src={`http://localhost:3000/uploads/${recipe.heroImage}`}
+                        src={loadHeroImage(recipe)}
                         alt={recipe.title}
                         className="hp-recipe-img"
-                      />
-                    ) : (
-                      <div className="hp-recipe-img-placeholder">
-                        <IconImage />
-                      </div>
-                    )}
+                      />            
+                    }
                     <div className="hp-recipe-body">
                       <div className="hp-recipe-tags">
                         <span className={difficultyBadgeClass(recipe.difficulty)}>

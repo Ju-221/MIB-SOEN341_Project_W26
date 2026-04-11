@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe, IMAGES_URL } from '../../api/recipes';
 import RecipePopup from '../RecipePopup/RecipePopup';
 
 export interface Ingredient {
@@ -41,6 +41,16 @@ export interface Recipe {
   servings?: number;
   image?: string;
   instructions?: string[];
+}
+
+export function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return `${IMAGES_URL}/default_image.jpeg`;
+  } else if (recipe.heroImage.startsWith('data:')) {
+    return recipe.heroImage;
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
 }
 
 interface RecipeFormData extends Omit<
@@ -585,7 +595,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     // Load default image if no image is provided
     const getDefaultImage = async (): Promise<string> => {
       try {
-        const response = await fetch('/food-clipart.jpg');
+        const response = await fetch('/default_image.jpg');
         const blob = await response.blob();
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -931,12 +941,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             >
               <div className="recipe-image-container">
                 <img
-                  src={
-                    recipe.heroImage ||
-                    recipe.image ||
-                    'https://via.placeholder.com/300x200?text=No+Image'
-                  }
-                  alt={' '}
+                  src={loadHeroImage(recipe)}
+                  alt={recipe.title}
                   className="recipe-image"
                 />
               </div>
@@ -987,11 +993,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             {/* Recipe Hero Image */}
             <div className="recipe-detail-hero">
               <img
-                src={
-                  selectedRecipe.heroImage ||
-                  selectedRecipe.image ||
-                  'https://via.placeholder.com/500x300?text=Recipe'
-                }
+                src={loadHeroImage(selectedRecipe)}
                 alt={selectedRecipe.title || selectedRecipe.name}
                 className="recipe-detail-image"
               />
