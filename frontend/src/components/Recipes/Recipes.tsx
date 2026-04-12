@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Recipe, Ingredient, Step } from '../Recipe-Manager/CreateRecipe';
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe, IMAGES_URL } from '../../api/recipes';
 import './Recipes.css';
 
 type ViewMode = 'list' | 'cook' | 'edit' | 'add';
@@ -73,6 +73,7 @@ export default function Recipes() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +99,12 @@ export default function Recipes() {
     setViewMode('cook');
   };
 
+  const resolveImageUrl = (heroImage?: string | null): string | null => {
+    if (!heroImage) return null;
+    if (heroImage.startsWith('http') || heroImage.startsWith('data:')) return heroImage;
+    return `${IMAGES_URL}/${heroImage}`;
+  };
+
   const openEdit = (recipe: Recipe) => {
     setSelected(recipe);
     setForm({
@@ -112,7 +119,8 @@ export default function Recipes() {
       estimatedCost: recipe.estimatedCost,
       heroImage: recipe.heroImage ?? '',
     });
-    setImagePreview(recipe.heroImage ?? null);
+    setImagePreview(resolveImageUrl(recipe.heroImage));
+    setHeroImageFile(null);
     setFormError(null);
     setViewMode('edit');
   };
@@ -121,6 +129,7 @@ export default function Recipes() {
     setSelected(null);
     setForm(emptyRecipe());
     setImagePreview(null);
+    setHeroImageFile(null);
     setFormError(null);
     setViewMode('add');
   };
@@ -145,13 +154,9 @@ export default function Recipes() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setImagePreview(result);
-      setForm((f) => ({ ...f, heroImage: result }));
-    };
-    reader.readAsDataURL(file);
+    setHeroImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setForm((f) => ({ ...f, heroImage: file.name }));
   };
 
   const updateIngredient = (idx: number, field: keyof Ingredient, value: string | number) => {
@@ -277,7 +282,8 @@ export default function Recipes() {
             cookTime: Number(form.cookTime),
             estimatedCost: Number(form.estimatedCost),
           },
-          token
+          token,
+          heroImageFile
         );
         const newRecipe = Array.isArray(created) ? created[0] : created;
         setRecipes((prev) => [newRecipe, ...prev]);
@@ -291,7 +297,8 @@ export default function Recipes() {
             cookTime: Number(form.cookTime),
             estimatedCost: Number(form.estimatedCost),
           },
-          token
+          token,
+          heroImageFile
         );
         setRecipes((prev) => prev.map((r) => (String(r.id) === String(selected.id) ? updated : r)));
         setSelected(updated);
@@ -635,8 +642,8 @@ export default function Recipes() {
               <div className="recipes-grid">
                 {filteredRecipes.map((recipe) => (
                   <div key={recipe.id} className="recipe-card">
-                    {recipe.heroImage ? (
-                      <img src={recipe.heroImage} alt={recipe.title} className="recipe-card-img" />
+                    {resolveImageUrl(recipe.heroImage) ? (
+                      <img src={resolveImageUrl(recipe.heroImage)!} alt={recipe.title} className="recipe-card-img" />
                     ) : (
                       <div className="recipe-card-img-placeholder" />
                     )}
@@ -740,9 +747,9 @@ export default function Recipes() {
           </header>
 
           {/* Hero image */}
-          {selected.heroImage && (
+          {resolveImageUrl(selected.heroImage) && (
             <div className="recipes-hero-wrap">
-              <img src={selected.heroImage} alt={selected.title} className="recipes-hero-img" />
+              <img src={resolveImageUrl(selected.heroImage)!} alt={selected.title} className="recipes-hero-img" />
             </div>
           )}
 
@@ -1011,6 +1018,7 @@ export default function Recipes() {
                   className="profile-button secondary"
                   onClick={() => {
                     setImagePreview(null);
+                    setHeroImageFile(null);
                     setForm((f) => ({ ...f, heroImage: '' }));
                   }}
                 >
