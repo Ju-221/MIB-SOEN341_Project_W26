@@ -10,6 +10,8 @@ interface NavbarProps {
   currentPage: string;
   isLoggedIn: boolean;
   userEmail: string | null;
+  onLogout: () => void;
+  onLoginClick: () => void;
 }
 
 const NAV_LINKS = [
@@ -19,7 +21,7 @@ const NAV_LINKS = [
   { href: '#aichat', label: 'AI Chef ✦', page: 'aichat', authOnly: true },
 ];
 
-function Navbar({ currentPage, isLoggedIn, userEmail }: NavbarProps) {
+function Navbar({ currentPage, isLoggedIn, userEmail, onLogout, onLoginClick }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
