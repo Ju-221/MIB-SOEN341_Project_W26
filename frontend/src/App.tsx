@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useHashNavigation } from './hooks/useHashNavigation';
-import { SignIn, SignUp } from './components/Auth';
+import { SignIn } from './components/Auth';
 import Profile from './components/Profile/Profile';
 import Homepage from './components/Homepage/Homepage';
 import Navbar from './components/Navbar/Navbar';
@@ -80,14 +80,14 @@ function App() {
         return <Profile />;
       case 'signin':
         return <SignIn onSuccess={handleAuthSuccess} />;
+      case 'signup':
+        return <SignIn onSuccess={handleAuthSuccess} initialView="signup" />;
       case 'unique':
         return <Unique />;
       case 'recipes':
         return <RecipesPage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
       case 'aichat':
         return <AIChat />;
-      case 'signup':
-        return <SignUp onSuccess={handleAuthSuccess} />;
 
       default:
         return <Homepage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
