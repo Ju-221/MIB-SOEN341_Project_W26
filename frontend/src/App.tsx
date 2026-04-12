@@ -12,7 +12,8 @@ import RecipesPage from './components/RecipesPage/RecipesPage';
 import './App.css';
 
 function App() {
-  const currentPage = useHashNavigation('signin');
+  const defaultPage = localStorage.getItem('token') !== null ? 'home' : 'signin';
+  const currentPage = useHashNavigation(defaultPage);
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null;

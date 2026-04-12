@@ -44,7 +44,7 @@ describe('Navbar', () => {
     it('hides Calendar, Discover and AI Chef when logged out', () => {
       render(<Navbar {...baseProps} />);
       expect(screen.queryByRole('link', { name: /calendar/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /discover/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /meal tournament/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('link', { name: /ai chef/i })).not.toBeInTheDocument();
     });
 
@@ -52,7 +52,7 @@ describe('Navbar', () => {
       render(<Navbar {...loggedInProps} />);
       expect(screen.getByRole('link', { name: /recipes/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /calendar/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /discover/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /meal tournament/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /ai chef/i })).toBeInTheDocument();
     });
 
