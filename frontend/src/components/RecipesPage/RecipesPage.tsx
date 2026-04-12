@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './RecipesPage.css';
+import { IMAGES_URL } from '../../api/recipes';
 
 interface RecipesPageProps {
   isLoggedIn: boolean;
@@ -95,22 +96,30 @@ function IconProfile() {
   );
 }
 
-function IconImage() {
-  return (
-    <svg
-      className="hp-recipe-placeholder-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  );
+// function IconImage() {
+//   return (
+//     <svg
+//       className="hp-recipe-placeholder-icon"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="1.5"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <rect x="3" y="3" width="18" height="18" rx="2" />
+//       <circle cx="8.5" cy="8.5" r="1.5" />
+//       <path d="M21 15l-5-5L5 21" />
+//     </svg>
+//   );
+// }
+
+function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return '/food-clipart.jpg';
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
 }
 
 const FEATURES = [
@@ -148,6 +157,7 @@ function difficultyBadgeClass(d?: string) {
 
 function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [heroImageCache, setHeroImageCache] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
     fetch('http://localhost:3000/api/recipes')
@@ -211,34 +221,37 @@ function RecipesPage({ isLoggedIn, userEmail }: RecipesPageProps) {
             </div>
             <div className="profile-card-body">
               <div className="hp-recipe-grid">
-                {recipes.map((recipe) => (
-                  <div key={recipe.id} className="hp-recipe-card">
-                    {recipe.heroImage ? (
-                      <img
-                        src={`http://localhost:3000/uploads/${recipe.heroImage}`}
-                        alt={recipe.title}
-                        className="hp-recipe-img"
-                      />
-                    ) : (
-                      <div className="hp-recipe-img-placeholder">
-                        <IconImage />
+                {recipes.map((recipe) => {
+                  const cachedImage = heroImageCache.get(recipe.id);
+                  if (!cachedImage) {
+                    const imageUrl = loadHeroImage(recipe);
+                    setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+                  }
+                  return (
+                    <div key={recipe.id} className="hp-recipe-card">
+                      {
+                        <img
+                          src={cachedImage || loadHeroImage(recipe)}
+                          alt={recipe.title}
+                          className="hp-recipe-img"
+                        />
+                      }
+                      <div className="hp-recipe-body">
+                        <div className="hp-recipe-tags">
+                          <span className={difficultyBadgeClass(recipe.difficulty)}>
+                            {recipe.difficulty ?? 'Easy'}
+                          </span>
+                          <span className="hp-badge time">
+                            {recipe.prepTime + recipe.cookTime} min
+                          </span>
+                        </div>
+                        <h3 className="hp-recipe-title">{recipe.title}</h3>
+                        <p className="hp-recipe-desc">{recipe.description}</p>
+                        <span className="hp-recipe-cost">${recipe.estimatedCost.toFixed(2)}</span>
                       </div>
-                    )}
-                    <div className="hp-recipe-body">
-                      <div className="hp-recipe-tags">
-                        <span className={difficultyBadgeClass(recipe.difficulty)}>
-                          {recipe.difficulty ?? 'Easy'}
-                        </span>
-                        <span className="hp-badge time">
-                          {recipe.prepTime + recipe.cookTime} min
-                        </span>
-                      </div>
-                      <h3 className="hp-recipe-title">{recipe.title}</h3>
-                      <p className="hp-recipe-desc">{recipe.description}</p>
-                      <span className="hp-recipe-cost">${recipe.estimatedCost.toFixed(2)}</span>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>
