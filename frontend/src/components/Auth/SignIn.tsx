@@ -9,8 +9,8 @@ import './SignIn.css';
 type View = 'signin' | 'signup';
 
 interface SignInProps {
-  onSuccess?: () => void;
-  initialView?: View;
+  readonly onSuccess?: () => void;
+  readonly initialView?: View;
 }
 
 const FEATURES = [
@@ -19,6 +19,21 @@ const FEATURES = [
   { text: 'Organize your meals', icon: '✦' },
   { text: 'Be the healthiest you can be!', icon: '✦' },
 ];
+
+function validateSignUp(
+  email: string,
+  password: string,
+  confirm: string
+): Record<string, string> {
+  const errs: Record<string, string> = {};
+  if (!email) errs.email = 'Email is required';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Please enter a valid email';
+  if (!password) errs.password = 'Password is required';
+  else if (password.length < 6) errs.password = 'Must be at least 6 characters';
+  if (!confirm) errs.confirm = 'Please confirm your password';
+  else if (password !== confirm) errs.confirm = 'Passwords do not match';
+  return errs;
+}
 
 const smokePositions = [
   { left: '53%', top: '-40%', transform: 'translateX(-50%)' },
@@ -117,11 +132,8 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
       localStorage.setItem('token', data.token);
       localStorage.setItem('userEmail', data.user?.email || email);
 
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-      } else {
-        localStorage.removeItem('rememberMe');
-      }
+      localStorage.removeItem('rememberMe');
+      if (rememberMe) localStorage.setItem('rememberMe', 'true');
 
       onSuccess?.();
     } catch (err) {
@@ -132,20 +144,9 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
   };
 
   // ── Sign-up handler ────────────────────────────────────────────────────────
-  const validateSignUp = () => {
-    const errs: Record<string, string> = {};
-    if (!suEmail) errs.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(suEmail)) errs.email = 'Please enter a valid email';
-    if (!suPassword) errs.password = 'Password is required';
-    else if (suPassword.length < 6) errs.password = 'Must be at least 6 characters';
-    if (!suConfirm) errs.confirm = 'Please confirm your password';
-    else if (suPassword !== suConfirm) errs.confirm = 'Passwords do not match';
-    return errs;
-  };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errs = validateSignUp();
+    const errs = validateSignUp(suEmail, suPassword, suConfirm);
     if (Object.keys(errs).length > 0) {
       setSuErrors(errs);
       return;
