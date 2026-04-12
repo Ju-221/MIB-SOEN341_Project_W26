@@ -259,4 +259,50 @@ describe('Recipes Component', () => {
       expect(screen.queryByText(/delete this recipe\?/i)).not.toBeInTheDocument();
     });
   });
+
+  // ── sessionStorage deep-link (Calendar / Tournament → Recipes) ─────────────
+
+  describe('sessionStorage deep-link', () => {
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    it('opens a recipe in cook mode when viewRecipeId is in sessionStorage', async () => {
+      vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, title: 'Deep Link Recipe' })]);
+      sessionStorage.setItem('viewRecipeId', '1');
+
+      render(<Recipes />);
+
+      await waitFor(() => expect(screen.getByText(/cooking mode/i)).toBeInTheDocument());
+    });
+
+    it('removes viewRecipeId from sessionStorage after reading it', async () => {
+      vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, title: 'Deep Link Recipe' })]);
+      sessionStorage.setItem('viewRecipeId', '1');
+
+      render(<Recipes />);
+
+      await waitFor(() => expect(screen.queryByText(/loading/i)).not.toBeInTheDocument());
+      expect(sessionStorage.getItem('viewRecipeId')).toBeNull();
+    });
+
+    it('stays in list mode when no viewRecipeId is in sessionStorage', async () => {
+      vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, title: 'Normal Recipe' })]);
+
+      render(<Recipes />);
+
+      await screen.findByText('Normal Recipe');
+      expect(screen.queryByText(/cooking mode/i)).not.toBeInTheDocument();
+    });
+
+    it('stays in list mode when viewRecipeId does not match any recipe', async () => {
+      vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, title: 'Normal Recipe' })]);
+      sessionStorage.setItem('viewRecipeId', '999');
+
+      render(<Recipes />);
+
+      await screen.findByText('Normal Recipe');
+      expect(screen.queryByText(/cooking mode/i)).not.toBeInTheDocument();
+    });
+  });
 });
