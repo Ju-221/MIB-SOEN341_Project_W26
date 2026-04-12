@@ -127,4 +127,3 @@ function base64ToImageFile(b64Str: string) {
   const fileExtension = mime.split('/')[1];
   return new File([u8arr], `name_doesn't_matter.${fileExtension}`, { type: mime });
 }
-

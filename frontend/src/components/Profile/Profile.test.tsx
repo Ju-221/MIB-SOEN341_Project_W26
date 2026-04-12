@@ -206,9 +206,9 @@ describe('Profile Component', () => {
       render(<Profile />);
       // fetchData is guarded by token check; no fetch call should target /api/user
       await waitFor(() => {
-        const userCalls = vi.mocked(fetch).mock.calls.filter(([url]) =>
-          String(url).includes('/api/user')
-        );
+        const userCalls = vi
+          .mocked(fetch)
+          .mock.calls.filter(([url]) => String(url).includes('/api/user'));
         expect(userCalls).toHaveLength(0);
       });
     });

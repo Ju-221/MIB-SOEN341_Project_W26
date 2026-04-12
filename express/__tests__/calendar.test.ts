@@ -73,7 +73,10 @@ describe('GET /api/calendar', () => {
 
   it('returns only requested months that exist in storage', async () => {
     const months = ['JANUARY:2026', 'FEBRUARY:2026'];
-    const days = [{ date: 1, meals: {} }, { date: 2, meals: {} }];
+    const days = [
+      { date: 1, meals: {} },
+      { date: 2, meals: {} },
+    ];
 
     await request(app)
       .post('/api/calendar')

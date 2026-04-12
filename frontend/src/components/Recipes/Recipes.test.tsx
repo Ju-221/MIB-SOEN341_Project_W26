@@ -65,9 +65,7 @@ describe('Recipes Component', () => {
 
     it('renders an empty-state message when there are no recipes', async () => {
       render(<Recipes />);
-      await waitFor(() =>
-        expect(screen.getByText(/no recipes found/i)).toBeInTheDocument()
-      );
+      await waitFor(() => expect(screen.getByText(/no recipes found/i)).toBeInTheDocument());
     });
 
     it('renders recipe cards after fetching', async () => {
@@ -83,9 +81,7 @@ describe('Recipes Component', () => {
     it('shows an error message when fetchRecipes rejects', async () => {
       vi.mocked(fetchRecipes).mockRejectedValue(new Error('Network error'));
       render(<Recipes />);
-      await waitFor(() =>
-        expect(screen.getByText(/failed to load recipes/i)).toBeInTheDocument()
-      );
+      await waitFor(() => expect(screen.getByText(/failed to load recipes/i)).toBeInTheDocument());
     });
   });
 
@@ -102,9 +98,7 @@ describe('Recipes Component', () => {
     it('filter panel is collapsed by default (no search input visible)', async () => {
       render(<Recipes />);
       await screen.findByText('Spaghetti Bolognese'); // ensure list is loaded
-      expect(
-        screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)).not.toBeInTheDocument();
     });
 
     it('expands the filter panel when the toggle button is clicked', async () => {
@@ -114,9 +108,7 @@ describe('Recipes Component', () => {
       const expandBtn = screen.getByRole('button', { name: /expand filters/i });
       await userEvent.click(expandBtn);
 
-      expect(
-        screen.getByPlaceholderText(/e\.g\. healthy quick pasta/i)
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/e\.g\. healthy quick pasta/i)).toBeInTheDocument();
     });
 
     it('shows collapse button after panel is expanded', async () => {
@@ -135,9 +127,7 @@ describe('Recipes Component', () => {
       await userEvent.click(toggleBtn);
       await userEvent.click(screen.getByRole('button', { name: /collapse filters/i }));
 
-      expect(
-        screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)).not.toBeInTheDocument();
     });
 
     it('filters recipes by search term', async () => {
@@ -165,14 +155,9 @@ describe('Recipes Component', () => {
       await screen.findByText('Spaghetti Bolognese');
 
       await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
-      await userEvent.type(
-        screen.getByPlaceholderText(/e\.g\. healthy quick pasta/i),
-        'Salad'
-      );
+      await userEvent.type(screen.getByPlaceholderText(/e\.g\. healthy quick pasta/i), 'Salad');
 
-      await waitFor(() =>
-        expect(screen.getByText(/showing 1 of 2/i)).toBeInTheDocument()
-      );
+      await waitFor(() => expect(screen.getByText(/showing 1 of 2/i)).toBeInTheDocument());
     });
   });
 

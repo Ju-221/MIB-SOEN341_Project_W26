@@ -55,14 +55,20 @@ describe('SignUp Component', () => {
 
     it('shows password-required error when submitting without password', async () => {
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'user@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'user@example.com'
+      );
       await userEvent.click(screen.getByRole('button', { name: /create account/i }));
       expect(await screen.findByText(/password is required/i)).toBeInTheDocument();
     });
 
     it('shows minimum-length error for a short password', async () => {
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'user@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'user@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'abc');
       await userEvent.click(screen.getByRole('button', { name: /create account/i }));
       // Use exact match to avoid matching the "Must be at least 6 characters" help text
@@ -71,7 +77,10 @@ describe('SignUp Component', () => {
 
     it('shows confirm-password error when confirm field is empty', async () => {
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'user@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'user@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'Password1!');
       await userEvent.click(screen.getByRole('button', { name: /create account/i }));
       expect(await screen.findByText(/please confirm your password/i)).toBeInTheDocument();
@@ -79,7 +88,10 @@ describe('SignUp Component', () => {
 
     it('shows mismatch error when passwords differ', async () => {
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'user@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'user@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'Password1!');
       await userEvent.type(screen.getByPlaceholderText(/re-enter your password/i), 'Different1!');
       await userEvent.click(screen.getByRole('button', { name: /create account/i }));
@@ -92,7 +104,9 @@ describe('SignUp Component', () => {
   describe('Password visibility toggles', () => {
     it('password field starts hidden and toggles to text', async () => {
       render(<SignUp />);
-      const passwordInput = screen.getByPlaceholderText(/create a strong password/i) as HTMLInputElement;
+      const passwordInput = screen.getByPlaceholderText(
+        /create a strong password/i
+      ) as HTMLInputElement;
       const [togglePassword] = screen.getAllByRole('button', {
         name: /toggle password visibility/i,
       });
@@ -106,7 +120,9 @@ describe('SignUp Component', () => {
 
     it('confirm-password field starts hidden and toggles to text', async () => {
       render(<SignUp />);
-      const confirmInput = screen.getByPlaceholderText(/re-enter your password/i) as HTMLInputElement;
+      const confirmInput = screen.getByPlaceholderText(
+        /re-enter your password/i
+      ) as HTMLInputElement;
       const toggleConfirm = screen.getByRole('button', {
         name: /toggle confirm password visibility/i,
       });
@@ -123,7 +139,10 @@ describe('SignUp Component', () => {
 
   describe('Successful signup', () => {
     const fillValidForm = async () => {
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'new@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'new@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'Password1!');
       await userEvent.type(screen.getByPlaceholderText(/re-enter your password/i), 'Password1!');
     };
@@ -186,8 +205,7 @@ describe('SignUp Component', () => {
       const mockFetch = vi.fn(() =>
         Promise.resolve({
           ok: true,
-          json: () =>
-            Promise.resolve({ token: 'tok', user: { email: 'new@example.com' } }),
+          json: () => Promise.resolve({ token: 'tok', user: { email: 'new@example.com' } }),
         })
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -216,14 +234,15 @@ describe('SignUp Component', () => {
       global.fetch = mockFetch as any;
 
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'dup@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'dup@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'Password1!');
       await userEvent.type(screen.getByPlaceholderText(/re-enter your password/i), 'Password1!');
       await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 
-      await waitFor(() =>
-        expect(screen.getByText(/email already exists/i)).toBeInTheDocument()
-      );
+      await waitFor(() => expect(screen.getByText(/email already exists/i)).toBeInTheDocument());
     });
 
     it('disables the button while the request is in-flight', async () => {
@@ -234,8 +253,7 @@ describe('SignUp Component', () => {
               () =>
                 resolve({
                   ok: true,
-                  json: () =>
-                    Promise.resolve({ token: 'tok', user: { email: 'new@example.com' } }),
+                  json: () => Promise.resolve({ token: 'tok', user: { email: 'new@example.com' } }),
                 } as Response),
               100
             )
@@ -245,7 +263,10 @@ describe('SignUp Component', () => {
       global.fetch = mockFetch as any;
 
       render(<SignUp />);
-      await userEvent.type(screen.getByPlaceholderText(/john\.doe@example\.com/i), 'new@example.com');
+      await userEvent.type(
+        screen.getByPlaceholderText(/john\.doe@example\.com/i),
+        'new@example.com'
+      );
       await userEvent.type(screen.getByPlaceholderText(/create a strong password/i), 'Password1!');
       await userEvent.type(screen.getByPlaceholderText(/re-enter your password/i), 'Password1!');
 
