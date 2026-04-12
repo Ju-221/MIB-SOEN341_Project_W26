@@ -20,6 +20,20 @@ const FEATURES = [
   { text: 'Be the healthiest you can be!', icon: '✦' },
 ];
 
+const smokePositions = [
+  { left: '53%', top: '-40%', transform: 'translateX(-50%)' },
+  { left: '53%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
+  { left: '58%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
+  { left: '18%', top: '-40%', transform: 'translateX(-50%)' },
+  { left: '18%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
+  { left: '23%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
+  { left: '35.5%', top: '-35%', transform: 'translateX(-50%)' },
+  { left: '35.5%', top: '-35%', transform: 'translateX(-50%) scaleY(1.13)' },
+  { left: '40.5%', top: '-35%', transform: 'translateX(-50%) scaleY(1.13)' },
+];
+
+// ── Top-level helpers (no nesting penalty) ───────────────────────────────────
+
 async function fetchSignIn(
   email: string,
   password: string
@@ -59,23 +73,14 @@ function validateSignUp(email: string, password: string, confirm: string): Recor
   return errs;
 }
 
-const smokePositions = [
-  { left: '53%', top: '-40%', transform: 'translateX(-50%)' },
-  { left: '53%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
-  { left: '58%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
-  { left: '18%', top: '-40%', transform: 'translateX(-50%)' },
-  { left: '18%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
-  { left: '23%', top: '-40%', transform: 'translateX(-50%) scaleY(1.13)' },
-  { left: '35.5%', top: '-35%', transform: 'translateX(-50%)' },
-  { left: '35.5%', top: '-35%', transform: 'translateX(-50%) scaleY(1.13)' },
-  { left: '40.5%', top: '-35%', transform: 'translateX(-50%) scaleY(1.13)' },
-];
+// ── SignInForm sub-component ─────────────────────────────────────────────────
 
-function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
-  const [view, setView] = useState<View>(initialView);
-  const slogansRef = useRef<HTMLDivElement>(null);
+interface SignInFormProps {
+  readonly onSuccess?: () => void;
+  readonly onSwitchView: () => void;
+}
 
-  // ── Sign-in state ──────────────────────────────────────────────────────────
+function SignInForm({ onSuccess, onSwitchView }: SignInFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -83,59 +88,7 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ── Sign-up state ──────────────────────────────────────────────────────────
-  const [suEmail, setSuEmail] = useState('');
-  const [suPassword, setSuPassword] = useState('');
-  const [suConfirm, setSuConfirm] = useState('');
-  const [showSuPassword, setShowSuPassword] = useState(false);
-  const [showSuConfirm, setShowSuConfirm] = useState(false);
-  const [suErrors, setSuErrors] = useState<Record<string, string>>({});
-  const [suLoading, setSuLoading] = useState(false);
-
-  // ── Left-panel staggered animation (reruns on view switch) ─────────────────
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        '.auth-panel-title',
-        { x: -70, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
-      );
-      gsap.fromTo(
-        '.auth-panel-subtitle',
-        { x: -50, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.6, delay: 0.25, ease: 'power3.out' }
-      );
-      gsap.fromTo(
-        '.auth-feature-item',
-        { x: -80, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.18,
-          delay: 0.45,
-          ease: 'power3.out',
-        }
-      );
-    },
-    { scope: slogansRef, dependencies: [view] }
-  );
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const isRemembered = localStorage.getItem('rememberMe') === 'true';
-    if (token && isRemembered) {
-      onSuccess?.();
-    }
-  }, [onSuccess]);
-
-  // Keep URL hash in sync with internal view
-  useEffect(() => {
-    window.location.hash = view === 'signup' ? '#signup' : '#signin';
-  }, [view]);
-
-  // ── Sign-in handler ────────────────────────────────────────────────────────
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -153,8 +106,99 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
     }
   };
 
-  // ── Sign-up handler ────────────────────────────────────────────────────────
-  const handleSignUp = async (e: React.FormEvent) => {
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="auth-form">
+        {error && <div className="auth-error">{error}</div>}
+
+        <div className="form-group">
+          <label htmlFor="email">
+            Email Address <span className="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">
+            Password <span className="required">*</span>
+          </label>
+          <div className="password-input-wrapper">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
+        </div>
+
+        <div className="checkbox-group">
+          <input
+            type="checkbox"
+            id="rememberMe"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+          />
+          <label htmlFor="rememberMe">Remember me</label>
+        </div>
+
+        <button type="submit" className="auth-button" disabled={loading}>
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
+      </form>
+
+      <div className="auth-footer">
+        <p>
+          Don&apos;t have an account?{' '}
+          <a
+            href="#signup"
+            onClick={(e) => {
+              e.preventDefault();
+              onSwitchView();
+            }}
+          >
+            Create one now
+          </a>
+        </p>
+      </div>
+    </>
+  );
+}
+
+// ── SignUpForm sub-component ─────────────────────────────────────────────────
+
+interface SignUpFormProps {
+  readonly onSuccess?: () => void;
+  readonly onSwitchView: () => void;
+}
+
+function SignUpForm({ onSuccess, onSwitchView }: SignUpFormProps) {
+  const [suEmail, setSuEmail] = useState('');
+  const [suPassword, setSuPassword] = useState('');
+  const [suConfirm, setSuConfirm] = useState('');
+  const [showSuPassword, setShowSuPassword] = useState(false);
+  const [showSuConfirm, setShowSuConfirm] = useState(false);
+  const [suErrors, setSuErrors] = useState<Record<string, string>>({});
+  const [suLoading, setSuLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validateSignUp(suEmail, suPassword, suConfirm);
     if (Object.keys(errs).length > 0) {
@@ -174,6 +218,134 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
       setSuLoading(false);
     }
   };
+
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="auth-form">
+        {suErrors.general && <div className="auth-error">{suErrors.general}</div>}
+
+        <div className="form-group">
+          <label htmlFor="su-email">
+            Email Address <span className="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="su-email"
+            placeholder="john.doe@example.com"
+            value={suEmail}
+            onChange={(e) => setSuEmail(e.target.value)}
+          />
+          {suErrors.email && <span className="field-error">{suErrors.email}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="su-password">
+            Password <span className="required">*</span>
+          </label>
+          <div className="password-input-wrapper">
+            <input
+              type={showSuPassword ? 'text' : 'password'}
+              id="su-password"
+              placeholder="Create a strong password"
+              value={suPassword}
+              onChange={(e) => setSuPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowSuPassword((v) => !v)}
+              aria-label="Toggle password visibility"
+            >
+              {showSuPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
+          <span className="help-text">Must be at least 6 characters</span>
+          {suErrors.password && <span className="field-error">{suErrors.password}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="su-confirm">
+            Confirm Password <span className="required">*</span>
+          </label>
+          <div className="password-input-wrapper">
+            <input
+              type={showSuConfirm ? 'text' : 'password'}
+              id="su-confirm"
+              placeholder="Re-enter your password"
+              value={suConfirm}
+              onChange={(e) => setSuConfirm(e.target.value)}
+            />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowSuConfirm((v) => !v)}
+              aria-label="Toggle confirm password visibility"
+            >
+              {showSuConfirm ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
+          {suErrors.confirm && <span className="field-error">{suErrors.confirm}</span>}
+        </div>
+
+        <button type="submit" className="auth-button" disabled={suLoading}>
+          {suLoading ? 'Creating Account...' : 'Create Account'}
+        </button>
+      </form>
+
+      <div className="auth-footer">
+        <p>
+          Already registered?{' '}
+          <a
+            href="#signin"
+            onClick={(e) => {
+              e.preventDefault();
+              onSwitchView();
+            }}
+          >
+            Sign in
+          </a>
+        </p>
+      </div>
+    </>
+  );
+}
+
+// ── Main SignIn component (lean orchestrator) ────────────────────────────────
+
+function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
+  const [view, setView] = useState<View>(initialView);
+  const slogansRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        '.auth-panel-title',
+        { x: -70, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }
+      );
+      gsap.fromTo(
+        '.auth-panel-subtitle',
+        { x: -50, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, delay: 0.25, ease: 'power3.out' }
+      );
+      gsap.fromTo(
+        '.auth-feature-item',
+        { x: -80, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, stagger: 0.18, delay: 0.45, ease: 'power3.out' }
+      );
+    },
+    { scope: slogansRef, dependencies: [view] }
+  );
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const isRemembered = localStorage.getItem('rememberMe') === 'true';
+    if (token && isRemembered) onSuccess?.();
+  }, [onSuccess]);
+
+  useEffect(() => {
+    window.location.hash = view === 'signup' ? '#signup' : '#signin';
+  }, [view]);
 
   return (
     <div className="auth-page">
@@ -209,168 +381,10 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
             <div className="auth-header">
               <h1>MealMajor</h1>
             </div>
-
             {view === 'signin' ? (
-              <>
-                <form onSubmit={handleSignIn} className="auth-form">
-                  {error && <div className="auth-error">{error}</div>}
-
-                  <div className="form-group">
-                    <label htmlFor="email">
-                      Email Address <span className="required">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="password">
-                      Password <span className="required">*</span>
-                    </label>
-                    <div className="password-input-wrapper">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        id="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="toggle-password"
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label="Toggle password visibility"
-                      >
-                        {showPassword ? '👁️' : '👁️‍🗨️'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="checkbox-group">
-                    <input
-                      type="checkbox"
-                      id="rememberMe"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                    />
-                    <label htmlFor="rememberMe">Remember me</label>
-                  </div>
-
-                  <button type="submit" className="auth-button" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign In'}
-                  </button>
-                </form>
-
-                <div className="auth-footer">
-                  <p>
-                    Don't have an account?{' '}
-                    <a
-                      href="#signup"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setView('signup');
-                      }}
-                    >
-                      Create one now
-                    </a>
-                  </p>
-                </div>
-              </>
+              <SignInForm onSuccess={onSuccess} onSwitchView={() => setView('signup')} />
             ) : (
-              <>
-                <form onSubmit={handleSignUp} className="auth-form">
-                  {suErrors.general && <div className="auth-error">{suErrors.general}</div>}
-
-                  <div className="form-group">
-                    <label htmlFor="su-email">
-                      Email Address <span className="required">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="su-email"
-                      placeholder="john.doe@example.com"
-                      value={suEmail}
-                      onChange={(e) => setSuEmail(e.target.value)}
-                    />
-                    {suErrors.email && <span className="field-error">{suErrors.email}</span>}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="su-password">
-                      Password <span className="required">*</span>
-                    </label>
-                    <div className="password-input-wrapper">
-                      <input
-                        type={showSuPassword ? 'text' : 'password'}
-                        id="su-password"
-                        placeholder="Create a strong password"
-                        value={suPassword}
-                        onChange={(e) => setSuPassword(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="toggle-password"
-                        onClick={() => setShowSuPassword((v) => !v)}
-                        aria-label="Toggle password visibility"
-                      >
-                        {showSuPassword ? '👁️' : '👁️‍🗨️'}
-                      </button>
-                    </div>
-                    <span className="help-text">Must be at least 6 characters</span>
-                    {suErrors.password && <span className="field-error">{suErrors.password}</span>}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="su-confirm">
-                      Confirm Password <span className="required">*</span>
-                    </label>
-                    <div className="password-input-wrapper">
-                      <input
-                        type={showSuConfirm ? 'text' : 'password'}
-                        id="su-confirm"
-                        placeholder="Re-enter your password"
-                        value={suConfirm}
-                        onChange={(e) => setSuConfirm(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="toggle-password"
-                        onClick={() => setShowSuConfirm((v) => !v)}
-                        aria-label="Toggle confirm password visibility"
-                      >
-                        {showSuConfirm ? '👁️' : '👁️‍🗨️'}
-                      </button>
-                    </div>
-                    {suErrors.confirm && <span className="field-error">{suErrors.confirm}</span>}
-                  </div>
-
-                  <button type="submit" className="auth-button" disabled={suLoading}>
-                    {suLoading ? 'Creating Account...' : 'Create Account'}
-                  </button>
-                </form>
-
-                <div className="auth-footer">
-                  <p>
-                    Already registered?{' '}
-                    <a
-                      href="#signin"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setView('signin');
-                      }}
-                    >
-                      Sign in
-                    </a>
-                  </p>
-                </div>
-              </>
+              <SignUpForm onSuccess={onSuccess} onSwitchView={() => setView('signin')} />
             )}
           </div>
         </div>
