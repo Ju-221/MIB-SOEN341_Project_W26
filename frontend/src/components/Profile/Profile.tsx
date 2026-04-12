@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 
 import './Profile.css';
 
@@ -24,13 +23,6 @@ const CheckIcon = () => (
 );
 
 function Profile() {
-  const [profileEmail, setProfileEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
-    'idle'
-  );
-
   const getEmailFromToken = (token: string): string => {
     try {
       const payloadPart = token.split('.')[1];
@@ -49,57 +41,48 @@ function Profile() {
     }
   };
 
-  const loadPreferences = async () => {
+  // Derive email once at mount via lazy initializer — no synchronous setState in effect needed.
+  const [profileEmail] = useState(() => {
     const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const response = await fetch('http://localhost:3000/api/preferences', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        await response.json();
-      }
-    } catch (error) {
-      console.error('Error loading preferences:', error);
+    if (token) {
+      const email = getEmailFromToken(token);
+      if (email) return email;
     }
-  };
+    return localStorage.getItem('userEmail') ?? '';
+  });
 
-  const loadUser = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const response = await fetch('http://localhost:3000/api/user', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        const data = (await response.json()) as {
-          firstName?: string;
-          lastName?: string;
-          email?: string;
-        };
-        setFirstName(data.firstName ?? '');
-        setLastName(data.lastName ?? '');
-      }
-    } catch (error) {
-      console.error('Error loading user:', error);
-    }
-  };
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle'
+  );
 
   useEffect(() => {
-    void loadPreferences();
-    void loadUser();
-
     const token = localStorage.getItem('token');
-    const storedEmail = localStorage.getItem('userEmail') ?? '';
+    if (!token) return;
 
-    if (token) {
-      const tokenEmail = getEmailFromToken(token);
-      if (tokenEmail) {
-        setProfileEmail(tokenEmail);
-        return;
+    const fetchData = async () => {
+      try {
+        const [, userRes] = await Promise.all([
+          fetch('http://localhost:3000/api/preferences', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch('http://localhost:3000/api/user', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (userRes.ok) {
+          const data = (await userRes.json()) as { firstName?: string; lastName?: string };
+          setFirstName(data.firstName ?? '');
+          setLastName(data.lastName ?? '');
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
       }
-    }
-    setProfileEmail(storedEmail);
+    };
+
+    void fetchData();
   }, []);
 
   const handleSave = async () => {
