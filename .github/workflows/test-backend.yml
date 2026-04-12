@@ -37,6 +37,9 @@ jobs:
       - name: Check formatting
         run: npx prettier --check .
 
+      - name: Run unit tests
+        run: npm test -w express
+
       - name: Setup environment variables
         run: |
           if [ -z "${{ secrets.JWT_SECRET }}" ]; then
