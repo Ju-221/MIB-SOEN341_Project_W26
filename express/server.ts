@@ -32,6 +32,9 @@ app.use('/api/recipes', recipesRoutes);
 import calendarRoutes from './routes/calendar.js';
 app.use('/api/calendar', calendarRoutes);
 
+import userRoutes from './routes/user.js';
+app.use('/api/user', userRoutes);
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {

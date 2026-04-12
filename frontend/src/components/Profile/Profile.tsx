@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import RecipeManager from '../Recipe-Manager/CreateRecipe';
 
 import './Profile.css';
 
@@ -26,12 +25,14 @@ const CheckIcon = () => (
 
 function Profile() {
   const [profileEmail, setProfileEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   const getEmailFromToken = (token: string): string => {
     try {
       const payloadPart = token.split('.')[1];
       if (!payloadPart) return '';
-
       const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
@@ -39,7 +40,6 @@ function Profile() {
           .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
           .join('')
       );
-
       const parsed = JSON.parse(jsonPayload) as { email?: string };
       return parsed.email ?? '';
     } catch {
@@ -49,17 +49,11 @@ function Profile() {
 
   const loadPreferences = async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      return;
-    }
-
+    if (!token) return;
     try {
       const response = await fetch('http://localhost:3000/api/preferences', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (response.ok) {
         await response.json();
       }
@@ -68,8 +62,26 @@ function Profile() {
     }
   };
 
+  const loadUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:3000/api/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = (await response.json()) as { firstName?: string; lastName?: string; email?: string };
+        setFirstName(data.firstName ?? '');
+        setLastName(data.lastName ?? '');
+      }
+    } catch (error) {
+      console.error('Error loading user:', error);
+    }
+  };
+
   useEffect(() => {
-    loadPreferences();
+    void loadPreferences();
+    void loadUser();
 
     const token = localStorage.getItem('token');
     const storedEmail = localStorage.getItem('userEmail') ?? '';
@@ -77,18 +89,30 @@ function Profile() {
     if (token) {
       const tokenEmail = getEmailFromToken(token);
       if (tokenEmail) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setProfileEmail(tokenEmail);
         return;
       }
     }
-
     setProfileEmail(storedEmail);
   }, []);
 
   const handleSave = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
+
+    // Save name
+    setNameSaveStatus('saving');
+    try {
+      const nameRes = await fetch('http://localhost:3000/api/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ firstName, lastName }),
+      });
+      setNameSaveStatus(nameRes.ok ? 'saved' : 'error');
+      setTimeout(() => setNameSaveStatus('idle'), 2000);
+    } catch {
+      setNameSaveStatus('error');
+    }
 
     const allergyData = {
       peanuts: selectedAllergies.includes('Peanuts'),
@@ -170,8 +194,6 @@ function Profile() {
   const [customAllergies, setCustomAllergies] = useState<string[]>([]);
   const [customDietInput, setCustomDietInput] = useState('');
   const [customAllergyInput, setCustomAllergyInput] = useState('');
-  const [showRecipeManager, setShowRecipeManager] = useState(false);
-
   // The following function was drafted with the assistance of ChatGPT Codex.
   // Prompt: "Help me clean up and ensure the toggleSelection helper function works correctly for diet/allergy selection, This function should simply manage the selection state of either diets or allergies or both. Once a button is clicked, it should change colour and show that it is selected. ."
   // I Ashton Levine reviewed, modified, and tested the code to ensure correctness.
@@ -263,18 +285,32 @@ function Profile() {
           <div className="profile-card-body">
             <div className="profile-grid two">
               <div className="profile-field">
-                <label htmlFor="firstName">
-                  First Name <span className="required">*</span>
-                </label>
-                <input id="firstName" type="text" defaultValue="Final.test" />
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Enter first name"
+                />
               </div>
               <div className="profile-field">
-                <label htmlFor="lastName">
-                  Last Name <span className="required">*</span>
-                </label>
-                <input id="lastName" type="text" placeholder="Enter last name" />
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Enter last name"
+                />
               </div>
             </div>
+            {nameSaveStatus === 'saved' && (
+              <p className="profile-hint" style={{ color: '#16a34a' }}>Name saved!</p>
+            )}
+            {nameSaveStatus === 'error' && (
+              <p className="profile-hint" style={{ color: '#dc2626' }}>Failed to save name.</p>
+            )}
             <div className="profile-grid one">
               <div className="profile-field">
                 <label htmlFor="email">Email Address</label>
@@ -482,33 +518,12 @@ function Profile() {
           <button type="button" className="profile-button secondary" onClick={handleReset}>
             Reset Changes
           </button>
-          <button
-            type="button"
-            className="profile-button secondary"
-            onClick={() => setShowRecipeManager(true)}
-          >
-            Manage Recipes
-          </button>
           <button type="button" className="profile-button primary" onClick={handleSave}>
             Save Changes
           </button>
         </div>
       </div>
 
-      {showRecipeManager && (
-        <div className="modal-overlay-profile" onClick={() => setShowRecipeManager(false)}>
-          <div className="modal-content-profile" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="modal-close-profile"
-              onClick={() => setShowRecipeManager(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <RecipeManager />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

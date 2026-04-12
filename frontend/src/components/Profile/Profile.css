@@ -326,60 +326,6 @@
   box-shadow: var(--shadow-sm, 0 2px 8px rgba(15, 23, 42, 0.06));
 }
 
-/* ── Recipe Manager Modal ── */
-
-.modal-overlay-profile {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-content-profile {
-  position: relative;
-  background: white;
-  border-radius: var(--radius-xl, 20px);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  width: 100%;
-  animation: scaleIn 0.25s ease;
-}
-
-.modal-close-profile {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: #f3f4f6;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--clr-text-muted, #6b7280);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  transition:
-    background var(--ease, 0.2s ease),
-    color var(--ease, 0.2s ease);
-  line-height: 1;
-}
-
-.modal-close-profile:hover {
-  background: #fee2e2;
-  color: #b91c1c;
-}
 
 /* ── Responsive ── */
 
