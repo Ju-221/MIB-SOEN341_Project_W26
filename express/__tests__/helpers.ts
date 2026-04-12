@@ -16,7 +16,7 @@ export interface SeedUser {
 
 export async function seedUser(
   email = 'test@example.com',
-  password = 'Password123!',
+  password = 'Password123!'
 ): Promise<SeedUser> {
   const hashed = await bcrypt.hash(password, 4); // low rounds for speed
   const result = sqlite

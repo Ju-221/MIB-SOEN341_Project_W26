@@ -11,9 +11,7 @@ beforeEach(async () => {
 
 describe('GET /api/user', () => {
   it('returns the authenticated user profile', async () => {
-    const res = await request(app)
-      .get('/api/user')
-      .set('Authorization', `Bearer ${user.token}`);
+    const res = await request(app).get('/api/user').set('Authorization', `Bearer ${user.token}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({

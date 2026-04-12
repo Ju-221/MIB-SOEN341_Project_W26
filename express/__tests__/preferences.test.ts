@@ -67,7 +67,9 @@ describe('PUT /api/preferences', () => {
   });
 
   it('returns 401 without a token', async () => {
-    const res = await request(app).put('/api/preferences').send({ allergies: {}, dietaryPreferences: {} });
+    const res = await request(app)
+      .put('/api/preferences')
+      .send({ allergies: {}, dietaryPreferences: {} });
     expect(res.status).toBe(401);
   });
 });

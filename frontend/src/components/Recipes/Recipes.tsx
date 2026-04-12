@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Recipe, Ingredient, Step } from '../Recipe-Manager/CreateRecipe';
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe, IMAGES_URL } from '../../api/recipes';
+import {
+  fetchRecipes,
+  createRecipe,
+  updateRecipe,
+  deleteRecipe,
+  IMAGES_URL,
+} from '../../api/recipes';
 import './Recipes.css';
 
 type ViewMode = 'list' | 'cook' | 'edit' | 'add';
@@ -546,7 +552,33 @@ export default function Recipes() {
                 <div className="recipes-filter-group">
                   <span className="recipes-filter-group-label">Dietary Tags</span>
                   <div className="recipes-filter-chips">
-                    {['vegetarian', 'vegan', 'keto', 'low-carb', 'high-protein', 'pescetarian', 'halal', 'kosher'].map(
+                    {[
+                      'vegetarian',
+                      'vegan',
+                      'keto',
+                      'low-carb',
+                      'high-protein',
+                      'pescetarian',
+                      'halal',
+                      'kosher',
+                    ].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`recipes-filter-chip ${filterTags.has(tag) ? 'active' : ''}`}
+                        onClick={() => toggleFilterTag(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Goals & attributes */}
+                <div className="recipes-filter-group">
+                  <span className="recipes-filter-group-label">Goals &amp; Attributes</span>
+                  <div className="recipes-filter-chips">
+                    {['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free'].map(
                       (tag) => (
                         <button
                           key={tag}
@@ -558,23 +590,6 @@ export default function Recipes() {
                         </button>
                       )
                     )}
-                  </div>
-                </div>
-
-                {/* Goals & attributes */}
-                <div className="recipes-filter-group">
-                  <span className="recipes-filter-group-label">Goals &amp; Attributes</span>
-                  <div className="recipes-filter-chips">
-                    {['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free'].map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        className={`recipes-filter-chip ${filterTags.has(tag) ? 'active' : ''}`}
-                        onClick={() => toggleFilterTag(tag)}
-                      >
-                        {tag}
-                      </button>
-                    ))}
                   </div>
                 </div>
 
@@ -617,7 +632,9 @@ export default function Recipes() {
           {deleteError && (
             <div className="recipes-delete-error">
               <span>{deleteError}</span>
-              <button type="button" onClick={() => setDeleteError(null)}>✕</button>
+              <button type="button" onClick={() => setDeleteError(null)}>
+                ✕
+              </button>
             </div>
           )}
 
@@ -626,7 +643,6 @@ export default function Recipes() {
               <h2>Recipe Collection</h2>
             </div>
             <div className="profile-card-body">
-
               {loading && <p className="recipes-status">Loading recipes…</p>}
               {error && <p className="recipes-status error">{error}</p>}
 
@@ -642,7 +658,11 @@ export default function Recipes() {
               <div className="recipes-grid">
                 {filteredRecipes.map((recipe) => (
                   <div key={recipe.id} className="recipe-card">
-                    <img src={resolveImageUrl(recipe.heroImage)} alt={recipe.title} className="recipe-card-img" />
+                    <img
+                      src={resolveImageUrl(recipe.heroImage)}
+                      alt={recipe.title}
+                      className="recipe-card-img"
+                    />
                     <div className="recipe-card-body">
                       <div className="recipe-card-tags">
                         <span className={difficultyColor(recipe.difficulty)}>
@@ -744,7 +764,11 @@ export default function Recipes() {
 
           {/* Hero image */}
           <div className="recipes-hero-wrap">
-            <img src={resolveImageUrl(selected.heroImage)} alt={selected.title} className="recipes-hero-img" />
+            <img
+              src={resolveImageUrl(selected.heroImage)}
+              alt={selected.title}
+              className="recipes-hero-img"
+            />
           </div>
 
           {/* Meta row */}

@@ -147,7 +147,9 @@ const Card: React.FC<Recipe> = (recipe) => {
                     <span className="recipe-front-section-label">Ingredients</span>
                     <div className="recipe-front-ing-grid">
                       {ingredientNames.map((name, i) => (
-                        <span key={i} className="recipe-front-ing-item">{name}</span>
+                        <span key={i} className="recipe-front-ing-item">
+                          {name}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -158,7 +160,9 @@ const Card: React.FC<Recipe> = (recipe) => {
                     <span className="recipe-front-section-label">Tags</span>
                     <div className="recipe-tags">
                       {categories.map((tag) => (
-                        <span key={tag} className="recipe-tag">{tag}</span>
+                        <span key={tag} className="recipe-tag">
+                          {tag}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -213,7 +217,6 @@ const Card: React.FC<Recipe> = (recipe) => {
           </div>
         </div>
       </div>
-
     </>
   );
 };

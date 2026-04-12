@@ -35,7 +35,7 @@
   border-color: #22c55e;
   background: #f0fdf4;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(154, 105, 42, 0.10);
+  box-shadow: 0 8px 20px rgba(154, 105, 42, 0.1);
 }
 
 .hp-feature-icon {

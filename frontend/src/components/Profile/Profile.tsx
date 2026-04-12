@@ -27,7 +27,9 @@ function Profile() {
   const [profileEmail, setProfileEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle'
+  );
 
   const getEmailFromToken = (token: string): string => {
     try {
@@ -70,7 +72,11 @@ function Profile() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const data = (await response.json()) as { firstName?: string; lastName?: string; email?: string };
+        const data = (await response.json()) as {
+          firstName?: string;
+          lastName?: string;
+          email?: string;
+        };
         setFirstName(data.firstName ?? '');
         setLastName(data.lastName ?? '');
       }
@@ -306,10 +312,14 @@ function Profile() {
               </div>
             </div>
             {nameSaveStatus === 'saved' && (
-              <p className="profile-hint" style={{ color: '#16a34a' }}>Name saved!</p>
+              <p className="profile-hint" style={{ color: '#16a34a' }}>
+                Name saved!
+              </p>
             )}
             {nameSaveStatus === 'error' && (
-              <p className="profile-hint" style={{ color: '#dc2626' }}>Failed to save name.</p>
+              <p className="profile-hint" style={{ color: '#dc2626' }}>
+                Failed to save name.
+              </p>
             )}
             <div className="profile-grid one">
               <div className="profile-field">
@@ -523,7 +533,6 @@ function Profile() {
           </button>
         </div>
       </div>
-
     </div>
   );
 }
