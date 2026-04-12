@@ -1,4 +1,8 @@
-import { buildEmptyMonth, type CalendarDay } from '../components/Calendar/types';
+import {
+  buildEmptyMonth,
+  normalizeCalendarDay,
+  type CalendarDay,
+} from '../components/Calendar/types';
 
 const API = 'http://localhost:3000';
 const MONTH_WINDOW_RADIUS = 3;
@@ -54,7 +58,7 @@ function hydrateMonth(days: CalendarDay[] | undefined, monthDate: Date): Calenda
   for (const day of days ?? []) {
     const index = day.date - 1;
     if (index >= 0 && index < fullMonth.length) {
-      fullMonth[index] = day;
+      fullMonth[index] = normalizeCalendarDay(day);
     }
   }
 
@@ -107,7 +111,9 @@ export async function saveCalendarWindow(
     },
     body: JSON.stringify({
       months: calendarWindow.monthKeys,
-      days: calendarWindow.monthKeys.map((monthKey) => calendarWindow.monthData[monthKey]),
+      days: calendarWindow.monthKeys.map((monthKey) =>
+        calendarWindow.monthData[monthKey].map(normalizeCalendarDay)
+      ),
     }),
   });
 }
@@ -122,7 +128,7 @@ export function replaceMonthInCalendarWindow(
     ...calendarWindow,
     monthData: {
       ...calendarWindow.monthData,
-      [monthKey]: days,
+      [monthKey]: days.map(normalizeCalendarDay),
     },
   };
 }
