@@ -54,8 +54,6 @@ const Card: React.FC<Recipe> = (recipe) => {
     categories,
     ingredients,
     steps,
-    dietaryPreferences,
-    allergies,
   } = recipe;
 
   const [isFlipped, setIsFlipped] = useState(false);

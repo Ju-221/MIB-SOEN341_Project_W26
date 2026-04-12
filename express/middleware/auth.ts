@@ -20,7 +20,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     };
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };

@@ -63,17 +63,11 @@ function Profile() {
 
     const fetchData = async () => {
       try {
-        const [, userRes] = await Promise.all([
-          fetch('http://localhost:3000/api/preferences', {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch('http://localhost:3000/api/user', {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        if (userRes.ok) {
-          const data = (await userRes.json()) as { firstName?: string; lastName?: string };
+        const res = await fetch('http://localhost:3000/api/user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { firstName?: string; lastName?: string };
           setFirstName(data.firstName ?? '');
           setLastName(data.lastName ?? '');
         }

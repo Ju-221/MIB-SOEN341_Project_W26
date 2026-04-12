@@ -30,7 +30,7 @@ const gsapMock = {
   set: vi.fn(),
   getProperty: vi.fn(() => 1),
   registerPlugin: vi.fn(),
-  timeline: (_cfg?: unknown) => makeTimeline(),
+  timeline: () => makeTimeline(),
   delayedCall: (_delay: number, fn: () => void) => {
     fn();
     return { kill() {} };

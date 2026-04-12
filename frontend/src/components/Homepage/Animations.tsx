@@ -25,30 +25,6 @@ interface RotatingImageWithCalloutsProps {
   callouts?: CalloutLine[];
 }
 
-// 1. Simple animation (basic square rotating and moving)
-const SquareAnimation = () => {
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      gsap.to('.box', {
-        x: 200,
-        rotation: 360,
-        duration: 2,
-        repeat: -1,
-        yoyo: true,
-      });
-    },
-    { scope: container }
-  );
-
-  return (
-    <div ref={container} style={{ padding: '20px' }}>
-      <div className="box" style={{ width: 50, height: 50, background: 'skyblue' }} />
-    </div>
-  );
-};
-
 // Inside Animations.tsx
 const TextAnimation = () => {
   const container = useRef<HTMLDivElement>(null);
@@ -417,5 +393,5 @@ const RotatingImageWithCallouts: React.FC<RotatingImageWithCalloutsProps> = ({
 // Alias for backwards compatibility
 const RotatingImage = RotatingImageWithCallouts;
 
-export { SquareAnimation, TextAnimation, RotatingImage, RotatingImageWithCallouts };
+export { TextAnimation, RotatingImage, RotatingImageWithCallouts };
 export type { CalloutLine, RotatingImageWithCalloutsProps };

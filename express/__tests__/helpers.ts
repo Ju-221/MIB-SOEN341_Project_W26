@@ -4,7 +4,7 @@ import { sqlite } from '../db/index.js';
 
 const JWT_SECRET = 'default_jwt_secret_for_testing';
 
-export function makeToken(userId: number, email: string): string {
+function makeToken(userId: number, email: string): string {
   return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '1h' });
 }
 

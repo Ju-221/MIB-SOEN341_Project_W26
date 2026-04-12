@@ -66,7 +66,7 @@ sqlite.exec(`
   );
 `);
 
-export function clearDb() {
+function clearDb() {
   sqlite.exec(`
     DELETE FROM meal_calendar;
     DELETE FROM recipes;

@@ -390,8 +390,6 @@ export const generateRecipe = async (req: Request, res: Response) => {
         .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
     }
 
-    console.log(recipe);
-
     const saved = db
       .insert(recipes)
       .values({

@@ -37,28 +37,3 @@ export interface UpdateRecipeBody {
   dietaryPreferences?: string | unknown[];
   allergies?: string | unknown[];
 }
-
-export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
-
-export interface MealSlot {
-  recipeId: number | null;
-  recipeTitle: string | null;
-}
-
-export interface DayMeals {
-  breakfast: MealSlot;
-  lunch: MealSlot;
-  dinner: MealSlot;
-  snack: MealSlot;
-}
-
-export interface CalendarDay {
-  date: number;
-  meals: DayMeals;
-}
-
-export interface Calendar {
-  userId: number;
-  months: string;
-  days: string;
-}
