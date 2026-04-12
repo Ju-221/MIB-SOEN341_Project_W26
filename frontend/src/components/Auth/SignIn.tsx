@@ -20,11 +20,7 @@ const FEATURES = [
   { text: 'Be the healthiest you can be!', icon: '✦' },
 ];
 
-function validateSignUp(
-  email: string,
-  password: string,
-  confirm: string
-): Record<string, string> {
+function validateSignUp(email: string, password: string, confirm: string): Record<string, string> {
   const errs: Record<string, string> = {};
   if (!email) errs.email = 'Email is required';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Please enter a valid email';
