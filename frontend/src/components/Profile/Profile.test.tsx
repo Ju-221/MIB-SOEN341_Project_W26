@@ -4,10 +4,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Profile from './Profile';
 
-vi.mock('../Recipe-Manager/CreateRecipe', () => ({
-  default: () => <div data-testid="recipe-manager">Recipe Manager</div>,
-}));
-
 describe('Profile Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,11 +39,6 @@ describe('Profile Component', () => {
     it('renders Reset Changes button', () => {
       render(<Profile />);
       expect(screen.getByRole('button', { name: /reset changes/i })).toBeInTheDocument();
-    });
-
-    it('renders Manage Recipes button', () => {
-      render(<Profile />);
-      expect(screen.getByRole('button', { name: /manage recipes/i })).toBeInTheDocument();
     });
 
     it('renders Save Changes button', () => {
@@ -180,29 +171,6 @@ describe('Profile Component', () => {
       await userEvent.type(input, 'Tomato{Enter}');
       await userEvent.click(screen.getByRole('button', { name: /reset changes/i }));
       expect(screen.queryByRole('button', { name: /tomato/i })).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Recipe Manager modal', () => {
-    it('opens recipe manager when button clicked', async () => {
-      render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      expect(screen.getByTestId('recipe-manager')).toBeInTheDocument();
-    });
-
-    it('closes modal when overlay is clicked', async () => {
-      render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      const overlay = document.querySelector('.modal-overlay-profile') as HTMLElement;
-      await userEvent.click(overlay);
-      expect(screen.queryByTestId('recipe-manager')).not.toBeInTheDocument();
-    });
-
-    it('closes modal when close button is clicked', async () => {
-      render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      await userEvent.click(screen.getByRole('button', { name: /close/i }));
-      expect(screen.queryByTestId('recipe-manager')).not.toBeInTheDocument();
     });
   });
 
