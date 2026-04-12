@@ -45,15 +45,6 @@ function Navbar({ currentPage, isLoggedIn, userEmail, onLogout, onLoginClick }: 
       <div className="app-nav-inner">
         {/* Brand – clicking navigates home */}
         <a href="#home" className="app-nav-brand" onClick={closeMobile}>
-          <svg className="app-nav-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-              fill="#a1511f"
-              opacity=".15"
-            />
-            <path d="M17 8c0 0-1.5 1-3 1s-3-1-3-1-1.5 4 3 6c4.5-2 3-6 3-6z" fill="#a1511f" />
-            <path d="M7 11c0 0 1 5 5 7" stroke="#a1511f" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
           MealMajor
         </a>
 

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, check } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 import { Difficulty } from '../types/index.js';
 
@@ -6,6 +6,8 @@ export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 

@@ -48,31 +48,25 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* ── FRONT — translucent glass purple ────────────────────── */
+/* ── FRONT — vertical portrait (default for Meal Tournament) ─ */
 .recipe-flip-card-front {
-  background: rgba(127, 42, 255, 0.247);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: linear-gradient(160deg, #1a0845 0%, #2d1260 100%);
   display: flex;
   flex-direction: column;
   color: #ffffff;
+  overflow: hidden;
 }
 
-.recipe-image-container {
+/* Image panel — takes top ~48% in portrait */
+.recipe-image-panel {
   position: relative;
   width: 100%;
-  height: 48%;
+  flex: 0 0 48%;
   overflow: hidden;
-  /* fallback when no hero image */
-  background: linear-gradient(135deg, rgba(147, 100, 255, 0.55) 0%, rgba(82, 39, 255, 0.75) 100%);
+  background: linear-gradient(135deg, #3b1a8a 0%, #1e0d55 100%);
 }
 
-.recipe-image {
-  width: 100%;
-  height: 100%;
-}
-
-.recipe-image img {
+.recipe-image-panel img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -82,16 +76,15 @@
 .recipe-image-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(50, 0, 110, 0.4) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(26, 8, 69, 0.6) 100%);
   pointer-events: none;
 }
 
-/* Difficulty badge on image */
 .card-difficulty-badge {
   position: absolute;
   bottom: 10px;
   left: 12px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: 999px;
   color: #ffffff;
   font-size: 11px;
@@ -100,14 +93,25 @@
   z-index: 1;
 }
 
-/* Content area below image */
+/* Content panel — fills remaining space */
 .recipe-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 14px 16px 12px;
-  gap: 9px;
-  justify-content: space-between;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Pinned top: title + stats */
+.recipe-content-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .recipe-title {
@@ -117,35 +121,111 @@
   color: #ffffff !important;
   margin: 0;
   letter-spacing: -0.3px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
+/* Stats bar */
 .recipe-meta {
   display: flex;
-  gap: 10px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.82) !important;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .meta-item {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 500;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.meta-item:last-child {
+  border-right: none;
 }
 
 .meta-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.55) !important;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.42) !important;
 }
 
 .meta-text {
+  font-size: 14px;
+  font-weight: 700;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.82) !important; /* explicit near-white */
+  color: #ffffff !important;
+}
+
+/* Scrollable body */
+.recipe-content-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167, 139, 250, 0.35) transparent;
+}
+
+.recipe-content-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recipe-content-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.recipe-content-scroll::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.4);
+  border-radius: 999px;
+}
+
+/* Description */
+.recipe-front-desc {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Ingredients / tags sections */
+.recipe-front-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.recipe-front-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.recipe-front-ing-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.recipe-front-ing-item {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  padding: 2px 8px;
+  text-transform: capitalize;
 }
 
 .recipe-tags {
@@ -157,35 +237,23 @@
 .recipe-tag {
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff; /* explicit white — not inherited from global */
+  background: rgba(167, 139, 250, 0.18);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #c4b5fd;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: capitalize;
 }
 
-/* View details button (front) */
-.details-btn {
-  padding: 8px 0;
-  width: 100%;
-  border-radius: 8px;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff; /* explicit white */
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.details-btn:hover {
-  background: rgba(255, 255, 255, 0.26);
-  border-color: rgba(255, 255, 255, 0.65);
+/* Pinned bottom hint */
+.recipe-flip-hint {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+  padding-top: 8px;
 }
 
 /* ── BACK ────────────────────────────────────────────────── */
@@ -513,16 +581,6 @@
   .recipe-tag {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.18);
-  }
-
-  .details-btn {
-    background: rgba(255, 255, 255, 0.16);
-    border-color: rgba(255, 255, 255, 0.22);
-  }
-
-  .details-btn:hover {
-    background: rgba(255, 255, 255, 0.26);
-    border-color: rgba(255, 255, 255, 0.36);
   }
 
   .recipe-flip-card-back {

@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Recipe, Ingredient, Step } from '../Recipe-Manager/CreateRecipe';
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
+import {
+  fetchRecipes,
+  createRecipe,
+  updateRecipe,
+  deleteRecipe,
+  IMAGES_URL,
+} from '../../api/recipes';
 import './Recipes.css';
 
 type ViewMode = 'list' | 'cook' | 'edit' | 'add';
@@ -31,10 +37,35 @@ function toStepObj(step: string | Step): Step {
 }
 
 export default function Recipes() {
+  const currentUserId = (() => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id as number;
+    } catch {
+      return null;
+    }
+  })();
+
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+
+  // Filter panel state
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [ingredientSearch, setIngredientSearch] = useState('');
+  const [maxPrepTime, setMaxPrepTime] = useState('');
+  const [maxCookTime, setMaxCookTime] = useState('');
+  const [maxTotalTime, setMaxTotalTime] = useState('');
+  const [maxCost, setMaxCost] = useState('');
+  const [filterDifficulties, setFilterDifficulties] = useState<Set<string>>(new Set());
+  const [filterTags, setFilterTags] = useState<Set<string>>(new Set());
+  const [filterAllergens, setFilterAllergens] = useState<Set<string>>(new Set());
+
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<Recipe | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -48,6 +79,7 @@ export default function Recipes() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -73,6 +105,12 @@ export default function Recipes() {
     setViewMode('cook');
   };
 
+  const resolveImageUrl = (heroImage?: string | null): string => {
+    if (!heroImage) return '/food-clipart.jpg';
+    if (heroImage.startsWith('http') || heroImage.startsWith('data:')) return heroImage;
+    return `${IMAGES_URL}/${heroImage}`;
+  };
+
   const openEdit = (recipe: Recipe) => {
     setSelected(recipe);
     setForm({
@@ -87,7 +125,8 @@ export default function Recipes() {
       estimatedCost: recipe.estimatedCost,
       heroImage: recipe.heroImage ?? '',
     });
-    setImagePreview(recipe.heroImage ?? null);
+    setImagePreview(resolveImageUrl(recipe.heroImage));
+    setHeroImageFile(null);
     setFormError(null);
     setViewMode('edit');
   };
@@ -96,6 +135,7 @@ export default function Recipes() {
     setSelected(null);
     setForm(emptyRecipe());
     setImagePreview(null);
+    setHeroImageFile(null);
     setFormError(null);
     setViewMode('add');
   };
@@ -120,13 +160,9 @@ export default function Recipes() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setImagePreview(result);
-      setForm((f) => ({ ...f, heroImage: result }));
-    };
-    reader.readAsDataURL(file);
+    setHeroImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setForm((f) => ({ ...f, heroImage: file.name }));
   };
 
   const updateIngredient = (idx: number, field: keyof Ingredient, value: string | number) => {
@@ -173,6 +209,54 @@ export default function Recipes() {
     });
   };
 
+  const toggleFilterDifficulty = (d: string) => {
+    setFilterDifficulties((prev) => {
+      const next = new Set(prev);
+      if (next.has(d)) {
+        next.delete(d);
+      } else {
+        next.add(d);
+      }
+      return next;
+    });
+  };
+
+  const toggleFilterTag = (tag: string) => {
+    setFilterTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) {
+        next.delete(tag);
+      } else {
+        next.add(tag);
+      }
+      return next;
+    });
+  };
+
+  const toggleFilterAllergen = (tag: string) => {
+    setFilterAllergens((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) {
+        next.delete(tag);
+      } else {
+        next.add(tag);
+      }
+      return next;
+    });
+  };
+
+  const clearFilters = () => {
+    setSearch('');
+    setIngredientSearch('');
+    setMaxPrepTime('');
+    setMaxCookTime('');
+    setMaxTotalTime('');
+    setMaxCost('');
+    setFilterDifficulties(new Set());
+    setFilterTags(new Set());
+    setFilterAllergens(new Set());
+  };
+
   const toggleCategory = (tag: string) => {
     setForm((f) => ({
       ...f,
@@ -204,7 +288,8 @@ export default function Recipes() {
             cookTime: Number(form.cookTime),
             estimatedCost: Number(form.estimatedCost),
           },
-          token
+          token,
+          heroImageFile
         );
         const newRecipe = Array.isArray(created) ? created[0] : created;
         setRecipes((prev) => [newRecipe, ...prev]);
@@ -218,7 +303,8 @@ export default function Recipes() {
             cookTime: Number(form.cookTime),
             estimatedCost: Number(form.estimatedCost),
           },
-          token
+          token,
+          heroImageFile
         );
         setRecipes((prev) => prev.map((r) => (String(r.id) === String(selected.id) ? updated : r)));
         setSelected(updated);
@@ -232,21 +318,74 @@ export default function Recipes() {
   };
 
   const handleDelete = async (recipe: Recipe) => {
-    if (!confirm(`Delete "${recipe.title}"? This cannot be undone.`)) return;
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      setDeleteError('You must be logged in to delete recipes.');
+      return;
+    }
+    setDeleteError(null);
     try {
       await deleteRecipe(String(recipe.id), token);
       setRecipes((prev) => prev.filter((r) => String(r.id) !== String(recipe.id)));
+      setDeleteConfirmId(null);
       if (selected && String(selected.id) === String(recipe.id)) backToList();
-    } catch {
-      alert('Failed to delete recipe.');
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete recipe.');
+      setDeleteConfirmId(null);
     }
   };
 
-  const filteredRecipes = recipes.filter((r) =>
-    r.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredRecipes = recipes.filter((r) => {
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const inTitle = r.title.toLowerCase().includes(q);
+      const inDesc = (r.description ?? '').toLowerCase().includes(q);
+      const inTags = r.categories.some((c) => c.toLowerCase().includes(q));
+      const inSteps = r.steps.map(toStepObj).some((s) => s.text.toLowerCase().includes(q));
+      if (!inTitle && !inDesc && !inTags && !inSteps) return false;
+    }
+    if (ingredientSearch.trim()) {
+      const wanted = ingredientSearch
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      const have = r.ingredients.map(toIngredientObj).map((i) => i.name.toLowerCase());
+      if (!wanted.every((w) => have.some((h) => h.includes(w)))) return false;
+    }
+    if (maxPrepTime !== '' && (r.prepTime ?? 0) > Number(maxPrepTime)) return false;
+    if (maxCookTime !== '' && (r.cookTime ?? 0) > Number(maxCookTime)) return false;
+    if (maxTotalTime !== '' && (r.prepTime ?? 0) + (r.cookTime ?? 0) > Number(maxTotalTime))
+      return false;
+    if (maxCost !== '' && (r.estimatedCost ?? 0) > Number(maxCost)) return false;
+    if (filterDifficulties.size > 0) {
+      const d = (r.difficulty ?? 'Easy').toLowerCase();
+      if (!filterDifficulties.has(d)) return false;
+    }
+    if (filterTags.size > 0) {
+      const recipeTags = r.categories.map((c) => c.toLowerCase());
+      for (const tag of filterTags) {
+        if (!recipeTags.includes(tag)) return false;
+      }
+    }
+    if (filterAllergens.size > 0) {
+      const recipeTags = r.categories.map((c) => c.toLowerCase());
+      for (const allergen of filterAllergens) {
+        if (recipeTags.includes(allergen)) return false;
+      }
+    }
+    return true;
+  });
+
+  const activeFilterCount =
+    (search.trim() ? 1 : 0) +
+    (ingredientSearch.trim() ? 1 : 0) +
+    (maxPrepTime ? 1 : 0) +
+    (maxCookTime ? 1 : 0) +
+    (maxTotalTime ? 1 : 0) +
+    (maxCost ? 1 : 0) +
+    filterDifficulties.size +
+    filterTags.size +
+    filterAllergens.size;
 
   const steps = selected ? selected.steps.map(toStepObj) : [];
   const ingredients = selected ? selected.ingredients.map(toIngredientObj) : [];
@@ -291,24 +430,219 @@ export default function Recipes() {
             </button>
           </header>
 
+          {/* ── Filter panel ──────────────────────────────────────────── */}
+          <div className="recipes-filter-panel">
+            <div className="recipes-filter-header">
+              <span className="recipes-filter-title">Filter Recipes</span>
+              <div className="recipes-filter-header-actions">
+                <span className="recipes-filter-count">
+                  Showing {filteredRecipes.length} of {recipes.length}
+                </span>
+                {activeFilterCount > 0 && (
+                  <button type="button" className="recipes-filter-clear" onClick={clearFilters}>
+                    Clear Filters
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="recipes-filter-toggle"
+                  onClick={() => setFilterOpen((o) => !o)}
+                  aria-label={filterOpen ? 'Collapse filters' : 'Expand filters'}
+                >
+                  {filterOpen ? '−' : '+'}
+                </button>
+              </div>
+            </div>
+
+            {filterOpen && (
+              <div className="recipes-filter-body">
+                {/* Row 1: text search + ingredient search */}
+                <div className="recipes-filter-grid-2">
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">
+                      Search (title, description, tags, steps)
+                    </label>
+                    <input
+                      type="text"
+                      className="recipes-filter-input"
+                      placeholder="e.g. healthy quick pasta"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </div>
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">Ingredients (comma separated)</label>
+                    <input
+                      type="text"
+                      className="recipes-filter-input"
+                      placeholder="e.g. tomato, basil"
+                      value={ingredientSearch}
+                      onChange={(e) => setIngredientSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: time + cost */}
+                <div className="recipes-filter-grid-4">
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">Max Prep Time (min)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="recipes-filter-input"
+                      placeholder="Any"
+                      value={maxPrepTime}
+                      onChange={(e) => setMaxPrepTime(e.target.value)}
+                    />
+                  </div>
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">Max Cook Time (min)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="recipes-filter-input"
+                      placeholder="Any"
+                      value={maxCookTime}
+                      onChange={(e) => setMaxCookTime(e.target.value)}
+                    />
+                  </div>
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">Max Total Time (min)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="recipes-filter-input"
+                      placeholder="Any"
+                      value={maxTotalTime}
+                      onChange={(e) => setMaxTotalTime(e.target.value)}
+                    />
+                  </div>
+                  <div className="recipes-filter-field">
+                    <label className="recipes-filter-label">Max Cost ($)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.01}
+                      className="recipes-filter-input"
+                      placeholder="Any"
+                      value={maxCost}
+                      onChange={(e) => setMaxCost(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Difficulty */}
+                <div className="recipes-filter-group">
+                  <span className="recipes-filter-group-label">Difficulty</span>
+                  <div className="recipes-filter-chips">
+                    {['easy', 'medium', 'hard'].map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        className={`recipes-filter-chip ${filterDifficulties.has(d) ? 'active' : ''}`}
+                        onClick={() => toggleFilterDifficulty(d)}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dietary tags */}
+                <div className="recipes-filter-group">
+                  <span className="recipes-filter-group-label">Dietary Tags</span>
+                  <div className="recipes-filter-chips">
+                    {[
+                      'vegetarian',
+                      'vegan',
+                      'keto',
+                      'low-carb',
+                      'high-protein',
+                      'pescetarian',
+                      'halal',
+                      'kosher',
+                    ].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`recipes-filter-chip ${filterTags.has(tag) ? 'active' : ''}`}
+                        onClick={() => toggleFilterTag(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Goals & attributes */}
+                <div className="recipes-filter-group">
+                  <span className="recipes-filter-group-label">Goals &amp; Attributes</span>
+                  <div className="recipes-filter-chips">
+                    {['quick', 'healthy', 'budget-friendly', 'gluten-free', 'dairy-free'].map(
+                      (tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          className={`recipes-filter-chip ${filterTags.has(tag) ? 'active' : ''}`}
+                          onClick={() => toggleFilterTag(tag)}
+                        >
+                          {tag}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Allergies & intolerances — excludes recipes tagged with selected items */}
+                <div className="recipes-filter-group">
+                  <span className="recipes-filter-group-label">Allergies &amp; Intolerances</span>
+                  <p className="recipes-filter-group-hint">
+                    Select what you can&apos;t eat — recipes containing these will be hidden.
+                  </p>
+                  <div className="recipes-filter-chips">
+                    {[
+                      'peanuts',
+                      'tree-nuts',
+                      'eggs',
+                      'milk',
+                      'fish',
+                      'crustaceans',
+                      'soy',
+                      'wheat',
+                      'sesame',
+                      'mustard',
+                      'lactose',
+                      'gluten',
+                    ].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`recipes-filter-chip allergen ${filterAllergens.has(tag) ? 'active' : ''}`}
+                        onClick={() => toggleFilterAllergen(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {deleteError && (
+            <div className="recipes-delete-error">
+              <span>{deleteError}</span>
+              <button type="button" onClick={() => setDeleteError(null)}>
+                ✕
+              </button>
+            </div>
+          )}
+
           <section className="profile-card">
             <div className="profile-card-header">
               <h2>Recipe Collection</h2>
             </div>
             <div className="profile-card-body">
-              <div className="recipes-search-row">
-                <input
-                  type="text"
-                  className="recipes-search"
-                  placeholder="Search recipes…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <span className="recipes-count">
-                  {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-
               {loading && <p className="recipes-status">Loading recipes…</p>}
               {error && <p className="recipes-status error">{error}</p>}
 
@@ -324,11 +658,11 @@ export default function Recipes() {
               <div className="recipes-grid">
                 {filteredRecipes.map((recipe) => (
                   <div key={recipe.id} className="recipe-card">
-                    {recipe.heroImage ? (
-                      <img src={recipe.heroImage} alt={recipe.title} className="recipe-card-img" />
-                    ) : (
-                      <div className="recipe-card-img-placeholder" />
-                    )}
+                    <img
+                      src={resolveImageUrl(recipe.heroImage)}
+                      alt={recipe.title}
+                      className="recipe-card-img"
+                    />
                     <div className="recipe-card-body">
                       <div className="recipe-card-tags">
                         <span className={difficultyColor(recipe.difficulty)}>
@@ -342,28 +676,54 @@ export default function Recipes() {
                       <p className="recipe-card-desc">{recipe.description}</p>
                     </div>
                     <div className="recipe-card-actions">
-                      <button
-                        type="button"
-                        className="profile-button primary"
-                        onClick={() => openCook(recipe)}
-                      >
-                        Cook
-                      </button>
-                      <button
-                        type="button"
-                        className="profile-button secondary"
-                        onClick={() => openEdit(recipe)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="recipes-delete-btn"
-                        onClick={() => handleDelete(recipe)}
-                        title="Delete"
-                      >
-                        Delete
-                      </button>
+                      {deleteConfirmId === String(recipe.id) ? (
+                        <div className="recipes-delete-confirm">
+                          <span>Delete this recipe?</span>
+                          <button
+                            type="button"
+                            className="recipes-delete-confirm-yes"
+                            onClick={() => handleDelete(recipe)}
+                          >
+                            Yes, delete
+                          </button>
+                          <button
+                            type="button"
+                            className="recipes-delete-confirm-no"
+                            onClick={() => setDeleteConfirmId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="profile-button primary"
+                            onClick={() => openCook(recipe)}
+                          >
+                            Cook
+                          </button>
+                          {currentUserId === recipe.createdBy && (
+                            <>
+                              <button
+                                type="button"
+                                className="profile-button secondary"
+                                onClick={() => openEdit(recipe)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="recipes-delete-btn"
+                                onClick={() => setDeleteConfirmId(String(recipe.id))}
+                                title="Delete"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -391,21 +751,25 @@ export default function Recipes() {
               <h1>{selected.title}</h1>
               <p className="profile-subtitle">Cooking Mode — follow the steps below</p>
             </div>
-            <button
-              type="button"
-              className="profile-button secondary"
-              onClick={() => openEdit(selected)}
-            >
-              Switch to Edit
-            </button>
+            {currentUserId === selected.createdBy && (
+              <button
+                type="button"
+                className="profile-button secondary"
+                onClick={() => openEdit(selected)}
+              >
+                Switch to Edit
+              </button>
+            )}
           </header>
 
           {/* Hero image */}
-          {selected.heroImage && (
-            <div className="recipes-hero-wrap">
-              <img src={selected.heroImage} alt={selected.title} className="recipes-hero-img" />
-            </div>
-          )}
+          <div className="recipes-hero-wrap">
+            <img
+              src={resolveImageUrl(selected.heroImage)}
+              alt={selected.title}
+              className="recipes-hero-img"
+            />
+          </div>
 
           {/* Meta row */}
           <section className="profile-card">
@@ -672,6 +1036,7 @@ export default function Recipes() {
                   className="profile-button secondary"
                   onClick={() => {
                     setImagePreview(null);
+                    setHeroImageFile(null);
                     setForm((f) => ({ ...f, heroImage: '' }));
                   }}
                 >

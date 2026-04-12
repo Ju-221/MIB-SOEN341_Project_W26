@@ -127,11 +127,3 @@ function base64ToImageFile(b64Str: string) {
   const fileExtension = mime.split('/')[1];
   return new File([u8arr], `name_doesn't_matter.${fileExtension}`, { type: mime });
 }
-
-export function loadHeroImage(recipe: Recipe) {
-  if (!recipe.heroImage) {
-    return `${IMAGES_URL}/food-clipart.jpg`;
-  } else {
-    return `${IMAGES_URL}/${recipe.heroImage}`;
-  }
-}
