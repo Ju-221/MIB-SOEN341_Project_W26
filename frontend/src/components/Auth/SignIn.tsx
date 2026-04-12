@@ -62,10 +62,18 @@ async function fetchSignUp(
   return { token: data.token, userEmail: data.user?.email || email };
 }
 
+function isValidEmail(email: string): boolean {
+  const at = email.indexOf('@');
+  if (at < 1 || at !== email.lastIndexOf('@')) return false;
+  const domain = email.slice(at + 1);
+  const dot = domain.lastIndexOf('.');
+  return dot > 0 && dot < domain.length - 1;
+}
+
 function validateSignUp(email: string, password: string, confirm: string): Record<string, string> {
   const errs: Record<string, string> = {};
   if (!email) errs.email = 'Email is required';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Please enter a valid email';
+  else if (!isValidEmail(email)) errs.email = 'Please enter a valid email';
   if (!password) errs.password = 'Password is required';
   else if (password.length < 6) errs.password = 'Must be at least 6 characters';
   if (!confirm) errs.confirm = 'Please confirm your password';
