@@ -7,6 +7,7 @@ export default defineConfig({
     pool: 'forks',
     env: {
       TEST_DATABASE: ':memory:',
+      JWT_SECRET: 'default_jwt_secret_for_testing',
     },
     setupFiles: ['./__tests__/setup.ts'],
     include: ['**/__tests__/**/*.test.ts'],

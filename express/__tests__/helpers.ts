@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { sqlite } from '../db/index.js';
 
-const JWT_SECRET = 'default_jwt_secret_for_testing';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 function makeToken(userId: number, email: string): string {
   return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '1h' });
