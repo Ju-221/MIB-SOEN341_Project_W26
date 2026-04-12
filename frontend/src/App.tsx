@@ -8,11 +8,12 @@ import Unique from './components/Unique/Unique';
 import AIChat from './components/AIChat/AIChat';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Calendar from './components/Calendar/Calendar';
-import RecipesPage from './components/RecipesPage/RecipesPage';
+import Recipes from './components/Recipes/Recipes';
 import './App.css';
 
 function App() {
-  const currentPage = useHashNavigation('signin');
+  const defaultPage = localStorage.getItem('token') !== null ? 'home' : 'signin';
+  const currentPage = useHashNavigation(defaultPage);
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') !== null;
@@ -82,7 +83,7 @@ function App() {
       case 'unique':
         return <Unique />;
       case 'recipes':
-        return <RecipesPage isLoggedIn={isLoggedIn} userEmail={userEmail} />;
+        return <Recipes />;
       case 'aichat':
         return <AIChat />;
       case 'signup':

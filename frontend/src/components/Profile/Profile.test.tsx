@@ -4,10 +4,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Profile from './Profile';
 
-vi.mock('../Recipe-Manager/CreateRecipe', () => ({
-  default: () => <div data-testid="recipe-manager">Recipe Manager</div>,
-}));
-
 describe('Profile Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,11 +39,6 @@ describe('Profile Component', () => {
     it('renders Reset Changes button', () => {
       render(<Profile />);
       expect(screen.getByRole('button', { name: /reset changes/i })).toBeInTheDocument();
-    });
-
-    it('renders Manage Recipes button', () => {
-      render(<Profile />);
-      expect(screen.getByRole('button', { name: /manage recipes/i })).toBeInTheDocument();
     });
 
     it('renders Save Changes button', () => {
@@ -183,26 +174,67 @@ describe('Profile Component', () => {
     });
   });
 
-  describe('Recipe Manager modal', () => {
-    it('opens recipe manager when button clicked', async () => {
+  describe('Name fields', () => {
+    it('renders firstName and lastName inputs', () => {
       render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      expect(screen.getByTestId('recipe-manager')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
     });
 
-    it('closes modal when overlay is clicked', async () => {
+    it('populates firstName and lastName from /api/user on mount', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockImplementation((url) => {
+        if (String(url).includes('/api/user')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ firstName: 'Alice', lastName: 'Smith' }),
+          } as Response);
+        }
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
+      });
+
       render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      const overlay = document.querySelector('.modal-overlay-profile') as HTMLElement;
-      await userEvent.click(overlay);
-      expect(screen.queryByTestId('recipe-manager')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Alice')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Smith')).toBeInTheDocument();
+      });
     });
 
-    it('closes modal when close button is clicked', async () => {
+    it('does not call /api/user when no token is present', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue(null);
       render(<Profile />);
-      await userEvent.click(screen.getByRole('button', { name: /manage recipes/i }));
-      await userEvent.click(screen.getByRole('button', { name: /close/i }));
-      expect(screen.queryByTestId('recipe-manager')).not.toBeInTheDocument();
+      // fetchData is guarded by token check; no fetch call should target /api/user
+      await waitFor(() => {
+        const userCalls = vi
+          .mocked(fetch)
+          .mock.calls.filter(([url]) => String(url).includes('/api/user'));
+        expect(userCalls).toHaveLength(0);
+      });
+    });
+
+    it('calls PUT /api/user with firstName and lastName on Save', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockResolvedValue({ ok: true, json: () => Promise.resolve({}) } as Response);
+
+      render(<Profile />);
+
+      await userEvent.clear(screen.getByPlaceholderText(/first name/i));
+      await userEvent.type(screen.getByPlaceholderText(/first name/i), 'Bob');
+      await userEvent.clear(screen.getByPlaceholderText(/last name/i));
+      await userEvent.type(screen.getByPlaceholderText(/last name/i), 'Jones');
+
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalledWith(
+          'http://localhost:3000/api/user',
+          expect.objectContaining({
+            method: 'PUT',
+            body: expect.stringContaining('"firstName":"Bob"'),
+          })
+        );
+      });
     });
   });
 

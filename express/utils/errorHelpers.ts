@@ -1,4 +1,4 @@
-export function getErrorDetails(err: unknown) {
+function getErrorDetails(err: unknown) {
   if (err instanceof Error) {
     const statusMatch = /\[(\d{3}) [^\]]+\]/.exec(err.message);
     const reasonMatch = /"reason":"([^"]+)"/.exec(err.message);
@@ -21,7 +21,7 @@ export function getErrorDetails(err: unknown) {
   };
 }
 
-export function createDevErrorResponse(message: string, err: unknown) {
+function createDevErrorResponse(message: string, err: unknown) {
   return process.env.NODE_ENV === 'production'
     ? { message }
     : {

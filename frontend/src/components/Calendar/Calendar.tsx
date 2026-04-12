@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Recipe } from '../Recipe-Manager/CreateRecipe';
-import RecipeManager from '../Recipe-Manager/CreateRecipe';
-import type { CalendarDay, MealType, ViewMode } from './types';
 import {
+  type CalendarDay,
+  type MealType,
+  type ViewMode,
   MONTH_NAMES,
   DAY_LABELS,
   MEAL_TYPES,
@@ -71,8 +72,6 @@ function Calendar() {
   const [saveError, setSaveError] = useState(false);
 
   const [animating, setAnimating] = useState(false);
-  const [showRecipeManager, setShowRecipeManager] = useState(false);
-  const [recipeManagerInitialEditId, setRecipeManagerInitialEditId] = useState<number | null>(null);
 
   const year = visibleMonthDate.getFullYear();
   const month = visibleMonthDate.getMonth();
@@ -291,42 +290,36 @@ function Calendar() {
     setAiLoading(false);
   };
 
-  const closeRecipeManager = () => {
-    setShowRecipeManager(false);
-    setRecipeManagerInitialEditId(null);
-    fetchRecipes();
+  // Navigate to the Recipes page and open a specific recipe
+  const handleViewRecipe = (recipeId: number) => {
+    sessionStorage.setItem('viewRecipeId', String(recipeId));
+    window.location.hash = '#recipes';
   };
 
-  const handleRecipeSaved = (savedRecipe: Recipe) => {
-    setRecipes((currentRecipes) => {
-      const existingIndex = currentRecipes.findIndex(
-        (recipe) => recipe.id.toString() === savedRecipe.id.toString()
-      );
-      if (existingIndex === -1) {
-        return [...currentRecipes, savedRecipe];
-      }
-
-      const nextRecipes = [...currentRecipes];
-      nextRecipes[existingIndex] = savedRecipe;
-      return nextRecipes;
+  // Remove a recipe from a slot directly without opening a modal
+  const handleRemoveMealDirect = (date: Date, mealType: MealType) => {
+    const currentMonthDays = getMonthDays(date);
+    const updated = currentMonthDays.map((d) => {
+      if (d.date !== date.getDate()) return d;
+      return {
+        ...d,
+        meals: {
+          ...d.meals,
+          [mealType]: { recipeId: null, recipeTitle: null },
+        },
+      };
     });
+    saveCalendarForDate(date, updated);
   };
 
-  // Meal slot click — open choices modal
+  // Meal slot click — only for empty slots; filled slots navigate to recipe view
   const handleSlotClick = (date: Date, meal: MealType) => {
     setPickerDate(date);
     setPickerMeal(meal);
     setSearchQuery('');
     setAiPrompt('');
     setAiError('');
-
-    // If a recipe is already assigned, go straight to picker (to change/remove)
-    const dayData = getDayDataForDate(date);
-    if (dayData && dayData.meals[meal].recipeId !== null) {
-      setModalView('picker');
-    } else {
-      setModalView('choices');
-    }
+    setModalView('choices');
   };
 
   const handleAssignRecipe = (recipe: Recipe) => {
@@ -362,30 +355,6 @@ function Calendar() {
 
     saveCalendarForDate(pickerDate, updated);
     closeModal();
-  };
-
-  const handleRemoveMeal = () => {
-    if (pickerDate === null || pickerMeal === null) return;
-    const currentMonthDays = getMonthDays(pickerDate);
-    const updated = currentMonthDays.map((d) => {
-      if (d.date !== pickerDate.getDate()) return d;
-      return {
-        ...d,
-        meals: {
-          ...d.meals,
-          [pickerMeal]: { recipeId: null, recipeTitle: null },
-        },
-      };
-    });
-    saveCalendarForDate(pickerDate, updated);
-    closeModal();
-  };
-
-  const handleEditCurrentRecipe = () => {
-    if (!currentSlot?.recipeId) return;
-    closeModal();
-    setRecipeManagerInitialEditId(currentSlot.recipeId);
-    setShowRecipeManager(true);
   };
 
   // AI generate recipe
@@ -559,11 +528,6 @@ function Calendar() {
     saveCalendar(updatedDays);
   }, [days, recipes, saveCalendar, syncDaysWithRecipes]);
 
-  const currentSlot =
-    pickerDate !== null && pickerMeal !== null
-      ? getDayDataForDate(pickerDate).meals[pickerMeal]
-      : null;
-
   const getRecipeDetail = (recipeId: number | null): Recipe | undefined => {
     if (recipeId === null) return undefined;
     return recipes.find((r) => {
@@ -690,61 +654,103 @@ function Calendar() {
                 const filled = slot.recipeId !== null;
                 const recipe = viewMode === 'week' ? getRecipeDetail(slot.recipeId) : undefined;
                 const displayTitle = getSlotDisplayTitle(slot.recipeId, slot.recipeTitle);
+
+                if (filled) {
+                  return (
+                    <div key={mealType} className="cal-meal-slot-group">
+                      <div
+                        className={`cal-meal-slot ${mealType} filled ${viewMode}`}
+                        role="button"
+                        tabIndex={cell.interactive ? 0 : -1}
+                        aria-disabled={!cell.interactive}
+                        onClick={() =>
+                          cell.interactive && slot.recipeId !== null
+                            ? handleViewRecipe(slot.recipeId)
+                            : undefined
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            (e.key === 'Enter' || e.key === ' ') &&
+                            cell.interactive &&
+                            slot.recipeId !== null
+                          ) {
+                            e.preventDefault();
+                            handleViewRecipe(slot.recipeId);
+                          }
+                        }}
+                        title={displayTitle || ''}
+                      >
+                        <span className="cal-meal-label">{MEAL_LABELS[mealType]}</span>
+                        <div className="cal-meal-content">
+                          <span className="cal-meal-title">{displayTitle}</span>
+                          {viewMode === 'week' && recipe && (
+                            <div className="cal-meal-detail week">
+                              <div className="cal-meal-metric">
+                                <span className="cal-meal-metric-label">Time</span>
+                                <span className="cal-meal-metric-value">
+                                  {recipe.prepTime + recipe.cookTime} min
+                                </span>
+                              </div>
+                              <div className="cal-meal-metric">
+                                <span className="cal-meal-metric-label">Cost</span>
+                                <span className="cal-meal-metric-value">
+                                  ${recipe.estimatedCost.toFixed(2)}
+                                </span>
+                              </div>
+                              {recipe.difficulty && (
+                                <div className="cal-meal-metric">
+                                  <span className="cal-meal-metric-label">Difficulty</span>
+                                  <span className="cal-meal-metric-value">{recipe.difficulty}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {cell.interactive && (
+                        <button
+                          className="cal-meal-remove-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveMealDirect(cell.fullDate, mealType);
+                          }}
+                          title={`Remove ${displayTitle}`}
+                          aria-label={`Remove ${displayTitle}`}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <button
                     key={mealType}
-                    className={`cal-meal-slot ${mealType} ${filled ? 'filled' : ''} ${viewMode}`}
+                    className={`cal-meal-slot ${mealType} ${viewMode}`}
                     onClick={() =>
                       cell.interactive ? handleSlotClick(cell.fullDate, mealType) : undefined
                     }
                     disabled={!cell.interactive}
-                    title={filled ? displayTitle || '' : `Add ${MEAL_LABELS[mealType]}`}
+                    title={`Add ${MEAL_LABELS[mealType]}`}
                   >
                     <span className="cal-meal-label">{MEAL_LABELS[mealType]}</span>
-                    {filled ? (
-                      <div className="cal-meal-content">
-                        <span className="cal-meal-title">{displayTitle}</span>
-                        {viewMode === 'week' && recipe && (
-                          <div className="cal-meal-detail week">
-                            <div className="cal-meal-metric">
-                              <span className="cal-meal-metric-label">Time</span>
-                              <span className="cal-meal-metric-value">
-                                {recipe.prepTime + recipe.cookTime} min
-                              </span>
-                            </div>
-                            <div className="cal-meal-metric">
-                              <span className="cal-meal-metric-label">Cost</span>
-                              <span className="cal-meal-metric-value">
-                                ${recipe.estimatedCost.toFixed(2)}
-                              </span>
-                            </div>
-                            {recipe.difficulty && (
-                              <div className="cal-meal-metric">
-                                <span className="cal-meal-metric-label">Difficulty</span>
-                                <span className="cal-meal-metric-value">{recipe.difficulty}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="cal-meal-empty">
-                        <svg
-                          className="cal-meal-plus-icon"
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                        >
-                          <path
-                            d="M7 2v10M2 7h10"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </span>
-                    )}
+                    <span className="cal-meal-empty">
+                      <svg
+                        className="cal-meal-plus-icon"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                      >
+                        <path
+                          d="M7 2v10M2 7h10"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </span>
                   </button>
                 );
               })}
@@ -787,7 +793,7 @@ function Calendar() {
                     className="cal-choice-card browse"
                     onClick={() => {
                       closeModal();
-                      setShowRecipeManager(true);
+                      window.location.hash = '#recipes';
                     }}
                   >
                     <div className="cal-choice-icon browse">
@@ -802,7 +808,7 @@ function Calendar() {
                     </div>
                     <span className="cal-choice-label">Manage Recipes</span>
                     <span className="cal-choice-desc">
-                      Create, edit, and then come back to assign one
+                      Go to your recipe list to create or edit one
                     </span>
                   </button>
 
@@ -903,7 +909,7 @@ function Calendar() {
             {/* ── Recipe Picker View ── */}
             {modalView === 'picker' && (
               <div className="cal-picker-view">
-                {pickerDate !== null && modalView === 'picker' && !currentSlot?.recipeId && (
+                {pickerDate !== null && modalView === 'picker' && (
                   <button className="cal-modal-back" onClick={() => setModalView('choices')}>
                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                       <path
@@ -929,25 +935,6 @@ function Calendar() {
                 </div>
 
                 {assignmentError && <div className="cal-picker-error">{assignmentError}</div>}
-
-                {currentSlot?.recipeId && (
-                  <div className="cal-picker-current">
-                    <span>
-                      Current:{' '}
-                      <strong>
-                        {getSlotDisplayTitle(currentSlot.recipeId, currentSlot.recipeTitle)}
-                      </strong>
-                    </span>
-                    <div className="cal-picker-current-actions">
-                      <button className="cal-picker-edit" onClick={handleEditCurrentRecipe}>
-                        Edit
-                      </button>
-                      <button className="cal-picker-remove" onClick={handleRemoveMeal}>
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 <input
                   type="text"
@@ -997,27 +984,6 @@ function Calendar() {
         </div>
       )}
 
-      {/* Recipe Manager Modal */}
-      {showRecipeManager && (
-        <div className="cal-modal-overlay" onClick={closeRecipeManager}>
-          <div className="cal-recipe-manager-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="cal-modal-close" onClick={closeRecipeManager} aria-label="Close">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M15 5L5 15M5 5l10 10"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-            <RecipeManager
-              initialEditRecipeId={recipeManagerInitialEditId}
-              onRecipeSaved={handleRecipeSaved}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
