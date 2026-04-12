@@ -89,142 +89,140 @@ const Card: React.FC<Recipe> = (recipe) => {
   const handleViewRecipe = (e: React.MouseEvent) => {
     e.stopPropagation();
     sessionStorage.setItem('viewRecipeId', String(recipe.id));
-    window.location.hash = '#recipes';
+    globalThis.location.hash = '#recipes';
   };
 
   return (
-    <>
-      <div className={`recipe-flip-card ${isFlipped ? 'flipped' : ''}`} onClick={handleFlip}>
-        <div className="recipe-flip-card-inner">
-          {/* ── Front ── */}
-          <div className="recipe-flip-card-front">
-            {/* Left: image panel */}
-            <div className="recipe-image-panel">
-              {(() => {
-                const cachedImage = heroImageCache.get(recipe.id);
-                if (!cachedImage) {
-                  const imageUrl = loadHeroImage(heroImage);
-                  setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
-                }
-                return <img src={cachedImage || loadHeroImage(heroImage)} alt={title} />;
-              })()}
-              <div className="recipe-image-overlay" />
-              <span
-                className="card-difficulty-badge"
-                style={{ background: difficultyColor[difficulty] }}
-              >
-                {difficulty}
-              </span>
-            </div>
-
-            {/* Right: all details */}
-            <div className="recipe-content">
-              {/* Pinned header: title + stats */}
-              <div className="recipe-content-header">
-                <h2 className="recipe-title">{title}</h2>
-                <div className="recipe-meta">
-                  <div className="meta-item">
-                    <span className="meta-label">Total</span>
-                    <span className="meta-text">{prepTime + cookTime} min</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Prep</span>
-                    <span className="meta-text">{prepTime} min</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Cook</span>
-                    <span className="meta-text">{cookTime} min</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Cost</span>
-                    <span className="meta-text">${estimatedCost.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Scrollable body: description + ingredients + tags */}
-              <div className="recipe-content-scroll">
-                {description && <p className="recipe-front-desc">{description}</p>}
-
-                {ingredientNames.length > 0 && (
-                  <div className="recipe-front-ingredients">
-                    <span className="recipe-front-section-label">Ingredients</span>
-                    <div className="recipe-front-ing-grid">
-                      {ingredientNames.map((name, i) => (
-                        <span key={i} className="recipe-front-ing-item">
-                          {name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {categories.length > 0 && (
-                  <div className="recipe-front-ingredients">
-                    <span className="recipe-front-section-label">Tags</span>
-                    <div className="recipe-tags">
-                      {categories.map((tag) => (
-                        <span key={tag} className="recipe-tag">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button className="card-view-recipe-btn" onClick={handleViewRecipe}>
-                View full recipe →
-              </button>
-              <span className="recipe-flip-hint">tap to flip for steps →</span>
-            </div>
+    <div className={`recipe-flip-card ${isFlipped ? 'flipped' : ''}`} onClick={handleFlip}>
+      <div className="recipe-flip-card-inner">
+        {/* ── Front ── */}
+        <div className="recipe-flip-card-front">
+          {/* Left: image panel */}
+          <div className="recipe-image-panel">
+            {(() => {
+              const cachedImage = heroImageCache.get(recipe.id);
+              if (!cachedImage) {
+                const imageUrl = loadHeroImage(heroImage);
+                setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+              }
+              return <img src={cachedImage || loadHeroImage(heroImage)} alt={title} />;
+            })()}
+            <div className="recipe-image-overlay" />
+            <span
+              className="card-difficulty-badge"
+              style={{ background: difficultyColor[difficulty] }}
+            >
+              {difficulty}
+            </span>
           </div>
 
-          {/* ── Back ── */}
-          <div className="recipe-flip-card-back">
-            <div className="recipe-back-content" ref={backRef}>
-              <h3 className="back-title">{title}</h3>
+          {/* Right: all details */}
+          <div className="recipe-content">
+            {/* Pinned header: title + stats */}
+            <div className="recipe-content-header">
+              <h2 className="recipe-title">{title}</h2>
+              <div className="recipe-meta">
+                <div className="meta-item">
+                  <span className="meta-label">Total</span>
+                  <span className="meta-text">{prepTime + cookTime} min</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Prep</span>
+                  <span className="meta-text">{prepTime} min</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Cook</span>
+                  <span className="meta-text">{cookTime} min</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Cost</span>
+                  <span className="meta-text">${estimatedCost.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
 
-              <p className="recipe-description">{description}</p>
+            {/* Scrollable body: description + ingredients + tags */}
+            <div className="recipe-content-scroll">
+              {description && <p className="recipe-front-desc">{description}</p>}
 
-              <div className="back-lists">
-                {/* Ingredients */}
-                <div className="back-section">
-                  <p className="back-section-heading">Ingredients</p>
-                  <ul className="back-list">
-                    {ingredientNames.slice(0, ingLimit).map((name, i) => (
-                      <li key={i} className="back-list-item">
-                        <span className="back-dot" />
+              {ingredientNames.length > 0 && (
+                <div className="recipe-front-ingredients">
+                  <span className="recipe-front-section-label">Ingredients</span>
+                  <div className="recipe-front-ing-grid">
+                    {ingredientNames.map((name, i) => (
+                      <span key={i} className="recipe-front-ing-item">
                         {name}
-                      </li>
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
+              )}
 
-                {/* Steps */}
-                <div className="back-section">
-                  <p className="back-section-heading">Steps</p>
-                  <ul className="back-list">
-                    {steps.slice(0, stepLimit).map((step, i) => (
-                      <li key={i} className="back-list-item">
-                        <span className="step-num">{i + 1}</span>
-                        {step}
-                      </li>
+              {categories.length > 0 && (
+                <div className="recipe-front-ingredients">
+                  <span className="recipe-front-section-label">Tags</span>
+                  <div className="recipe-tags">
+                    {categories.map((tag) => (
+                      <span key={tag} className="recipe-tag">
+                        {tag}
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
+              )}
+            </div>
+
+            <button className="card-view-recipe-btn" onClick={handleViewRecipe}>
+              View full recipe →
+            </button>
+            <span className="recipe-flip-hint">tap to flip for steps →</span>
+          </div>
+        </div>
+
+        {/* ── Back ── */}
+        <div className="recipe-flip-card-back">
+          <div className="recipe-back-content" ref={backRef}>
+            <h3 className="back-title">{title}</h3>
+
+            <p className="recipe-description">{description}</p>
+
+            <div className="back-lists">
+              {/* Ingredients */}
+              <div className="back-section">
+                <p className="back-section-heading">Ingredients</p>
+                <ul className="back-list">
+                  {ingredientNames.slice(0, ingLimit).map((name, i) => (
+                    <li key={i} className="back-list-item">
+                      <span className="back-dot" />
+                      {name}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {hasEllipsis && <p className="back-ellipsis">(...)</p>}
-
-              <div className="back-footer">
-                <p className="flip-hint">tap card to flip back</p>
+              {/* Steps */}
+              <div className="back-section">
+                <p className="back-section-heading">Steps</p>
+                <ul className="back-list">
+                  {steps.slice(0, stepLimit).map((step, i) => (
+                    <li key={i} className="back-list-item">
+                      <span className="step-num">{i + 1}</span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            </div>
+
+            {hasEllipsis && <p className="back-ellipsis">(...)</p>}
+
+            <div className="back-footer">
+              <p className="flip-hint">tap card to flip back</p>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

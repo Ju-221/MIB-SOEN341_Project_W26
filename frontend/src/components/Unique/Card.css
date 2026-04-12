@@ -252,25 +252,23 @@
   width: 100%;
   padding: 8px 14px;
   margin-top: 4px;
-  border: 1.5px solid rgba(167, 139, 250, 0.5);
+  border: 1.5px solid rgba(167, 139, 250, 0.6);
   border-radius: 8px;
-  background: rgba(167, 139, 250, 0.12);
-  color: #c4b5fd;
+  background: rgba(82, 39, 255, 0.35);
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
   transition:
     background 0.18s,
-    border-color 0.18s,
-    color 0.18s;
+    border-color 0.18s;
   flex-shrink: 0;
 }
 
 .card-view-recipe-btn:hover {
-  background: rgba(167, 139, 250, 0.24);
-  border-color: rgba(167, 139, 250, 0.8);
-  color: #ffffff;
+  background: rgba(82, 39, 255, 0.55);
+  border-color: rgba(167, 139, 250, 1);
 }
 
 /* Pinned bottom hint */

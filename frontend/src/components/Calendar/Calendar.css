@@ -345,13 +345,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
   padding: 0;
 }
 
 .cal-meal-remove-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
 }
 
 /* ── Meal Slot Button ── */
@@ -374,23 +376,6 @@
 
 .cal-meal-slot:disabled {
   cursor: default;
-}
-
-/* filled slot is a div[role=button] — needs explicit cursor */
-.cal-meal-slot[role='button'] {
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-}
-
-.cal-meal-slot[role='button'][aria-disabled='true'] {
-  cursor: default;
-  pointer-events: none;
-}
-
-.cal-meal-slot[role='button']:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 1px;
 }
 
 .cal-meal-slot.breakfast {

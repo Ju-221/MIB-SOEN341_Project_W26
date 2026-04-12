@@ -293,7 +293,7 @@ function Calendar() {
   // Navigate to the Recipes page and open a specific recipe
   const handleViewRecipe = (recipeId: number) => {
     sessionStorage.setItem('viewRecipeId', String(recipeId));
-    window.location.hash = '#recipes';
+    globalThis.location.hash = '#recipes';
   };
 
   // Remove a recipe from a slot directly without opening a modal
@@ -658,26 +658,12 @@ function Calendar() {
                 if (filled) {
                   return (
                     <div key={mealType} className="cal-meal-slot-group">
-                      <div
+                      <button
                         className={`cal-meal-slot ${mealType} filled ${viewMode}`}
-                        role="button"
-                        tabIndex={cell.interactive ? 0 : -1}
-                        aria-disabled={!cell.interactive}
+                        disabled={!cell.interactive}
                         onClick={() =>
-                          cell.interactive && slot.recipeId !== null
-                            ? handleViewRecipe(slot.recipeId)
-                            : undefined
+                          slot.recipeId !== null ? handleViewRecipe(slot.recipeId) : undefined
                         }
-                        onKeyDown={(e) => {
-                          if (
-                            (e.key === 'Enter' || e.key === ' ') &&
-                            cell.interactive &&
-                            slot.recipeId !== null
-                          ) {
-                            e.preventDefault();
-                            handleViewRecipe(slot.recipeId);
-                          }
-                        }}
                         title={displayTitle || ''}
                       >
                         <span className="cal-meal-label">{MEAL_LABELS[mealType]}</span>
@@ -706,7 +692,7 @@ function Calendar() {
                             </div>
                           )}
                         </div>
-                      </div>
+                      </button>
                       {cell.interactive && (
                         <button
                           className="cal-meal-remove-btn"
@@ -793,7 +779,7 @@ function Calendar() {
                     className="cal-choice-card browse"
                     onClick={() => {
                       closeModal();
-                      window.location.hash = '#recipes';
+                      globalThis.location.hash = '#recipes';
                     }}
                   >
                     <div className="cal-choice-icon browse">
@@ -983,7 +969,6 @@ function Calendar() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
