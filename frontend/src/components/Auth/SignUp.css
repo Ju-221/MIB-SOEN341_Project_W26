@@ -17,7 +17,7 @@
 }
 
 .signup-header {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #9a692a 0%, #63340d 100%);
   color: white;
   padding: 40px 20px;
   text-align: center;
@@ -66,8 +66,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  border-color: #9a692a;
+  box-shadow: 0 0 0 3px rgba(154, 105, 42, 0.12);
   background-color: white;
 }
 
@@ -123,7 +123,7 @@
 .create-account-button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #9a692a 0%, #63340d 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -138,7 +138,7 @@
 
 .create-account-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(154, 105, 42, 0.30);
 }
 
 .create-account-button:active {
@@ -159,7 +159,7 @@
 }
 
 .signup-footer a {
-  color: #4caf50;
+  color: #9a692a;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;

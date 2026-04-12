@@ -61,7 +61,7 @@
   width: 36px;
   height: 36px;
   border: 3px solid #e5e7eb;
-  border-top-color: #4caf50;
+  border-top-color: #9a692a;
   border-radius: 50%;
   animation: calSpin 0.7s linear infinite;
 }
@@ -155,7 +155,7 @@
   padding: 7px 16px;
   font-size: 13px;
   font-weight: 600;
-  color: #4caf50 !important;
+  color: #9a692a !important;
   background-color: #ffffff !important;
   border: 1px solid #d1d5db !important;
   border-radius: 8px;
@@ -164,8 +164,8 @@
 }
 
 .cal-today-btn:hover {
-  background-color: #f0fdf4 !important;
-  border-color: #4caf50 !important;
+  background-color: #fdf5e8 !important;
+  border-color: #9a692a !important;
 }
 
 /* ── View Toggle ── */
@@ -292,7 +292,7 @@
 }
 
 .cal-cell-date.today {
-  background: #4caf50;
+  background: #9a692a;
   color: #ffffff;
   font-weight: 700;
 }
@@ -340,8 +340,8 @@
   color: #92400e !important;
 }
 .cal-meal-slot.lunch {
-  background-color: #f0fdf4 !important;
-  color: #166534 !important;
+  background-color: #fdf5e8 !important;
+  color: #4a2800 !important;
 }
 .cal-meal-slot.dinner {
   background-color: #eef2ff !important;
@@ -361,7 +361,7 @@
   background-color: #fef3c7 !important;
 }
 .cal-meal-slot.lunch:not(:disabled):hover {
-  background-color: #dcfce7 !important;
+  background-color: #f5e6d0 !important;
 }
 .cal-meal-slot.dinner:not(:disabled):hover {
   background-color: #e0e7ff !important;
@@ -673,8 +673,8 @@
 }
 
 .cal-choice-card.browse:hover {
-  border-color: #4caf50 !important;
-  background-color: #f0fdf4 !important;
+  border-color: #9a692a !important;
+  background-color: #fdf5e8 !important;
 }
 
 .cal-choice-icon {
@@ -698,8 +698,8 @@
 }
 
 .cal-choice-icon.browse {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #f5e6d0;
+  color: #7a5030;
 }
 
 .cal-choice-label {
@@ -730,8 +730,8 @@
 }
 
 .cal-choice-link:hover {
-  color: #4caf50;
-  background: #f0fdf4;
+  color: #9a692a;
+  background: #fdf5e8;
 }
 
 /* ══════════════════════════════════════════
@@ -861,7 +861,7 @@
   gap: 12px;
   margin: 0 24px 10px;
   padding: 10px 14px;
-  background: #f0fdf4;
+  background: #fdf5e8;
   border-radius: 10px;
   font-size: 13px;
   color: #374151;
@@ -916,8 +916,8 @@
 }
 
 .cal-picker-search:focus {
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  border-color: #9a692a;
+  box-shadow: 0 0 0 3px rgba(154, 105, 42, 0.12);
   background-color: #ffffff !important;
 }
 
@@ -985,7 +985,7 @@
 }
 
 .cal-picker-item:hover svg {
-  color: #4caf50;
+  color: #9a692a;
 }
 
 /* ══════════════════════════════════════════

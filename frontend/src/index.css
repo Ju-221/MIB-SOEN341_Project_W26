@@ -11,21 +11,21 @@
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, Helvetica, Arial, sans-serif;
 
-  /* Brand Colors */
-  --clr-primary: #4caf50;
-  --clr-primary-dark: #388e3c;
-  --clr-primary-hover: #45a049;
-  --clr-primary-light: #dcfce7;
-  --clr-primary-text: #166534;
+  /* Brand Colors — warm caramel/brown */
+  --clr-primary: #9a692a;
+  --clr-primary-dark: #63340d;
+  --clr-primary-hover: #7a5030;
+  --clr-primary-light: #f5e6d0;
+  --clr-primary-text: #4a2800;
 
   /* Neutral Palette */
-  --clr-bg: #f5f7fb;
-  --clr-surface: #ffffff;
-  --clr-border: #eef2f7;
-  --clr-border-strong: #e5e7eb;
-  --clr-text: #111827;
-  --clr-text-muted: #6b7280;
-  --clr-text-subtle: #9ca3af;
+  --clr-bg: #f7f1e8;
+  --clr-surface: #fffdf8;
+  --clr-border: #e8ddd0;
+  --clr-border-strong: #d9c9b4;
+  --clr-text: #1f1208;
+  --clr-text-muted: #7a6255;
+  --clr-text-subtle: #a89080;
 
   /* Border Radius */
   --radius-sm: 6px;
@@ -38,7 +38,7 @@
   --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
   --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
-  --shadow-green: 0 4px 14px rgba(76, 175, 80, 0.28);
+  --shadow-primary: 0 4px 14px rgba(154, 105, 42, 0.28);
 
   /* Transitions */
   --ease: 0.2s ease;

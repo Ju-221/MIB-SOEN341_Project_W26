@@ -30,7 +30,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  background: linear-gradient(135deg, #9a692a 0%, #63340d 100%);
   color: #ffffff;
   font-size: 22px;
   font-weight: 700;
@@ -38,7 +38,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(76, 175, 80, 0.32);
+  box-shadow: 0 4px 14px rgba(154, 105, 42, 0.32);
   user-select: none;
 }
 
@@ -172,7 +172,7 @@
 .profile-field input:focus {
   outline: none;
   border-color: var(--clr-primary, #4caf50);
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.14);
+  box-shadow: 0 0 0 3px rgba(154, 105, 42, 0.16);
   background: #ffffff;
 }
 
@@ -235,7 +235,7 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #2e7d32;
+  background: #9a692a;
   color: #fff;
   flex-shrink: 0;
 }
@@ -271,7 +271,7 @@
 .profile-custom-row input:focus {
   outline: none;
   border-color: var(--clr-primary, #4caf50);
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.14);
+  box-shadow: 0 0 0 3px rgba(154, 105, 42, 0.16);
   background: #ffffff;
 }
 
@@ -303,15 +303,15 @@
 }
 
 .profile-button.primary {
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  background: linear-gradient(135deg, #9a692a 0%, #63340d 100%);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(76, 175, 80, 0.28);
+  box-shadow: 0 4px 14px rgba(154, 105, 42, 0.28);
   border-color: transparent;
 }
 
 .profile-button.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.35);
+  box-shadow: 0 8px 20px rgba(154, 105, 42, 0.35);
 }
 
 .profile-button.secondary {
