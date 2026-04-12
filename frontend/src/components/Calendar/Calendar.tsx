@@ -662,7 +662,7 @@ function Calendar() {
                         className={`cal-meal-slot ${mealType} filled ${viewMode}`}
                         disabled={!cell.interactive}
                         onClick={() =>
-                          slot.recipeId !== null ? handleViewRecipe(slot.recipeId) : undefined
+                          slot.recipeId === null ? undefined : handleViewRecipe(slot.recipeId)
                         }
                         title={displayTitle || ''}
                       >
