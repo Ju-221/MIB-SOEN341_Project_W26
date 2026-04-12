@@ -414,7 +414,7 @@ const Unique: React.FC = () => {
       >
         {aurora}
         <div className="winner-container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ height: '55vh' }}>
+          <div className="winner-card-wrapper">
             <Card {...winner} />
           </div>
           <p className="winner-label">
@@ -544,12 +544,12 @@ const Unique: React.FC = () => {
     >
       {aurora}
       <div
+        className="unique-game-row"
         style={{
           position: 'relative',
           zIndex: 1,
           display: 'flex',
           flexDirection: 'row',
-          gap: '40px',
           alignItems: 'flex-start',
           paddingTop: '16px',
         }}
@@ -557,8 +557,7 @@ const Unique: React.FC = () => {
         {([0, 1] as const).map((i) => (
           <div key={i} className="card-slot">
             <div
-              className={`card-wrapper${fadingSlot === i ? ' card-fading' : ''}`}
-              style={{ height: '70vh' }}
+              className={`card-wrapper card-wrapper--game${fadingSlot === i ? ' card-fading' : ''}`}
             >
               {slots[i] && <Card {...slots[i]!} />}
             </div>
