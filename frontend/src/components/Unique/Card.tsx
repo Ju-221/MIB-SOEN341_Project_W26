@@ -1,6 +1,5 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import './Card.css';
-import RecipePopup from '../RecipePopup/RecipePopup';
 import { IMAGES_URL } from '../../api/recipes';
 
 /**
@@ -60,7 +59,6 @@ const Card: React.FC<Recipe> = (recipe) => {
   } = recipe;
 
   const [isFlipped, setIsFlipped] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [ingLimit, setIngLimit] = useState(ingredients.length);
   const [stepLimit, setStepLimit] = useState(steps.length);
   const [hasEllipsis, setHasEllipsis] = useState(false);
@@ -90,28 +88,22 @@ const Card: React.FC<Recipe> = (recipe) => {
     setIsFlipped(!isFlipped);
   };
 
-  const handleDetails = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowPopup(true);
-  };
-
   return (
     <>
       <div className={`recipe-flip-card ${isFlipped ? 'flipped' : ''}`} onClick={handleFlip}>
         <div className="recipe-flip-card-inner">
           {/* ── Front ── */}
           <div className="recipe-flip-card-front">
-            <div className="recipe-image-container">
-              <div className="recipe-image">
-                {(() => {
-                  const cachedImage = heroImageCache.get(recipe.id);
-                  if (!cachedImage) {
-                    const imageUrl = loadHeroImage(heroImage);
-                    setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
-                  }
-                  return <img src={cachedImage || loadHeroImage(heroImage)} alt={title} />;
-                })()}
-              </div>
+            {/* Left: image panel */}
+            <div className="recipe-image-panel">
+              {(() => {
+                const cachedImage = heroImageCache.get(recipe.id);
+                if (!cachedImage) {
+                  const imageUrl = loadHeroImage(heroImage);
+                  setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
+                }
+                return <img src={cachedImage || loadHeroImage(heroImage)} alt={title} />;
+              })()}
               <div className="recipe-image-overlay" />
               <span
                 className="card-difficulty-badge"
@@ -121,37 +113,59 @@ const Card: React.FC<Recipe> = (recipe) => {
               </span>
             </div>
 
+            {/* Right: all details */}
             <div className="recipe-content">
-              <h2 className="recipe-title">{title}</h2>
-
-              <div className="recipe-meta">
-                <div className="meta-item">
-                  <span className="meta-label">Time</span>
-                  <span className="meta-text">{prepTime + cookTime} min</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Prep / Cook</span>
-                  <span className="meta-text">
-                    {prepTime} / {cookTime} min
-                  </span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Cost</span>
-                  <span className="meta-text">${estimatedCost.toFixed(2)}</span>
+              {/* Pinned header: title + stats */}
+              <div className="recipe-content-header">
+                <h2 className="recipe-title">{title}</h2>
+                <div className="recipe-meta">
+                  <div className="meta-item">
+                    <span className="meta-label">Total</span>
+                    <span className="meta-text">{prepTime + cookTime} min</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Prep</span>
+                    <span className="meta-text">{prepTime} min</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Cook</span>
+                    <span className="meta-text">{cookTime} min</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Cost</span>
+                    <span className="meta-text">${estimatedCost.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="recipe-tags">
-                {categories.slice(0, 3).map((tag) => (
-                  <span key={tag} className="recipe-tag">
-                    {tag}
-                  </span>
-                ))}
+              {/* Scrollable body: description + ingredients + tags */}
+              <div className="recipe-content-scroll">
+                {description && <p className="recipe-front-desc">{description}</p>}
+
+                {ingredientNames.length > 0 && (
+                  <div className="recipe-front-ingredients">
+                    <span className="recipe-front-section-label">Ingredients</span>
+                    <div className="recipe-front-ing-grid">
+                      {ingredientNames.map((name, i) => (
+                        <span key={i} className="recipe-front-ing-item">{name}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {categories.length > 0 && (
+                  <div className="recipe-front-ingredients">
+                    <span className="recipe-front-section-label">Tags</span>
+                    <div className="recipe-tags">
+                      {categories.map((tag) => (
+                        <span key={tag} className="recipe-tag">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <button className="details-btn" onClick={handleDetails}>
-                View details
-              </button>
+              <span className="recipe-flip-hint">tap to flip for steps →</span>
             </div>
           </div>
 
@@ -200,12 +214,6 @@ const Card: React.FC<Recipe> = (recipe) => {
         </div>
       </div>
 
-      {showPopup && (
-        <RecipePopup
-          recipe={{ ...recipe, description, steps, dietaryPreferences, allergies }}
-          onClose={() => setShowPopup(false)}
-        />
-      )}
     </>
   );
 };
