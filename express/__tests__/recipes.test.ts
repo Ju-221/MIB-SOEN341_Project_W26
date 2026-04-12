@@ -58,6 +58,11 @@ describe('GET /api/recipes/:id', () => {
     const res = await request(app).get('/api/recipes/99999');
     expect(res.status).toBe(404);
   });
+
+  it('returns 404 for a non-numeric id', async () => {
+    const res = await request(app).get('/api/recipes/abc');
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('POST /api/recipes', () => {
@@ -105,6 +110,14 @@ describe('PUT /api/recipes/:id', () => {
       .send({ title: 'Stolen Update' });
 
     expect(res.status).toBe(403);
+  });
+
+  it('returns 404 when updating a non-existent recipe', async () => {
+    const res = await request(app)
+      .put('/api/recipes/99999')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ title: 'Ghost Update' });
+    expect(res.status).toBe(404);
   });
 
   it('returns 401 without a token', async () => {

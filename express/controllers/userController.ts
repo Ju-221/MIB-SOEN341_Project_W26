@@ -27,13 +27,14 @@ export const updateUser = (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { firstName, lastName } = req.body as { firstName?: string; lastName?: string };
 
-    db.update(users)
-      .set({
-        firstName: firstName?.trim() ?? null,
-        lastName: lastName?.trim() ?? null,
-      })
-      .where(eq(users.id, userId))
-      .run();
+    // Only update fields that were explicitly provided in the request body.
+    const patch: Partial<typeof users.$inferInsert> = {};
+    if (firstName !== undefined) patch.firstName = firstName.trim() || null;
+    if (lastName !== undefined) patch.lastName = lastName.trim() || null;
+
+    if (Object.keys(patch).length > 0) {
+      db.update(users).set(patch).where(eq(users.id, userId)).run();
+    }
 
     res.json({ message: 'Profile updated successfully' });
   } catch (error) {

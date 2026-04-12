@@ -58,6 +58,45 @@ describe('PUT /api/user', () => {
     expect(profile.body.lastName).toBe('Jones');
   });
 
+  it('omitting a field leaves the stored value unchanged', async () => {
+    await request(app)
+      .put('/api/user')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ firstName: 'Alice', lastName: 'Smith' });
+
+    // Send only firstName — lastName should stay 'Smith'
+    await request(app)
+      .put('/api/user')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ firstName: 'Carol' });
+
+    const profile = await request(app)
+      .get('/api/user')
+      .set('Authorization', `Bearer ${user.token}`);
+
+    expect(profile.body.firstName).toBe('Carol');
+    expect(profile.body.lastName).toBe('Smith');
+  });
+
+  it('sending an empty string clears the name field', async () => {
+    await request(app)
+      .put('/api/user')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ firstName: 'Alice', lastName: 'Smith' });
+
+    await request(app)
+      .put('/api/user')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ firstName: '', lastName: 'Smith' });
+
+    const profile = await request(app)
+      .get('/api/user')
+      .set('Authorization', `Bearer ${user.token}`);
+
+    expect(profile.body.firstName).toBe('');
+    expect(profile.body.lastName).toBe('Smith');
+  });
+
   it('returns 401 without a token', async () => {
     const res = await request(app).put('/api/user').send({ firstName: 'X' });
     expect(res.status).toBe(401);

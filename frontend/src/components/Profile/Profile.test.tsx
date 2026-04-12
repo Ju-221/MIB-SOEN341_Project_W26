@@ -174,6 +174,70 @@ describe('Profile Component', () => {
     });
   });
 
+  describe('Name fields', () => {
+    it('renders firstName and lastName inputs', () => {
+      render(<Profile />);
+      expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
+    });
+
+    it('populates firstName and lastName from /api/user on mount', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockImplementation((url) => {
+        if (String(url).includes('/api/user')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ firstName: 'Alice', lastName: 'Smith' }),
+          } as Response);
+        }
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
+      });
+
+      render(<Profile />);
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Alice')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Smith')).toBeInTheDocument();
+      });
+    });
+
+    it('does not call /api/user when no token is present', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue(null);
+      render(<Profile />);
+      // fetchData is guarded by token check; no fetch call should target /api/user
+      await waitFor(() => {
+        const userCalls = vi.mocked(fetch).mock.calls.filter(([url]) =>
+          String(url).includes('/api/user')
+        );
+        expect(userCalls).toHaveLength(0);
+      });
+    });
+
+    it('calls PUT /api/user with firstName and lastName on Save', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockResolvedValue({ ok: true, json: () => Promise.resolve({}) } as Response);
+
+      render(<Profile />);
+
+      await userEvent.clear(screen.getByPlaceholderText(/first name/i));
+      await userEvent.type(screen.getByPlaceholderText(/first name/i), 'Bob');
+      await userEvent.clear(screen.getByPlaceholderText(/last name/i));
+      await userEvent.type(screen.getByPlaceholderText(/last name/i), 'Jones');
+
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalledWith(
+          'http://localhost:3000/api/user',
+          expect.objectContaining({
+            method: 'PUT',
+            body: expect.stringContaining('"firstName":"Bob"'),
+          })
+        );
+      });
+    });
+  });
+
   describe('Save', () => {
     it('calls fetch with PUT when token exists', async () => {
       vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
