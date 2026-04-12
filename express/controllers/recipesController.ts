@@ -107,14 +107,31 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res: Respon
 
     const id = result.id;
 
-    // rename uploaded image to {id}.ext
+    // Handle image upload with transaction safety
     let heroImage = null;
     if (req.file) {
-      const ext = path.extname(req.file.originalname); // the file extension
-      const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join('./uploads', newName));
-      heroImage = newName;
-      db.update(recipes).set({ heroImage }).where(eq(recipes.id, id)).run();
+      try {
+        const ext = path.extname(req.file.originalname);
+        const newName = `${id}${ext}`;
+        const newPath = path.join('./uploads', newName);
+
+        // Rename file first
+        fs.renameSync(req.file.path, newPath);
+
+        // Update DB only after successful file operation
+        db.update(recipes).set({ heroImage: newName }).where(eq(recipes.id, id)).run();
+        heroImage = newName;
+      } catch (fileError) {
+        console.error('Failed to process uploaded image:', fileError);
+        // Clean up the temp file if rename failed
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (cleanupError) {
+          console.error('Failed to cleanup temp file:', cleanupError);
+        }
+      }
     }
 
     res.status(201).json(parseRecipe({ ...result, heroImage }));
@@ -160,16 +177,33 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
 
     let heroImage = existing.heroImage;
     if (req.file) {
-      if (existing.heroImage) {
-        const imagePath = path.join('./uploads', existing.heroImage);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
+      try {
+        // Delete old image if it exists
+        if (existing.heroImage) {
+          const oldImagePath = path.join('./uploads', existing.heroImage);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
+
+        // Rename new file
+        const ext = path.extname(req.file.originalname);
+        const newName = `${id}${ext}`;
+        const newPath = path.join('./uploads', newName);
+        fs.renameSync(req.file.path, newPath);
+        heroImage = newName;
+      } catch (fileError) {
+        console.error('Failed to process uploaded image:', fileError);
+        // Clean up temp file
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (cleanupError) {
+          console.error('Failed to cleanup temp file:', cleanupError);
+        }
+        return res.status(500).json({ message: 'Failed to process image upload' });
       }
-      const ext = path.extname(req.file.originalname);
-      const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join('./uploads', newName));
-      heroImage = newName;
     }
 
     const updates = {
