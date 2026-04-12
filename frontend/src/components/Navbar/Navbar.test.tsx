@@ -1,4 +1,4 @@
-   /*# The following file was generated with the assistance of Claude.
+/*# The following file was generated with the assistance of Claude.
 #Prompt:  Create a test suite for the Navbar component using Vitest and React Testing Library. Cover rendering of brand, nav links
 based on login state, username display, and profile dropdown behavior.
 # I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
@@ -39,8 +39,6 @@ describe('Navbar', () => {
   // ── Nav links ──────────────────────────────────────────────────────────────
 
   describe('Nav links', () => {
-   
-
     it('hides Calendar, Discover and AI Chef when logged out', () => {
       render(<Navbar {...baseProps} />);
       expect(screen.queryByRole('link', { name: /calendar/i })).not.toBeInTheDocument();

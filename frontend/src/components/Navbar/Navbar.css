@@ -39,7 +39,7 @@
   font-family: 'Pacifico', cursive;
   font-size: 22px;
   font-weight: 400;
-  color: #6B4226;
+  color: #6b4226;
   letter-spacing: 0.3px;
   flex-shrink: 0;
   text-decoration: none;
@@ -48,7 +48,7 @@
 
 .app-nav-brand:hover {
   opacity: 0.75;
-  color: #6B4226;
+  color: #6b4226;
 }
 
 .app-nav-brand-icon {
@@ -71,7 +71,7 @@
   padding: 7px 14px;
   font-size: 14px;
   font-weight: 500;
-  color: #6B4226;
+  color: #6b4226;
   text-decoration: none;
   border-radius: 10px;
   transition:
@@ -99,7 +99,7 @@
   width: 16px;
   height: 2px;
   border-radius: 1px;
-  background: #8B5E3C;
+  background: #8b5e3c;
 }
 
 /* ── Actions ── */
@@ -114,7 +114,7 @@
 .app-nav-username {
   font-size: 14px;
   font-weight: 600;
-  color: #6B4226;
+  color: #6b4226;
   white-space: nowrap;
 }
 
@@ -134,7 +134,7 @@
   background: rgba(107, 66, 38, 0.1);
   border: 1.5px solid rgba(107, 66, 38, 0.25);
   border-radius: 50%;
-  color: #6B4226;
+  color: #6b4226;
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -149,7 +149,7 @@
 .app-nav-profile-btn:hover,
 .app-nav-profile-btn.open {
   background: rgba(107, 66, 38, 0.18);
-  border-color: #8B5E3C;
+  border-color: #8b5e3c;
 }
 
 .app-nav-profile-dropdown {
@@ -209,7 +209,7 @@
 
 .app-nav-dropdown-item:hover {
   background: #f5ebe0;
-  color: #6B4226;
+  color: #6b4226;
 }
 
 .app-nav-dropdown-signout {
@@ -244,7 +244,7 @@
   display: block;
   width: 18px;
   height: 2px;
-  background: #6B4226;
+  background: #6b4226;
   border-radius: 1px;
   transition:
     transform 0.25s ease,
@@ -294,7 +294,7 @@
 
 .app-nav-mobile-link:hover,
 .app-nav-mobile-link.active {
-  color: #8B5E3C;
+  color: #8b5e3c;
   background: #f5ebe0;
 }
 

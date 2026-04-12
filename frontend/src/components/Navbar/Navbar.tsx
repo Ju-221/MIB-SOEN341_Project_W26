@@ -1,4 +1,4 @@
-   /*# The following file was drafted originally, but enhanced with the assistance of Claude.
+/*# The following file was drafted originally, but enhanced with the assistance of Claude.
 #Prompt example: If the user is not logged in, there should be no component in the navbar. I like how the Navbar is on top of the page but I want to be able to     
   change its background color, radius... and I am not able to do that right now   
 # I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
@@ -43,7 +43,7 @@ function Navbar({ currentPage, isLoggedIn, userEmail }: NavbarProps) {
       <div className="app-nav-inner">
         {/* Brand – clicking navigates home */}
         <a href="#home" className="app-nav-brand" onClick={closeMobile}>
-           <svg className="app-nav-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg className="app-nav-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
               fill="#a1511f"
@@ -100,9 +100,7 @@ function Navbar({ currentPage, isLoggedIn, userEmail }: NavbarProps) {
               <div className="app-nav-profile-dropdown">
                 {isLoggedIn ? (
                   <>
-                    {userEmail && (
-                      <span className="app-nav-dropdown-email">{userEmail}</span>
-                    )}
+                    {userEmail && <span className="app-nav-dropdown-email">{userEmail}</span>}
                     <a
                       href="#profile"
                       className="app-nav-dropdown-item"
@@ -166,11 +164,7 @@ function Navbar({ currentPage, isLoggedIn, userEmail }: NavbarProps) {
         ))}
         {isLoggedIn ? (
           <>
-            <a
-              href="#profile"
-              className="app-nav-mobile-link"
-              onClick={closeMobile}
-            >
+            <a href="#profile" className="app-nav-mobile-link" onClick={closeMobile}>
               Profile
             </a>
             <button
