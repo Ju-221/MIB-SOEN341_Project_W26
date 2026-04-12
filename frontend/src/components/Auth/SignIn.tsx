@@ -20,6 +20,34 @@ const FEATURES = [
   { text: 'Be the healthiest you can be!', icon: '✦' },
 ];
 
+async function fetchSignIn(
+  email: string,
+  password: string
+): Promise<{ token: string; userEmail: string }> {
+  const res = await fetch('http://localhost:3000/api/auth/signin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Login failed');
+  return { token: data.token, userEmail: data.user?.email || email };
+}
+
+async function fetchSignUp(
+  email: string,
+  password: string
+): Promise<{ token: string; userEmail: string }> {
+  const res = await fetch('http://localhost:3000/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Signup failed');
+  return { token: data.token, userEmail: data.user?.email || email };
+}
+
 function validateSignUp(email: string, password: string, confirm: string): Record<string, string> {
   const errs: Record<string, string> = {};
   if (!email) errs.email = 'Email is required';
@@ -111,26 +139,12 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      const response = await fetch('http://localhost:3000/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.user?.email || email);
-
+      const { token, userEmail } = await fetchSignIn(email, password);
+      localStorage.setItem('token', token);
+      localStorage.setItem('userEmail', userEmail);
       localStorage.removeItem('rememberMe');
       if (rememberMe) localStorage.setItem('rememberMe', 'true');
-
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -149,22 +163,10 @@ function SignIn({ onSuccess, initialView = 'signin' }: SignInProps) {
     }
     setSuErrors({});
     setSuLoading(true);
-
     try {
-      const response = await fetch('http://localhost:3000/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: suEmail, password: suPassword }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', data.user?.email || suEmail);
+      const { token, userEmail } = await fetchSignUp(suEmail, suPassword);
+      localStorage.setItem('token', token);
+      localStorage.setItem('userEmail', userEmail);
       onSuccess?.();
     } catch (err) {
       setSuErrors({ general: err instanceof Error ? err.message : 'Signup failed' });
