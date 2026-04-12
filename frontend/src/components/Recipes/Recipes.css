@@ -20,6 +20,194 @@
   color: #16a34a;
 }
 
+/* ── Filter panel ───────────────────────────────────────────────────────────── */
+.recipes-filter-panel {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  margin-bottom: 20px;
+}
+
+.recipes-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.recipes-filter-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.recipes-filter-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.recipes-filter-count {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.recipes-filter-clear {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #22c55e;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.recipes-filter-clear:hover {
+  color: #16a34a;
+}
+
+.recipes-filter-toggle {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #f9fafb;
+  font-size: 18px;
+  line-height: 1;
+  color: #374151;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.recipes-filter-toggle:hover {
+  background: #f3f4f6;
+}
+
+.recipes-filter-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.recipes-filter-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.recipes-filter-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.recipes-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipes-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #22c55e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recipes-filter-input {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  font-size: 14px;
+  background: #f9fafb;
+  color: #111827;
+  width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.recipes-filter-input:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  background: #ffffff;
+}
+
+.recipes-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recipes-filter-group-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #22c55e;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.recipes-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recipes-filter-chip {
+  padding: 5px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 99px;
+  background: #ffffff;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+
+.recipes-filter-chip:hover {
+  border-color: #22c55e;
+  color: #16a34a;
+}
+
+.recipes-filter-chip.active {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+}
+
+.recipes-filter-chip.allergen:hover {
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+.recipes-filter-chip.allergen.active {
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.recipes-filter-group-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
 /* ── Search row ─────────────────────────────────────────────────────────────── */
 .recipes-search-row {
   display: flex;
@@ -160,7 +348,8 @@
 .recipes-delete-btn {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   color: #9ca3af;
   margin-left: auto;
@@ -171,6 +360,80 @@
 
 .recipes-delete-btn:hover {
   color: #ef4444;
+}
+
+/* Inline delete confirmation row */
+.recipes-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.recipes-delete-confirm span {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  flex: 1;
+}
+
+.recipes-delete-confirm-yes {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.recipes-delete-confirm-yes:hover {
+  background: #b91c1c;
+}
+
+.recipes-delete-confirm-no {
+  padding: 5px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.recipes-delete-confirm-no:hover {
+  background: #f3f4f6;
+}
+
+/* Delete error banner */
+.recipes-delete-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.recipes-delete-error button {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 /* ── Badges ──────────────────────────────────────────────────────────────────── */
@@ -607,6 +870,11 @@
 
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
+  .recipes-filter-grid-2,
+  .recipes-filter-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
   .recipes-grid {
     grid-template-columns: 1fr;
   }
