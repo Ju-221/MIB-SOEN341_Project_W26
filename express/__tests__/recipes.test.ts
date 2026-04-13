@@ -1,3 +1,7 @@
+/*# The following file was generated with the assistance of Claude.
+#Prompt:  Create a test suite for the recipes API functions using Vitest. Cover successful fetch/create/update/delete, error handling for non-ok responses, and edge cases like missing response body or invalid input.
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../app.js';
@@ -165,5 +169,104 @@ describe('DELETE /api/recipes/:id', () => {
     const created = await createRecipe(user.token);
     const res = await request(app).delete(`/api/recipes/${created.body.id}`);
     expect(res.status).toBe(401);
+  });
+});
+
+// ── Allergy normalization ──────────────────────────────────────────────────────
+
+describe('Allergy normalization on POST /api/recipes', () => {
+  it('normalizes known aliases to canonical labels', async () => {
+    const res = await createRecipe(user.token, {
+      allergies: JSON.stringify(['milk', 'treenuts', 'egg', 'crustaceans', 'lactose', 'sulphites']),
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.allergies).toContain('Dairy');
+    expect(res.body.allergies).toContain('Nuts');
+    expect(res.body.allergies).toContain('Eggs');
+    expect(res.body.allergies).toContain('Shellfish');
+    expect(res.body.allergies).toContain('Lactose Intolerance');
+    expect(res.body.allergies).toContain('Sulfites');
+  });
+
+  it('filters out unknown allergy labels', async () => {
+    const res = await createRecipe(user.token, {
+      allergies: JSON.stringify(['InvalidAllergy', 'RandomFood']),
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.allergies).toEqual([]);
+  });
+
+  it('deduplicates aliases that resolve to the same canonical label', async () => {
+    const res = await createRecipe(user.token, {
+      allergies: JSON.stringify(['Peanuts', 'peanuts', 'peanut']),
+    });
+    expect(res.status).toBe(201);
+    const peanutCount = (res.body.allergies as string[]).filter((a) => a === 'Peanuts').length;
+    expect(peanutCount).toBe(1);
+  });
+
+  it('accepts an empty allergies array', async () => {
+    const res = await createRecipe(user.token, {
+      allergies: JSON.stringify([]),
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.allergies).toEqual([]);
+  });
+
+  it('returns parsed allergies as an array on GET after create', async () => {
+    await createRecipe(user.token, { allergies: JSON.stringify(['Dairy', 'Eggs']) });
+    const res = await request(app).get('/api/recipes');
+    expect(res.status).toBe(200);
+    expect(res.body[0].allergies).toContain('Dairy');
+    expect(res.body[0].allergies).toContain('Eggs');
+  });
+});
+
+describe('Allergy normalization on PUT /api/recipes/:id', () => {
+  it('normalizes allergies when the update includes the allergies field', async () => {
+    const created = await createRecipe(user.token, { allergies: JSON.stringify([]) });
+    const id = created.body.id;
+
+    const res = await request(app)
+      .put(`/api/recipes/${id}`)
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ allergies: JSON.stringify(['egg', 'soy', 'lactose']) });
+
+    expect(res.status).toBe(200);
+    expect(res.body.allergies).toContain('Eggs');
+    expect(res.body.allergies).toContain('Soy');
+    expect(res.body.allergies).toContain('Lactose Intolerance');
+  });
+
+  it('preserves existing allergies when the update omits the allergies field', async () => {
+    const created = await createRecipe(user.token, {
+      allergies: JSON.stringify(['Peanuts', 'Dairy']),
+    });
+    const id = created.body.id;
+
+    const res = await request(app)
+      .put(`/api/recipes/${id}`)
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ title: 'New Title Only' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('New Title Only');
+    expect(res.body.allergies).toContain('Peanuts');
+    expect(res.body.allergies).toContain('Dairy');
+  });
+
+  it('clears allergies when the update sends an empty array', async () => {
+    const created = await createRecipe(user.token, {
+      allergies: JSON.stringify(['Peanuts']),
+    });
+    const id = created.body.id;
+
+    const res = await request(app)
+      .put(`/api/recipes/${id}`)
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ allergies: JSON.stringify([]) });
+
+    expect(res.status).toBe(200);
+    expect(res.body.allergies).toEqual([]);
   });
 });

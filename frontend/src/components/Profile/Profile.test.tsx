@@ -1,3 +1,7 @@
+/*# The following file was generated with the assistance of Claude.
+#Prompt:  Create a test suite for the Profile component using Vitest and React Testing Library. Cover rendering of profile sections, diet/allergy chip behavior, name field population, API interactions for loading/saving preferences, and edge cases like API errors or missing localStorage data.
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -235,6 +239,93 @@ describe('Profile Component', () => {
           })
         );
       });
+    });
+  });
+
+  describe('Preferences loaded from API', () => {
+    it('pre-selects allergy and diet chips based on numeric boolean (1) from API', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockImplementation((url) => {
+        if (String(url).includes('/api/preferences')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                allergies: { peanuts: 1, milk: 0 },
+                dietaryPreferences: { vegetarian: 1, vegan: false },
+              }),
+          } as Response);
+        }
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
+      });
+
+      render(<Profile />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^peanuts$/i })).toHaveClass('selected');
+      });
+      expect(screen.getByRole('button', { name: /^vegetarian$/i })).toHaveClass('selected');
+      expect(screen.getByRole('button', { name: /^dairy$/i })).not.toHaveClass('selected');
+      expect(screen.getByRole('button', { name: /^vegan$/i })).not.toHaveClass('selected');
+    });
+
+    it('does not throw when the preferences API returns a non-ok response', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockResolvedValue({
+        ok: false,
+        json: () => Promise.resolve({}),
+      } as Response);
+
+      render(<Profile />);
+      // Component should still render without crashing
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: /profile/i })).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Save error handling', () => {
+    it('shows "Failed to save preferences." when the preferences API returns non-ok', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
+      vi.mocked(fetch).mockResolvedValue({
+        ok: false,
+        json: () => Promise.resolve({}),
+      } as Response);
+
+      render(<Profile />);
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/failed to save preferences/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Custom item – already-selected edge cases', () => {
+    it('does not add a duplicate chip when the typed value matches a currently-selected standard option', async () => {
+      render(<Profile />);
+      // Select Vegetarian via chip
+      const chip = screen.getByRole('button', { name: /^vegetarian$/i });
+      await userEvent.click(chip);
+      expect(chip).toHaveClass('selected');
+
+      // Try to add "Vegetarian" again via text input
+      const input = screen.getByPlaceholderText(/add a custom dietary preference/i);
+      await userEvent.type(input, 'Vegetarian{Enter}');
+
+      // Only one chip with this label should exist
+      expect(screen.getAllByRole('button', { name: /^vegetarian$/i })).toHaveLength(1);
+    });
+
+    it('does not add a second chip for an allergy already selected via chip', async () => {
+      render(<Profile />);
+      const chip = screen.getByRole('button', { name: /^peanuts$/i });
+      await userEvent.click(chip);
+
+      const input = screen.getByPlaceholderText(/add a custom allergy or intolerance/i);
+      await userEvent.type(input, 'Peanuts{Enter}');
+
+      expect(screen.getAllByRole('button', { name: /^peanuts$/i })).toHaveLength(1);
     });
   });
 
