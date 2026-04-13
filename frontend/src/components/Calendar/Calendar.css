@@ -311,6 +311,7 @@
   flex-direction: column;
   gap: 3px;
   flex: 1;
+  min-height: 0;
 }
 
 /* ── Meal Slot Button ── */
@@ -445,13 +446,26 @@
   flex-direction: column;
 }
 
+.cal-meal-slot.week.filled {
+  flex: 0 0 auto;
+}
+
+.cal-meal-slot.week:not(.filled) {
+  flex: 1 1 0;
+  min-height: 96px;
+}
+
 .cal-meal-slot.week .cal-meal-content {
   width: 100%;
   gap: 8px;
 }
 
 .cal-meal-slot.week .cal-meal-title {
+  display: -webkit-box;
   font-size: 14px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   white-space: normal;
 }
 
