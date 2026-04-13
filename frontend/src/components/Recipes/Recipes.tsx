@@ -63,6 +63,21 @@ function getRecipeAllergyMatches(recipe: Recipe, selectedAllergyTags: string[]):
   return [...new Set(matches)];
 }
 
+// Linear O(n) check: allows "", digits, and at most one decimal point.
+// Avoids the O(n²) backtracking of /^\d*\.?\d*$/ (ReDoS).
+function isValidDecimalInput(s: string): boolean {
+  let hasDot = false;
+  for (const c of s) {
+    if (c === '.') {
+      if (hasDot) return false;
+      hasDot = true;
+    } else if (c < '0' || c > '9') {
+      return false;
+    }
+  }
+  return true;
+}
+
 export default function Recipes() {
   const currentUserId = (() => {
     try {
@@ -1195,7 +1210,7 @@ export default function Recipes() {
                     value={costInputs[idx] ?? ''}
                     onChange={(e) => {
                       const v = e.target.value;
-                      if (!/^\d*\.?\d*$/.test(v)) return;
+                      if (!isValidDecimalInput(v)) return;
                       setCostInputs((prev) => {
                         const next = [...prev];
                         next[idx] = v;
