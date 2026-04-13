@@ -108,7 +108,7 @@ function loadMessages(): Message[] {
       messages: Array<Message | MessageContent>;
     };
     if (userId !== getUserId()) return [INITIAL_MESSAGE];
-    return messages.map(normalizeMessage);
+    return messages.map((message, index) => normalizeMessage(message, index));
   } catch {
     return [INITIAL_MESSAGE];
   }
