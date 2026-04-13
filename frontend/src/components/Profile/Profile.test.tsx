@@ -252,14 +252,15 @@ describe('Profile Component', () => {
       });
     });
 
-    it('shows alert on successful save', async () => {
+    it('shows an inline message on successful save', async () => {
       vi.mocked(localStorage.getItem).mockReturnValue('fake.token.here');
       vi.mocked(fetch).mockResolvedValue({ ok: true, json: () => Promise.resolve({}) } as Response);
       render(<Profile />);
       await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
       await waitFor(() => {
-        expect(window.alert).toHaveBeenCalledWith('Preferences saved!');
+        expect(screen.getByText('Preferences saved!')).toBeInTheDocument();
       });
+      expect(window.alert).not.toHaveBeenCalled();
     });
 
     it('does not call fetch when no token', async () => {
