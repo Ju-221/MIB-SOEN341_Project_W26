@@ -75,7 +75,23 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, './uploads/'),
   filename: (req, file, cb) => cb(null, `temp-${Date.now()}${path.extname(file.originalname)}`),
 });
-export const upload = multer({ storage });
+
+const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100 MB
+    files: 1,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (IMAGE_MIME_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files (JPEG, PNG, WebP, GIF) are allowed'));
+    }
+  },
+});
 
 // Get /api/recipes?title=
 export const getAllRecipes = (req: Request, res: Response) => {
