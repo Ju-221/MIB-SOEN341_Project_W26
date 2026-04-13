@@ -52,12 +52,15 @@ interface GenerateRecipeErrorResponse {
   };
 }
 
-type Message =
+type MessageContent =
   | { kind: 'user'; text: string }
   | { kind: 'model'; text: string }
   | { kind: 'recipe'; recipe: GeneratedRecipe };
 
+type Message = MessageContent & { id: string };
+
 const INITIAL_MESSAGE: Message = {
+  id: 'initial-message',
   kind: 'model',
   text: "Hey there! I'm your AI recipe chef. Tell me what ingredients you have, any dietary preferences, or just the kind of dish you're in the mood for — and I'll whip up a brand new recipe just for you!",
 };
@@ -65,6 +68,25 @@ const INITIAL_MESSAGE: Message = {
 // ── Session storage helpers ────────────────────────────────
 
 const STORAGE_KEY = 'aichat_messages';
+
+function createMessageId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function createMessage(message: MessageContent): Message {
+  return { id: createMessageId(), ...message };
+}
+
+function normalizeMessage(message: Message | MessageContent, index: number): Message {
+  if ('id' in message && typeof message.id === 'string' && message.id.trim()) {
+    return message;
+  }
+
+  return { id: `legacy-message-${index}-${createMessageId()}`, ...message };
+}
 
 function getUserId(): number | null {
   try {
@@ -81,9 +103,12 @@ function loadMessages(): Message[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return [INITIAL_MESSAGE];
-    const { userId, messages } = JSON.parse(raw) as { userId: number | null; messages: Message[] };
+    const { userId, messages } = JSON.parse(raw) as {
+      userId: number | null;
+      messages: Array<Message | MessageContent>;
+    };
     if (userId !== getUserId()) return [INITIAL_MESSAGE];
-    return messages;
+    return messages.map(normalizeMessage);
   } catch {
     return [INITIAL_MESSAGE];
   }
@@ -351,7 +376,7 @@ const AIChat: React.FC = () => {
     const text = input.trim();
     if (!text || loading) return;
 
-    setMessages((prev) => [...prev, { kind: 'user', text }]);
+    setMessages((prev) => [...prev, createMessage({ kind: 'user', text })]);
     setInput('');
     setLoading(true);
 
@@ -380,10 +405,10 @@ const AIChat: React.FC = () => {
       }
 
       const recipe = (await response.json()) as GeneratedRecipe;
-      setMessages((prev) => [...prev, { kind: 'recipe', recipe }]);
+      setMessages((prev) => [...prev, createMessage({ kind: 'recipe', recipe })]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again!';
-      setMessages((prev) => [...prev, { kind: 'model', text: msg }]);
+      setMessages((prev) => [...prev, createMessage({ kind: 'model', text: msg })]);
     } finally {
       setLoading(false);
     }
@@ -434,12 +459,12 @@ const AIChat: React.FC = () => {
         </div>
 
         <div className="aichat-messages">
-          {messages.map((msg, i) => {
+          {messages.map((msg) => {
             if (msg.kind === 'recipe') {
-              return <RecipeMessage key={i} recipe={msg.recipe} />;
+              return <RecipeMessage key={msg.id} recipe={msg.recipe} />;
             }
             return (
-              <div key={i} className={`aichat-bubble-row aichat-bubble-row--${msg.kind}`}>
+              <div key={msg.id} className={`aichat-bubble-row aichat-bubble-row--${msg.kind}`}>
                 <div className={`aichat-bubble aichat-bubble--${msg.kind}`}>{msg.text}</div>
               </div>
             );
