@@ -7,11 +7,18 @@ import {
   deleteRecipe,
   IMAGES_URL,
 } from '../../api/recipes';
+import {
+  ALLERGY_FIELD_TO_OPTION,
+  ALLERGY_OPTIONS,
+  normalizeAllergyLabels,
+} from '../../constants/allergies';
 import './Recipes.css';
 
 type ViewMode = 'list' | 'cook' | 'edit' | 'add';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
+
+type AllergyPreferences = Record<string, boolean | number | string | null | undefined>;
 
 const emptyRecipe = (): Omit<Recipe, 'id' | 'createdBy' | 'createdAt'> => ({
   title: '',
@@ -19,6 +26,8 @@ const emptyRecipe = (): Omit<Recipe, 'id' | 'createdBy' | 'createdAt'> => ({
   ingredients: [{ name: '', amount: '', unit: '', cost: 0 }],
   steps: [{ text: '' }],
   categories: [],
+  allergies: [],
+  dietaryPreferences: [],
   difficulty: 'Easy',
   prepTime: 0,
   cookTime: 0,
@@ -36,6 +45,24 @@ function toStepObj(step: string | Step): Step {
   return step;
 }
 
+function getSelectedAllergyTags(allergies: AllergyPreferences): string[] {
+  return Object.entries(allergies).flatMap(([key, value]) => {
+    if (value !== true && value !== 1 && value !== 'true') return [];
+    return ALLERGY_FIELD_TO_OPTION[key] ?? [key];
+  });
+}
+
+function getRecipeAllergyMatches(recipe: Recipe, selectedAllergyTags: string[]): string[] {
+  if (selectedAllergyTags.length === 0) return [];
+
+  const recipeAllergies = new Set(
+    normalizeAllergyLabels(recipe.allergies).map((allergy) => allergy.toLowerCase())
+  );
+  const matches = selectedAllergyTags.filter((tag) => recipeAllergies.has(tag.toLowerCase()));
+
+  return [...new Set(matches)];
+}
+
 export default function Recipes() {
   const currentUserId = (() => {
     try {
@@ -49,6 +76,7 @@ export default function Recipes() {
   })();
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [selectedAllergyTags, setSelectedAllergyTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -98,6 +126,29 @@ export default function Recipes() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setSelectedAllergyTags([]);
+      return;
+    }
+
+    const loadAllergies = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/preferences', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as { allergies?: AllergyPreferences };
+        setSelectedAllergyTags(getSelectedAllergyTags(data.allergies ?? {}));
+      } catch {
+        setSelectedAllergyTags([]);
+      }
+    };
+
+    void loadAllergies();
+  }, []);
+
   const openCook = (recipe: Recipe) => {
     setSelected(recipe);
     setCurrentStep(0);
@@ -119,6 +170,8 @@ export default function Recipes() {
       ingredients: recipe.ingredients.map(toIngredientObj),
       steps: recipe.steps.map(toStepObj),
       categories: [...recipe.categories],
+      allergies: normalizeAllergyLabels(recipe.allergies),
+      dietaryPreferences: [...(recipe.dietaryPreferences ?? [])],
       difficulty: recipe.difficulty ?? 'Easy',
       prepTime: recipe.prepTime,
       cookTime: recipe.cookTime,
@@ -266,6 +319,18 @@ export default function Recipes() {
     }));
   };
 
+  const toggleAllergy = (tag: string) => {
+    setForm((f) => {
+      const allergies = f.allergies ?? [];
+      return {
+        ...f,
+        allergies: allergies.includes(tag)
+          ? allergies.filter((allergy) => allergy !== tag)
+          : [...allergies, tag],
+      };
+    });
+  };
+
   const handleSave = async () => {
     if (!form.title.trim()) {
       setFormError('Recipe title is required.');
@@ -368,9 +433,11 @@ export default function Recipes() {
       }
     }
     if (filterAllergens.size > 0) {
-      const recipeTags = r.categories.map((c) => c.toLowerCase());
+      const recipeAllergies = normalizeAllergyLabels(r.allergies).map((allergy) =>
+        allergy.toLowerCase()
+      );
       for (const allergen of filterAllergens) {
-        if (recipeTags.includes(allergen)) return false;
+        if (recipeAllergies.includes(allergen)) return false;
       }
     }
     return true;
@@ -600,27 +667,14 @@ export default function Recipes() {
                     Select what you can&apos;t eat — recipes containing these will be hidden.
                   </p>
                   <div className="recipes-filter-chips">
-                    {[
-                      'peanuts',
-                      'tree-nuts',
-                      'eggs',
-                      'milk',
-                      'fish',
-                      'crustaceans',
-                      'soy',
-                      'wheat',
-                      'sesame',
-                      'mustard',
-                      'lactose',
-                      'gluten',
-                    ].map((tag) => (
+                    {ALLERGY_OPTIONS.map((allergy) => (
                       <button
-                        key={tag}
+                        key={allergy}
                         type="button"
-                        className={`recipes-filter-chip allergen ${filterAllergens.has(tag) ? 'active' : ''}`}
-                        onClick={() => toggleFilterAllergen(tag)}
+                        className={`recipes-filter-chip allergen ${filterAllergens.has(allergy) ? 'active' : ''}`}
+                        onClick={() => toggleFilterAllergen(allergy)}
                       >
-                        {tag}
+                        {allergy}
                       </button>
                     ))}
                   </div>
@@ -656,77 +710,86 @@ export default function Recipes() {
               )}
 
               <div className="recipes-grid">
-                {filteredRecipes.map((recipe) => (
-                  <div key={recipe.id} className="recipe-card">
-                    <img
-                      src={resolveImageUrl(recipe.heroImage)}
-                      alt={recipe.title}
-                      className="recipe-card-img"
-                    />
-                    <div className="recipe-card-body">
-                      <div className="recipe-card-tags">
-                        <span className={difficultyColor(recipe.difficulty)}>
-                          {recipe.difficulty ?? 'Easy'}
-                        </span>
-                        <span className="recipes-badge time">
-                          {(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min
-                        </span>
-                      </div>
-                      <h3 className="recipe-card-title">{recipe.title}</h3>
-                      <p className="recipe-card-desc">{recipe.description}</p>
-                    </div>
-                    <div className="recipe-card-actions">
-                      {deleteConfirmId === String(recipe.id) ? (
-                        <div className="recipes-delete-confirm">
-                          <span>Delete this recipe?</span>
-                          <button
-                            type="button"
-                            className="recipes-delete-confirm-yes"
-                            onClick={() => handleDelete(recipe)}
-                          >
-                            Yes, delete
-                          </button>
-                          <button
-                            type="button"
-                            className="recipes-delete-confirm-no"
-                            onClick={() => setDeleteConfirmId(null)}
-                          >
-                            Cancel
-                          </button>
+                {filteredRecipes.map((recipe) => {
+                  const allergyMatches = getRecipeAllergyMatches(recipe, selectedAllergyTags);
+
+                  return (
+                    <div key={recipe.id} className="recipe-card">
+                      <img
+                        src={resolveImageUrl(recipe.heroImage)}
+                        alt={recipe.title}
+                        className="recipe-card-img"
+                      />
+                      <div className="recipe-card-body">
+                        <div className="recipe-card-tags">
+                          <span className={difficultyColor(recipe.difficulty)}>
+                            {recipe.difficulty ?? 'Easy'}
+                          </span>
+                          <span className="recipes-badge time">
+                            {(recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)} min
+                          </span>
                         </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            className="profile-button primary"
-                            onClick={() => openCook(recipe)}
-                          >
-                            Cook
-                          </button>
-                          {currentUserId === recipe.createdBy && (
-                            <>
-                              <button
-                                type="button"
-                                className="profile-button secondary"
-                                onClick={() => openEdit(recipe)}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="recipes-delete-btn"
-                                onClick={() => setDeleteConfirmId(String(recipe.id))}
-                                title="Delete"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </>
-                      )}
+                        {allergyMatches.length > 0 && (
+                          <p className="recipe-allergy-warning">
+                            Contains an allergy associated with your profile.
+                          </p>
+                        )}
+                        <h3 className="recipe-card-title">{recipe.title}</h3>
+                        <p className="recipe-card-desc">{recipe.description}</p>
+                      </div>
+                      <div className="recipe-card-actions">
+                        {deleteConfirmId === String(recipe.id) ? (
+                          <div className="recipes-delete-confirm">
+                            <span>Delete this recipe?</span>
+                            <button
+                              type="button"
+                              className="recipes-delete-confirm-yes"
+                              onClick={() => handleDelete(recipe)}
+                            >
+                              Yes, delete
+                            </button>
+                            <button
+                              type="button"
+                              className="recipes-delete-confirm-no"
+                              onClick={() => setDeleteConfirmId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="profile-button primary"
+                              onClick={() => openCook(recipe)}
+                            >
+                              Cook
+                            </button>
+                            {currentUserId === recipe.createdBy && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="profile-button secondary"
+                                  onClick={() => openEdit(recipe)}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="recipes-delete-btn"
+                                  onClick={() => setDeleteConfirmId(String(recipe.id))}
+                                  title="Delete"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -1159,6 +1222,21 @@ export default function Recipes() {
                     onClick={() => toggleCategory(tag)}
                   >
                     {tag}
+                  </button>
+                ))}
+              </div>
+              <p className="profile-card-subtitle recipes-allergy-tags-title">
+                Select any allergies or intolerances this recipe contains.
+              </p>
+              <div className="profile-chip-grid">
+                {ALLERGY_OPTIONS.map((allergy) => (
+                  <button
+                    key={allergy}
+                    type="button"
+                    className={`profile-chip ${(form.allergies ?? []).includes(allergy) ? 'selected' : ''}`}
+                    onClick={() => toggleAllergy(allergy)}
+                  >
+                    {allergy}
                   </button>
                 ))}
               </div>

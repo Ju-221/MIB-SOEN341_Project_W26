@@ -15,6 +15,61 @@ type RecipeIngredient = {
   cost?: number;
 };
 
+const RECIPE_ALLERGY_OPTIONS = [
+  'Nuts',
+  'Peanuts',
+  'Dairy',
+  'Eggs',
+  'Wheat',
+  'Gluten',
+  'Shellfish',
+  'Fish',
+  'Soy',
+  'Sesame',
+  'Mustard',
+  'Lactose Intolerance',
+  'Sulfites',
+];
+
+const RECIPE_ALLERGY_ALIASES: Record<string, string> = {
+  nuts: 'Nuts',
+  treenuts: 'Nuts',
+  tree_nuts: 'Nuts',
+  'tree-nuts': 'Nuts',
+  peanuts: 'Peanuts',
+  peanut: 'Peanuts',
+  dairy: 'Dairy',
+  milk: 'Dairy',
+  eggs: 'Eggs',
+  egg: 'Eggs',
+  wheat: 'Wheat',
+  gluten: 'Gluten',
+  shellfish: 'Shellfish',
+  crustaceans: 'Shellfish',
+  crustacean: 'Shellfish',
+  fish: 'Fish',
+  soy: 'Soy',
+  sesame: 'Sesame',
+  mustard: 'Mustard',
+  lactose: 'Lactose Intolerance',
+  lactoseintolerance: 'Lactose Intolerance',
+  sulfites: 'Sulfites',
+  sulphites: 'Sulfites',
+};
+
+const normalizeRecipeAllergyLabels = (allergies: unknown): string[] => {
+  if (!Array.isArray(allergies)) return [];
+
+  const normalized = allergies.flatMap((allergy) => {
+    if (typeof allergy !== 'string') return [];
+    const key = allergy.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    const label = RECIPE_ALLERGY_ALIASES[key] ?? allergy;
+    return RECIPE_ALLERGY_OPTIONS.includes(label) ? [label] : [];
+  });
+
+  return [...new Set(normalized)];
+};
+
 // muter: temp-storeage, renamed after insert
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, './uploads/'),
@@ -83,7 +138,7 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res: Respon
     const parsedSteps = parseJsonArrayField(steps);
     const parsedCategories = parseJsonArrayField<string>(categories);
     const parsedDietaryPreferences = parseJsonArrayField<string>(dietaryPreferences);
-    const parsedAllergies = parseJsonArrayField<string>(allergies);
+    const parsedAllergies = normalizeRecipeAllergyLabels(parseJsonArrayField<string>(allergies));
 
     const result = db
       .insert(recipes)
@@ -173,7 +228,9 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
         ? parseJsonArrayField<string>(dietaryPreferences)
         : undefined;
     const parsedAllergies =
-      allergies !== undefined ? parseJsonArrayField<string>(allergies) : undefined;
+      allergies !== undefined
+        ? normalizeRecipeAllergyLabels(parseJsonArrayField<string>(allergies))
+        : undefined;
 
     let heroImage = existing.heroImage;
     if (req.file) {
@@ -271,7 +328,7 @@ const parseRecipe = (r: typeof recipes.$inferSelect) => {
     steps: JSON.parse(r.steps || '[]'),
     categories: JSON.parse(r.categories || '[]'),
     dietaryPreferences: JSON.parse(r.dietaryPreferences || '[]'),
-    allergies: JSON.parse(r.allergies || '[]'),
+    allergies: normalizeRecipeAllergyLabels(JSON.parse(r.allergies || '[]')),
   };
 };
 
@@ -326,8 +383,14 @@ export const generateRecipe = async (req: Request, res: Response) => {
               "difficulty": "Easy" | "Medium" | "Hard",
               "ingredients": [{ "name": string, "amount": number, "unit": string }],
               "steps": [string],
-              "categories": [string]
+              "categories": [string],
+              "allergies": [string]
             }
+            The "allergies" array must contain only exact values from this list when applicable:
+            ${RECIPE_ALLERGY_OPTIONS.join(', ')}.
+            Infer these allergies from the recipe ingredients. For example, cheese, butter,
+            yogurt, cream, and milk should use "Dairy"; shrimp, crab, and lobster should
+            use "Shellfish"; almonds, walnuts, and cashews should use "Nuts".
         
         `;
 
@@ -364,6 +427,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
       ingredients: RecipeIngredient[];
       steps: string[];
       categories: string[];
+      allergies?: string[];
     };
 
     try {
@@ -404,7 +468,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
         steps: JSON.stringify(recipe.steps),
         categories: JSON.stringify(recipe.categories),
         dietaryPreferences: '[]',
-        allergies: '[]',
+        allergies: JSON.stringify(normalizeRecipeAllergyLabels(recipe.allergies)),
         heroImage: null,
       })
       .returning()

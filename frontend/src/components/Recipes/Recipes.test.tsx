@@ -83,6 +83,30 @@ describe('Recipes Component', () => {
       render(<Recipes />);
       await waitFor(() => expect(screen.getByText(/failed to load recipes/i)).toBeInTheDocument());
     });
+
+    it('warns when a saved profile allergy matches a recipe allergy tag', async () => {
+      vi.mocked(localStorage.getItem).mockImplementation((key) =>
+        key === 'token' ? makeToken({ id: 42 }) : null
+      );
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: 1, title: 'Peanut Noodles', allergies: ['Peanuts'] }),
+        makeRecipe({ id: 2, title: 'Tomato Soup', allergies: [] }),
+      ]);
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        json: async () => ({ allergies: { peanuts: true } }),
+      } as Response);
+
+      render(<Recipes />);
+
+      expect(await screen.findByText('Peanut Noodles')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.getByText(/contains an allergy associated with your profile/i)
+        ).toBeInTheDocument()
+      );
+      expect(screen.getByText('Tomato Soup')).toBeInTheDocument();
+    });
   });
 
   // ── Search / filter ─────────────────────────────────────────────────────────
