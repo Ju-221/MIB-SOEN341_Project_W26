@@ -998,6 +998,12 @@ export default function Recipes() {
   if (viewMode === 'edit' || viewMode === 'add') {
     const isAdding = viewMode === 'add';
     const heading = isAdding ? 'New Recipe' : `Editing: ${selected?.title ?? ''}`;
+    let saveButtonLabel = 'Save Changes';
+    if (saving) {
+      saveButtonLabel = 'Saving…';
+    } else if (isAdding) {
+      saveButtonLabel = 'Create Recipe';
+    }
 
     return (
       <div className="profile-page">
@@ -1389,7 +1395,7 @@ export default function Recipes() {
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? 'Saving…' : isAdding ? 'Create Recipe' : 'Save Changes'}
+              {saveButtonLabel}
             </button>
           </div>
         </div>
