@@ -68,12 +68,11 @@ const INITIAL_MESSAGE: Message = {
 // ── Session storage helpers ────────────────────────────────
 
 const STORAGE_KEY = 'aichat_messages';
+let nextMessageId = 0;
 
 function createMessageId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  nextMessageId += 1;
+  return `message-${Date.now()}-${nextMessageId}`;
 }
 
 function createMessage(message: MessageContent): Message {
