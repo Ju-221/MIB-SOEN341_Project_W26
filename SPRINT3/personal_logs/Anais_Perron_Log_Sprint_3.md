@@ -14,7 +14,7 @@ This log documents my contributions to the MealMajor project during Sprint 3, fo
 | 2026-03-15 | Fixed homepage animation timing                                                               | `3ce088b`           | 0.5                |
 | 2026-03-16 | Built base for the Unique feature: routing, navbar entry, page scaffold                      | `15722fc`           | 2                  |
 | 2026-03-19 | Designed and implemented the full Unique feature UI (flip cards, game logic, Aurora background) | `f69f618`         | 5                  |
-| 2026-03-20 | Improved homepage animations and layout consistency     (SPRINT 4)                                      | `6d8f8c1`, `9f1d0ed`| 1.5                |
+| 2026-03-20 | Improved homepage animations and layout consistency                                           | `6d8f8c1`, `9f1d0ed`| 1.5                |
 | 2026-03-23 | Added ingredient selection picker and filter modes (Common/Uncommon) to the Unique feature   | `9606c2c`           | 3                  |
 | 2026-03-23 | Built the RecipePopup full-detail modal (ingredients, steps, tags, meta bar, hero image)     | `5844b6f`           | 4                  |
 | 2026-03-25 | Wired AI chatbot to Gemini recipe generation endpoint; added recipe card display in chat     | `0e59cd6`, `9f7ec1b`| 4                  |
