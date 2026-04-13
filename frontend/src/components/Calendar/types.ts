@@ -1,5 +1,12 @@
-export type MealType = 'breakfast' | 'lunch' | 'dinner';
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 export type ViewMode = 'week' | 'month';
+
+export interface DayMeals {
+  breakfast: MealSlot;
+  lunch: MealSlot;
+  dinner: MealSlot;
+  snack: MealSlot;
+}
 
 export interface MealSlot {
   recipeId: number | null;
@@ -8,11 +15,7 @@ export interface MealSlot {
 
 export interface CalendarDay {
   date: number;
-  meals: {
-    breakfast: MealSlot;
-    lunch: MealSlot;
-    dinner: MealSlot;
-  };
+  meals: DayMeals;
 }
 
 export const MONTH_NAMES = [
@@ -36,15 +39,27 @@ export const MEAL_LABELS: Record<MealType, string> = {
   breakfast: 'Breakfast',
   lunch: 'Lunch',
   dinner: 'Dinner',
+  snack: 'Snack',
 };
 
-export const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'dinner'];
+export const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
-export function emptyMeals() {
+export function emptyMeals(): DayMeals {
   return {
     breakfast: { recipeId: null, recipeTitle: null },
     lunch: { recipeId: null, recipeTitle: null },
     dinner: { recipeId: null, recipeTitle: null },
+    snack: { recipeId: null, recipeTitle: null },
+  };
+}
+
+export function normalizeCalendarDay(day: CalendarDay): CalendarDay {
+  return {
+    ...day,
+    meals: {
+      ...emptyMeals(),
+      ...day.meals,
+    },
   };
 }
 

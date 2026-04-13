@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './RecipePopup.css';
+import { IMAGES_URL } from '../../api/recipes';
 
 interface Ingredient {
   name: string;
@@ -41,7 +42,17 @@ function formatIngredient(ing: string | Ingredient): string {
   return parts ? `${ing.name} — ${parts}` : ing.name;
 }
 
+function loadHeroImage(recipe: Recipe) {
+  if (!recipe.heroImage) {
+    return '/food-clipart.jpg';
+  } else {
+    return `${IMAGES_URL}/${recipe.heroImage}`;
+  }
+}
+
 const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
+  const [heroImageCache, setHeroImageCache] = React.useState<Map<number, string>>(new Map());
+
   // Close on Escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -58,16 +69,14 @@ const RecipePopup: React.FC<RecipePopupProps> = ({ recipe, onClose }) => {
       <div className="popup-card" onClick={(e) => e.stopPropagation()}>
         {/* Hero image */}
         <div className="popup-hero">
-          <img
-            src={
-              recipe.heroImage
-                ? recipe.heroImage.startsWith('data:')
-                  ? recipe.heroImage
-                  : `http://localhost:3000/uploads/${recipe.heroImage}`
-                : 'http://localhost:3000/uploads/temp-1774310819405.jpeg'
+          {(() => {
+            const cachedImage = heroImageCache.get(recipe.id);
+            const imageUrl = cachedImage || loadHeroImage(recipe);
+            if (!cachedImage) {
+              setHeroImageCache((prev) => new Map(prev).set(recipe.id, imageUrl));
             }
-            alt={recipe.title}
-          />
+            return <img src={imageUrl} alt={recipe.title} />;
+          })()}
           <div className="popup-hero-overlay" />
           <button className="popup-close" onClick={onClose} aria-label="Close">
             ✕

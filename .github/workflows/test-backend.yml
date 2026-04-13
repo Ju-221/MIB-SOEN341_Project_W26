@@ -4,13 +4,8 @@ name: Backend API Tests
 on:
   push:
     branches: [main, Dev]
-    paths:
-      - 'express/**'
-      - '.github/workflows/test-backend.yml'
   pull_request:
     branches: [main, Dev]
-    paths:
-      - 'express/**'
 
 jobs:
   test-backend:
@@ -41,6 +36,9 @@ jobs:
 
       - name: Check formatting
         run: npx prettier --check .
+
+      - name: Run unit tests
+        run: npm test -w express
 
       - name: Setup environment variables
         run: |

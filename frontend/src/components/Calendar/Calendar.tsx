@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Recipe } from '../Recipe-Manager/CreateRecipe';
-import RecipeManager from '../Recipe-Manager/CreateRecipe';
-import type { CalendarDay, MealType, ViewMode } from './types';
+import RecipeManager, { type Recipe } from '../Recipe-Manager/CreateRecipe';
 import {
+  type CalendarDay,
+  type MealType,
+  type ViewMode,
   MONTH_NAMES,
   DAY_LABELS,
   MEAL_TYPES,
@@ -30,6 +31,16 @@ interface GridCell {
   interactive: boolean;
   isToday: boolean;
   fullDate: Date;
+}
+
+interface GenerateRecipeErrorResponse {
+  message?: string;
+  details?: {
+    type?: string;
+    statusCode?: string;
+    code?: string;
+    message?: string;
+  };
 }
 
 function Calendar() {
@@ -398,7 +409,17 @@ function Calendar() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as GenerateRecipeErrorResponse;
+        const logDetails = {
+          status: res.status,
+          type: data.details?.type,
+          statusCode: data.details?.statusCode,
+          code: data.details?.code,
+          message: data.details?.message ?? data.message,
+        };
+        console.error(
+          `Calendar AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`
+        );
         throw new Error(data.message || 'Generation failed');
       }
 

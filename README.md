@@ -1,14 +1,14 @@
 # Mealmajor
 
-[![Backend API Tests](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/AnaisPerron/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
+[![Backend API Tests](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml/badge.svg)](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-backend.yml)
 [![Frontend UI Tests](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-frontend.yml/badge.svg)](https://github.com/Ju-221/MIB-SOEN341_Project_W26/actions/workflows/test-frontend.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Ju-221_MIB-SOEN341_Project_W26&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Ju-221_MIB-SOEN341_Project_W26)
 
 ## Static Scanner
 [![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=Ju-221_MIB-SOEN341_Project_W26)
-## DEV_POST
+## Version Control
 
-If you're seeing this, this is the main branch for testing new features, our nightly build if anything. This is branch is expected to be experimental while bugs are caught slowly. pull at your own risk, but this should be the most up to date in features developed branch. 
+Beta 1.1 - refactor 1 to main, nightly builds to be pushed onto Main overnight.
 
 # Major updates:
 
@@ -17,6 +17,8 @@ If you're seeing this, this is the main branch for testing new features, our nig
 06/2/2026 - Sprint 1 finished and ready for testing! Dropped supabase in change for litesql and implemented JWT tokens, frontend mockup finished
 
 25/2/2026 - Sprint 2 almost finished, unit testing , CICD pipeline, new frontend features added. Transition to express backend succesfully done.
+
+12/4/2026 - Beta 1.1. This new version refactors most of the website into a more coehesive version of the project getting it up to speed for Sprint 4.
 
 ## Problem
 

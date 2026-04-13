@@ -19,3 +19,10 @@ global.localStorage = localStorageMock as any;
 
 // Mock fetch API
 global.fetch = vi.fn();
+
+// Mock ResizeObserver (not available in jsdom)
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
