@@ -3,9 +3,10 @@ import path from 'path';
 import multer from 'multer';
 import { eq, like } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { allergies, dietaryPreferences, recipes } from '../db/schema.js';
+import { recipes } from '../db/schema.js';
 import { Request, Response } from 'express';
 import { CreateRecipeBody, Difficulty, UpdateRecipeBody } from '../types/index.js';
+import errorHelpers from '../utils/errorHelpers.js';
 
 type RecipeIngredient = {
   name: string;
@@ -106,14 +107,31 @@ export const createRecipe = (req: Request<{}, {}, CreateRecipeBody>, res: Respon
 
     const id = result.id;
 
-    // rename uploaded image to {id}.ext
+    // Handle image upload with transaction safety
     let heroImage = null;
     if (req.file) {
-      const ext = path.extname(req.file.originalname); // the file extension
-      const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join('./uploads', newName));
-      heroImage = newName;
-      db.update(recipes).set({ heroImage }).where(eq(recipes.id, id)).run();
+      try {
+        const ext = path.extname(req.file.originalname);
+        const newName = `${id}${ext}`;
+        const newPath = path.join('./uploads', newName);
+
+        // Rename file first
+        fs.renameSync(req.file.path, newPath);
+
+        // Update DB only after successful file operation
+        db.update(recipes).set({ heroImage: newName }).where(eq(recipes.id, id)).run();
+        heroImage = newName;
+      } catch (fileError) {
+        console.error('Failed to process uploaded image:', fileError);
+        // Clean up the temp file if rename failed
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (cleanupError) {
+          console.error('Failed to cleanup temp file:', cleanupError);
+        }
+      }
     }
 
     res.status(201).json(parseRecipe({ ...result, heroImage }));
@@ -159,16 +177,33 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
 
     let heroImage = existing.heroImage;
     if (req.file) {
-      if (existing.heroImage) {
-        const imagePath = path.join('./uploads', existing.heroImage);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
+      try {
+        // Delete old image if it exists
+        if (existing.heroImage) {
+          const oldImagePath = path.join('./uploads', existing.heroImage);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
+
+        // Rename new file
+        const ext = path.extname(req.file.originalname);
+        const newName = `${id}${ext}`;
+        const newPath = path.join('./uploads', newName);
+        fs.renameSync(req.file.path, newPath);
+        heroImage = newName;
+      } catch (fileError) {
+        console.error('Failed to process uploaded image:', fileError);
+        // Clean up temp file
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (cleanupError) {
+          console.error('Failed to cleanup temp file:', cleanupError);
+        }
+        return res.status(500).json({ message: 'Failed to process image upload' });
       }
-      const ext = path.extname(req.file.originalname);
-      const newName = `${id}${ext}`;
-      fs.renameSync(req.file.path, path.join('./uploads', newName));
-      heroImage = newName;
     }
 
     const updates = {
@@ -251,12 +286,30 @@ const parseJsonArrayField = <T>(value: unknown): T[] => {
 };
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { error } from 'console';
 
 export const generateRecipe = async (req: Request, res: Response) => {
+  const { prompt } = req.body;
+  const createdBy = req.user!.id; // ! asserts that user object is non null
+  const promptPreview = typeof prompt === 'string' ? prompt.slice(0, 200) : undefined;
+
   try {
-    const { prompt } = req.body;
-    const createdBy = req.user!.id; // ! asserts that user object is non null
+    if (!process.env.GEMINI_API_KEY) {
+      const details = {
+        type: 'ConfigurationError',
+        code: 'MISSING_GEMINI_API_KEY',
+        message: 'Gemini API key is missing from server configuration.',
+      };
+
+      console.error('Gemini recipe generation failed: missing GEMINI_API_KEY', {
+        userId: createdBy,
+        hasPrompt: typeof prompt === 'string' && prompt.trim().length > 0,
+        promptPreview,
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
 
     const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAi.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -281,11 +334,61 @@ export const generateRecipe = async (req: Request, res: Response) => {
     const result = await model.generateContent(systemPrompt);
     const text = result.response.text();
 
+    if (!text.trim()) {
+      const details = {
+        type: 'GeminiResponseError',
+        code: 'EMPTY_RESPONSE',
+        message: 'Gemini returned an empty response.',
+      };
+
+      console.error('Gemini recipe generation failed: empty response text', {
+        userId: createdBy,
+        model: 'gemini-2.5-flash',
+        promptPreview,
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
+
     // strip away the markdown syntax
     const json = text.replace(/```json|```/g, '').trim();
-    const recipe = JSON.parse(json);
+    let recipe: {
+      title: string;
+      description: string;
+      prepTime: number;
+      cookTime: number;
+      estimatedCost: number;
+      difficulty: Difficulty;
+      ingredients: RecipeIngredient[];
+      steps: string[];
+      categories: string[];
+    };
 
-    console.log(recipe);
+    try {
+      recipe = JSON.parse(json);
+    } catch (err) {
+      const parseError = errorHelpers.getErrorDetails(err);
+      const details = {
+        type: 'GeminiResponseError',
+        code: 'INVALID_JSON',
+        message: 'Gemini returned malformed JSON.',
+        cause: parseError,
+      };
+
+      console.error('Gemini recipe generation failed: invalid JSON response', {
+        userId: createdBy,
+        model: 'gemini-2.5-flash',
+        promptPreview,
+        rawResponsePreview: text.slice(0, 500),
+        cleanedResponsePreview: json.slice(0, 500),
+        error: details,
+      });
+      return res
+        .status(500)
+        .json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
+    }
 
     const saved = db
       .insert(recipes)
@@ -309,7 +412,14 @@ export const generateRecipe = async (req: Request, res: Response) => {
 
     res.status(201).json(parseRecipe(saved));
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to generate recipe' });
+    const details = errorHelpers.getErrorDetails(err);
+
+    console.error('Gemini recipe generation failed', {
+      userId: createdBy,
+      model: 'gemini-2.5-flash',
+      promptPreview,
+      error: details,
+    });
+    res.status(500).json(errorHelpers.createDevErrorResponse('Failed to generate recipe', details));
   }
 };

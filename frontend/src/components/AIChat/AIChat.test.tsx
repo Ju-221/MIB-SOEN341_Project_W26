@@ -29,10 +29,15 @@ vi.mock('../Calendar/types', () => ({
     'November',
     'December',
   ],
-  MEAL_TYPES: ['breakfast', 'lunch', 'dinner'],
-  MEAL_LABELS: { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' },
+  MEAL_TYPES: ['breakfast', 'lunch', 'dinner', 'snack'],
+  MEAL_LABELS: { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' },
   buildEmptyMonth: vi.fn(() => []),
-  emptyMeals: vi.fn(() => ({ breakfast: null, lunch: null, dinner: null })),
+  emptyMeals: vi.fn(() => ({
+    breakfast: { recipeId: null, recipeTitle: null },
+    lunch: { recipeId: null, recipeTitle: null },
+    dinner: { recipeId: null, recipeTitle: null },
+    snack: { recipeId: null, recipeTitle: null },
+  })),
 }));
 
 const mockFetch = vi.fn();

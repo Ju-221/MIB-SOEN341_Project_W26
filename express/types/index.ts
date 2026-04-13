@@ -37,10 +37,3 @@ export interface UpdateRecipeBody {
   dietaryPreferences?: string | unknown[];
   allergies?: string | unknown[];
 }
-
-export interface Calendar {
-  userId: number;
-  month: number;
-  year: number;
-  days: string;
-}

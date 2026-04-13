@@ -1,17 +1,32 @@
-import { useState, useEffect } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
-import RecipeManager from '../Recipe-Manager/CreateRecipe';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 
 import './Profile.css';
 
-function Profile() {
-  const [profileEmail, setProfileEmail] = useState('');
+function getInitial(email: string): string {
+  if (!email) return '?';
+  return email.charAt(0).toUpperCase();
+}
 
+const CheckIcon = () => (
+  <span className="chip-check" aria-hidden="true">
+    <svg
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+    </svg>
+  </span>
+);
+
+function Profile() {
   const getEmailFromToken = (token: string): string => {
     try {
       const payloadPart = token.split('.')[1];
       if (!payloadPart) return '';
-
       const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
@@ -19,7 +34,6 @@ function Profile() {
           .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
           .join('')
       );
-
       const parsed = JSON.parse(jsonPayload) as { email?: string };
       return parsed.email ?? '';
     } catch {
@@ -27,50 +41,62 @@ function Profile() {
     }
   };
 
-  const loadPreferences = async () => {
+  // Derive email once at mount via lazy initializer — no synchronous setState in effect needed.
+  const [profileEmail] = useState(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      return;
+    if (token) {
+      const email = getEmailFromToken(token);
+      if (email) return email;
     }
+    return localStorage.getItem('userEmail') ?? '';
+  });
 
-    try {
-      const response = await fetch('http://localhost:3000/api/preferences', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        await response.json();
-      }
-    } catch (error) {
-      console.error('Error loading preferences:', error);
-    }
-  };
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle'
+  );
 
   useEffect(() => {
-    loadPreferences();
-
     const token = localStorage.getItem('token');
-    const storedEmail = localStorage.getItem('userEmail') ?? '';
+    if (!token) return;
 
-    if (token) {
-      const tokenEmail = getEmailFromToken(token);
-      if (tokenEmail) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setProfileEmail(tokenEmail);
-        return;
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { firstName?: string; lastName?: string };
+          setFirstName(data.firstName ?? '');
+          setLastName(data.lastName ?? '');
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
       }
-    }
+    };
 
-    setProfileEmail(storedEmail);
+    void fetchData();
   }, []);
 
   const handleSave = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Map your selected arrays to the backend format
+    // Save name
+    setNameSaveStatus('saving');
+    try {
+      const nameRes = await fetch('http://localhost:3000/api/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ firstName, lastName }),
+      });
+      setNameSaveStatus(nameRes.ok ? 'saved' : 'error');
+      setTimeout(() => setNameSaveStatus('idle'), 2000);
+    } catch {
+      setNameSaveStatus('error');
+    }
+
     const allergyData = {
       peanuts: selectedAllergies.includes('Peanuts'),
       treeNuts: selectedAllergies.includes('Nuts'),
@@ -151,8 +177,6 @@ function Profile() {
   const [customAllergies, setCustomAllergies] = useState<string[]>([]);
   const [customDietInput, setCustomDietInput] = useState('');
   const [customAllergyInput, setCustomAllergyInput] = useState('');
-  const [showRecipeManager, setShowRecipeManager] = useState(false);
-
   // The following function was drafted with the assistance of ChatGPT Codex.
   // Prompt: "Help me clean up and ensure the toggleSelection helper function works correctly for diet/allergy selection, This function should simply manage the selection state of either diets or allergies or both. Once a button is clicked, it should change colour and show that it is selected. ."
   // I Ashton Levine reviewed, modified, and tested the code to ensure correctness.
@@ -211,32 +235,69 @@ function Profile() {
     <div className="profile-page">
       <div className="profile-shell">
         <header className="profile-header">
+          <div className="profile-avatar" aria-hidden="true">
+            {getInitial(profileEmail)}
+          </div>
           <div>
             <h1>Profile</h1>
             <p className="profile-subtitle">
-              Manage your personal information and food information.
+              Manage your personal information and food preferences.
             </p>
           </div>
         </header>
+
+        {/* Personal Information */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
             <h2>Personal Information</h2>
           </div>
           <div className="profile-card-body">
             <div className="profile-grid two">
               <div className="profile-field">
-                <label htmlFor="firstName">
-                  First Name <span className="required">*</span>
-                </label>
-                <input id="firstName" type="text" defaultValue="Final.test" />
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Enter first name"
+                />
               </div>
               <div className="profile-field">
-                <label htmlFor="lastName">
-                  Last Name <span className="required">*</span>
-                </label>
-                <input id="lastName" type="text" placeholder="Enter last name" />
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Enter last name"
+                />
               </div>
             </div>
+            {nameSaveStatus === 'saved' && (
+              <p className="profile-hint" style={{ color: '#16a34a' }}>
+                Name saved!
+              </p>
+            )}
+            {nameSaveStatus === 'error' && (
+              <p className="profile-hint" style={{ color: '#dc2626' }}>
+                Failed to save name.
+              </p>
+            )}
             <div className="profile-grid one">
               <div className="profile-field">
                 <label htmlFor="email">Email Address</label>
@@ -247,14 +308,29 @@ function Profile() {
           </div>
         </section>
 
+        {/* Diet Preferences */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z" />
+                <path d="M12 8v4l3 3" />
+              </svg>
+            </div>
             <h2>Diet Preferences</h2>
           </div>
           <div className="profile-card-body">
             <p className="profile-card-title">Select your dietary preferences</p>
             <p className="profile-card-subtitle">
-              Select your preferences and we will recommend recipes that match your lifestyle.
+              We&apos;ll recommend recipes that match your lifestyle.
             </p>
             <div className="profile-chip-grid">
               {dietOptions.map((option) => {
@@ -266,8 +342,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -280,8 +356,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedDiets)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -328,14 +404,30 @@ function Profile() {
           </div>
         </section>
 
+        {/* Allergies */}
         <section className="profile-card">
           <div className="profile-card-header">
+            <div className="profile-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
             <h2>Allergies &amp; Intolerances</h2>
           </div>
           <div className="profile-card-body">
             <p className="profile-card-title">Select any allergies or food intolerances</p>
             <p className="profile-card-subtitle">
-              We'll exclude these ingredients from recipe recommendations.
+              We&apos;ll exclude these ingredients from recipe recommendations.
             </p>
             <div className="profile-chip-grid">
               {allergyOptions.map((option) => {
@@ -347,8 +439,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -361,8 +453,8 @@ function Profile() {
                     className={`profile-chip ${selected ? 'selected' : ''}`}
                     onClick={() => toggleSelection(option, setSelectedAllergies)}
                   >
+                    {selected && <CheckIcon />}
                     {option}
-                    {selected ? ' (selected)' : ''}
                   </button>
                 );
               })}
@@ -408,32 +500,16 @@ function Profile() {
             </div>
           </div>
         </section>
+
         <div className="profile-actions">
           <button type="button" className="profile-button secondary" onClick={handleReset}>
             Reset Changes
           </button>
-          <button
-            type="button"
-            className="profile-button secondary"
-            onClick={() => setShowRecipeManager(true)}
-          >
-            Manage Recipes
-          </button>
-          <button type="button" onClick={handleSave} className="profile-button primary">
+          <button type="button" className="profile-button primary" onClick={handleSave}>
             Save Changes
           </button>
         </div>
       </div>
-      {showRecipeManager && (
-        <div className="modal-overlay-profile" onClick={() => setShowRecipeManager(false)}>
-          <div className="modal-content-profile" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-profile" onClick={() => setShowRecipeManager(false)}>
-              ×
-            </button>
-            <RecipeManager />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,171 +1,136 @@
+/*# The following file was generated with the assistance of Claude.
+#Prompt:  Create a test suite for the Navbar component using Vitest and React Testing Library. Cover rendering of brand, nav links
+based on login state, username display, and profile dropdown behavior.
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Navbar from './Navbar';
 
-describe('Navbar Component', () => {
-  const mockOnLoginClick = vi.fn();
-  const mockOnLogout = vi.fn();
+const baseProps = {
+  currentPage: 'home',
+  isLoggedIn: false,
+  userEmail: null,
+};
 
+const loggedInProps = {
+  currentPage: 'home',
+  isLoggedIn: true,
+  userEmail: 'anais@example.com',
+};
+
+describe('Navbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('Button Tests', () => {
-    it('renders login button when not logged in', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={false}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={null}
-        />
-      );
+  // ── Brand ──────────────────────────────────────────────────────────────────
 
-      const loginButton = screen.getByRole('button', { name: /login \/ sign up/i });
-      expect(loginButton).toBeInTheDocument();
+  describe('Brand', () => {
+    it('renders MealMajor brand linking to #home', () => {
+      render(<Navbar {...baseProps} />);
+      const brand = screen.getByRole('link', { name: /mealmajor/i });
+      expect(brand).toBeInTheDocument();
+      expect(brand).toHaveAttribute('href', '#home');
+    });
+  });
+
+  // ── Nav links ──────────────────────────────────────────────────────────────
+
+  describe('Nav links', () => {
+    it('hides Calendar, Discover and AI Chef when logged out', () => {
+      render(<Navbar {...baseProps} />);
+      expect(screen.queryByRole('link', { name: /calendar/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /meal tournament/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /ai chef/i })).not.toBeInTheDocument();
     });
 
-    it('login button is clickable', async () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={false}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={null}
-        />
-      );
-
-      const loginButton = screen.getByRole('button', { name: /login \/ sign up/i });
-      await userEvent.click(loginButton);
-
-      expect(mockOnLoginClick).toHaveBeenCalledTimes(1);
+    it('shows all nav links when logged in', () => {
+      render(<Navbar {...loggedInProps} />);
+      expect(screen.getByRole('link', { name: /recipes/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /calendar/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /meal tournament/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /ai chef/i })).toBeInTheDocument();
     });
 
-    it('renders logout button when logged in', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={true}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail="test@test.com"
-        />
-      );
+    it('marks the active page link', () => {
+      render(<Navbar {...loggedInProps} currentPage="recipes" />);
+      const recipesLink = screen.getAllByRole('link', { name: /recipes/i })[0];
+      expect(recipesLink).toHaveClass('active');
+    });
+  });
 
-      const logoutButton = screen.getByRole('button', { name: /log out/i });
-      expect(logoutButton).toBeInTheDocument();
+  // ── Username display ───────────────────────────────────────────────────────
+
+  describe('Username display', () => {
+    it('shows the part before @ when logged in', () => {
+      render(<Navbar {...loggedInProps} />);
+      expect(screen.getByText('anais')).toBeInTheDocument();
     });
 
-    it('logout button is clickable', async () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={true}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail="test@test.com"
-        />
-      );
+    it('does not show a username when logged out', () => {
+      render(<Navbar {...baseProps} />);
+      expect(screen.queryByText('anais')).not.toBeInTheDocument();
+    });
+  });
 
-      const logoutButton = screen.getByRole('button', { name: /log out/i });
-      await userEvent.click(logoutButton);
+  // ── Profile dropdown ───────────────────────────────────────────────────────
 
-      expect(mockOnLogout).toHaveBeenCalledTimes(1);
+  describe('Profile dropdown', () => {
+    it('profile icon button is always visible', () => {
+      render(<Navbar {...baseProps} />);
+      expect(screen.getByRole('button', { name: /account menu/i })).toBeInTheDocument();
     });
 
-    it('displays user email when logged in', () => {
-      const testEmail = 'user@example.com';
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={true}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={testEmail}
-        />
-      );
-
-      expect(screen.getByText(testEmail)).toBeInTheDocument();
+    it('dropdown is closed by default', () => {
+      render(<Navbar {...baseProps} />);
+      expect(screen.queryByRole('button', { name: /sign in/i })).not.toBeInTheDocument();
     });
 
-    it('does not display logout button when not logged in', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={false}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={null}
-        />
-      );
-
-      const logoutButton = screen.queryByRole('button', { name: /log out/i });
-      expect(logoutButton).not.toBeInTheDocument();
+    it('opens dropdown on profile icon click', async () => {
+      render(<Navbar {...baseProps} />);
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
 
-    it('does not display login button when logged in', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={true}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail="test@test.com"
-        />
-      );
-
-      const loginButton = screen.queryByRole('button', { name: /login \/ sign up/i });
-      expect(loginButton).not.toBeInTheDocument();
+    it('shows Sign In when logged out', async () => {
+      render(<Navbar {...baseProps} />);
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
 
-    it('home link is clickable', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={false}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={null}
-        />
-      );
-
-      const homeLink = screen.getByRole('link', { name: /home/i });
-      expect(homeLink).toBeInTheDocument();
-      expect(homeLink).toHaveAttribute('href', '#home');
+    it('shows Profile link and Sign Out when logged in', async () => {
+      render(<Navbar {...loggedInProps} />);
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.getByRole('link', { name: /^profile$/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
     });
 
-    it('profile link appears when logged in', () => {
-      render(
-        <Navbar
-          currentPage="profile"
-          isLoggedIn={true}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail="test@test.com"
-        />
-      );
-
-      const profileLink = screen.getByRole('link', { name: /profile/i });
-      expect(profileLink).toBeInTheDocument();
-      expect(profileLink).toHaveAttribute('href', '#profile');
+    it('does not show Sign Out when logged out', async () => {
+      render(<Navbar {...baseProps} />);
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.queryByRole('button', { name: /sign out/i })).not.toBeInTheDocument();
     });
 
-    it('profile link does not appear when not logged in', () => {
-      render(
-        <Navbar
-          currentPage="home"
-          isLoggedIn={false}
-          onLoginClick={mockOnLoginClick}
-          onLogout={mockOnLogout}
-          userEmail={null}
-        />
-      );
+    it('shows the email in the dropdown header when logged in', async () => {
+      render(<Navbar {...loggedInProps} />);
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.getByText('anais@example.com')).toBeInTheDocument();
+    });
 
-      const profileLink = screen.queryByRole('link', { name: /profile/i });
-      expect(profileLink).not.toBeInTheDocument();
+    it('closes the dropdown when clicking outside', async () => {
+      render(
+        <div>
+          <Navbar {...baseProps} />
+          <div data-testid="outside">outside</div>
+        </div>
+      );
+      await userEvent.click(screen.getByRole('button', { name: /account menu/i }));
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+
+      await userEvent.click(screen.getByTestId('outside'));
+      expect(screen.queryByRole('button', { name: /sign in/i })).not.toBeInTheDocument();
     });
   });
 });

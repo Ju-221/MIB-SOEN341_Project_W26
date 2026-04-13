@@ -30,7 +30,7 @@ export const signup = async (req: Request, res: Response) => {
       .get();
 
     // Generate token
-    const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
+    const jwtSecret = process.env.JWT_SECRET!;
     const token = jwt.sign({ id: result.id, email: result.email }, jwtSecret, {
       expiresIn: '24h',
     });
@@ -63,7 +63,7 @@ export const signin = async (req: Request, res: Response) => {
     }
 
     // Generate token
-    const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_testing';
+    const jwtSecret = process.env.JWT_SECRET!;
     const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret, {
       expiresIn: '24h',
     });
