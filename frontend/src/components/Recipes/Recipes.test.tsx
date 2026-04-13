@@ -429,4 +429,171 @@ describe('Recipes Component', () => {
       expect(screen.queryByText(/delete this recipe\?/i)).not.toBeInTheDocument();
     });
   });
+
+  // ── Cook time / total time filters ─────────────────────────────────────────
+
+  describe('Cook-time filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: 1, title: 'Fast Soup', cookTime: 5 }),
+        makeRecipe({ id: 2, title: 'Slow Stew', cookTime: 90 }),
+      ]);
+    });
+
+    it('hides recipes whose cook time exceeds the maximum', async () => {
+      render(<Recipes />);
+      await screen.findByText('Fast Soup');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const anyInputs = screen.getAllByPlaceholderText('Any');
+      await userEvent.type(anyInputs[1], '20');
+
+      await waitFor(() => expect(screen.queryByText('Slow Stew')).not.toBeInTheDocument());
+      expect(screen.getByText('Fast Soup')).toBeInTheDocument();
+    });
+  });
+
+  describe('Total-time filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: 1, title: 'Express Dish', prepTime: 5, cookTime: 5 }),
+        makeRecipe({ id: 2, title: 'Long Feast', prepTime: 60, cookTime: 60 }),
+      ]);
+    });
+
+    it('hides recipes whose total time exceeds the maximum', async () => {
+      render(<Recipes />);
+      await screen.findByText('Express Dish');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const anyInputs = screen.getAllByPlaceholderText('Any');
+      await userEvent.type(anyInputs[2], '30');
+
+      await waitFor(() => expect(screen.queryByText('Long Feast')).not.toBeInTheDocument());
+      expect(screen.getByText('Express Dish')).toBeInTheDocument();
+    });
+  });
+
+  // ── Dietary tag filter ──────────────────────────────────────────────────────
+
+  describe('Dietary tag filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: 1, title: 'Veggie Bowl', categories: ['vegetarian'] }),
+        makeRecipe({ id: 2, title: 'Meat Roast', categories: ['dinner'] }),
+      ]);
+    });
+
+    it('hides recipes that do not match the selected dietary tag', async () => {
+      render(<Recipes />);
+      await screen.findByText('Veggie Bowl');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: /^vegetarian$/i }));
+
+      await waitFor(() => expect(screen.queryByText('Meat Roast')).not.toBeInTheDocument());
+      expect(screen.getByText('Veggie Bowl')).toBeInTheDocument();
+    });
+
+    it('restores all recipes when the dietary tag chip is deselected', async () => {
+      render(<Recipes />);
+      await screen.findByText('Veggie Bowl');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const chip = screen.getByRole('button', { name: /^vegetarian$/i });
+      await userEvent.click(chip);
+      await userEvent.click(chip);
+
+      await waitFor(() => expect(screen.getByText('Meat Roast')).toBeInTheDocument());
+    });
+  });
+
+  // ── Allergen exclusion filter ───────────────────────────────────────────────
+
+  describe('Allergen exclusion filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: 1, title: 'Peanut Sauce Noodles', allergies: ['Peanuts'] }),
+        makeRecipe({ id: 2, title: 'Safe Salad', allergies: [] }),
+      ]);
+    });
+
+    it('hides recipes that contain the selected allergen', async () => {
+      render(<Recipes />);
+      await screen.findByText('Peanut Sauce Noodles');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: /^peanuts$/i }));
+
+      await waitFor(() =>
+        expect(screen.queryByText('Peanut Sauce Noodles')).not.toBeInTheDocument()
+      );
+      expect(screen.getByText('Safe Salad')).toBeInTheDocument();
+    });
+
+    it('restores hidden recipes when the allergen chip is deselected', async () => {
+      render(<Recipes />);
+      await screen.findByText('Peanut Sauce Noodles');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const chip = screen.getByRole('button', { name: /^peanuts$/i });
+      await userEvent.click(chip);
+      await waitFor(() =>
+        expect(screen.queryByText('Peanut Sauce Noodles')).not.toBeInTheDocument()
+      );
+      await userEvent.click(chip);
+
+      await waitFor(() => expect(screen.getByText('Peanut Sauce Noodles')).toBeInTheDocument());
+    });
+  });
+
+  // ── Cook mode ───────────────────────────────────────────────────────────────
+
+  describe('Cook mode', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({
+          id: 1,
+          title: 'Pasta Al Dente',
+          steps: [{ text: 'Boil water' }, { text: 'Cook pasta' }],
+          ingredients: [{ name: 'pasta', amount: '200', unit: 'g', cost: 1 }],
+        }),
+      ]);
+    });
+
+    it('enters cook mode and shows recipe title after clicking Cook', async () => {
+      render(<Recipes />);
+      await screen.findByText('Pasta Al Dente');
+
+      await userEvent.click(screen.getByRole('button', { name: /^cook$/i }));
+
+      await waitFor(() => expect(screen.getByText(/cooking mode/i)).toBeInTheDocument());
+    });
+
+    it('shows a Back button in cook mode', async () => {
+      render(<Recipes />);
+      await screen.findByText('Pasta Al Dente');
+
+      await userEvent.click(screen.getByRole('button', { name: /^cook$/i }));
+
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /^back$/i })).toBeInTheDocument()
+      );
+    });
+
+    it('returns to list view when Back is clicked in cook mode', async () => {
+      render(<Recipes />);
+      await screen.findByText('Pasta Al Dente');
+
+      await userEvent.click(screen.getByRole('button', { name: /^cook$/i }));
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /^back$/i })).toBeInTheDocument()
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: /^back$/i }));
+
+      await waitFor(() => expect(screen.getByText('Pasta Al Dente')).toBeInTheDocument());
+      expect(screen.queryByText(/cooking mode/i)).not.toBeInTheDocument();
+    });
+  });
 });

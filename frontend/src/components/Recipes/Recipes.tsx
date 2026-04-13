@@ -472,7 +472,7 @@ export default function Recipes() {
         normalizeAllergyLabels(r.allergies).map((allergy) => allergy.toLowerCase())
       );
       for (const allergen of filterAllergens) {
-        if (recipeAllergies.has(allergen)) return false;
+        if (recipeAllergies.has(allergen.toLowerCase())) return false;
       }
     }
     return true;
