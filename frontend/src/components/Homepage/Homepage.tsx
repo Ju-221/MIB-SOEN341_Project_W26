@@ -296,7 +296,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
           <div className="zigzag-features-list">
             {ZIGZAG_FEATURES.map((f, i) => (
               <div
-                key={i}
+                key={f.id}
                 role="button"
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
