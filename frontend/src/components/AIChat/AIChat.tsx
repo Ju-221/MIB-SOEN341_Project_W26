@@ -404,6 +404,7 @@ const AIChat: React.FC = () => {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
+        background: '#121212',
       }}
     >
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>

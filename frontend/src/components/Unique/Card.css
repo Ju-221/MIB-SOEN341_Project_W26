@@ -468,7 +468,7 @@
   color: #1f2937;
   text-align: center;
   margin: 0;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.947);
   padding: 16px 28px;
   border-radius: 14px;
   backdrop-filter: blur(8px);
@@ -599,12 +599,5 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(16px);
     box-shadow: 0 24px 56px rgba(0, 0, 0, 0.28);
-  }
-
-  .winner-label {
-    color: rgba(255, 255, 255, 0.96);
-    background: rgba(14, 16, 28, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
   }
 }

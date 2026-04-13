@@ -804,6 +804,35 @@
   letter-spacing: 0.04em;
 }
 
+.recipes-cost-total {
+  font-weight: 600;
+  color: #22c55e;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.recipes-custom-tag-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.recipes-custom-tag-input {
+  flex: 1;
+  max-width: 240px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.recipes-custom-tag-input:focus {
+  border-color: #5227ff;
+}
+
 .recipes-ingredient-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 36px;
