@@ -244,9 +244,9 @@ export const updateRecipe = (req: Request<{ id: string }, {}, UpdateRecipeBody>,
         ? parseJsonArrayField<string>(dietaryPreferences)
         : undefined;
     const parsedAllergies =
-      allergies !== undefined
-        ? normalizeRecipeAllergyLabels(parseJsonArrayField<string>(allergies))
-        : undefined;
+      allergies === undefined
+        ? undefined
+        : normalizeRecipeAllergyLabels(parseJsonArrayField<string>(allergies));
 
     let heroImage = existing.heroImage;
     if (req.file) {

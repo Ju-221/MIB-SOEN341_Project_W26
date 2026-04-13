@@ -318,10 +318,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     if (selectedGoalFilters.some((tag) => !normalizedCategories.includes(tag))) return false;
     // Allergy/intolerance filters are exclusion filters:
     // if a recipe contains any selected allergy tag, hide it.
-    const normalizedAllergies = normalizeAllergyLabels(recipe.allergies).map((tag) =>
-      normalizeText(tag)
+    const normalizedAllergies = new Set(
+      normalizeAllergyLabels(recipe.allergies).map((tag) => normalizeText(tag))
     );
-    if (selectedAllergyFilters.some((tag) => normalizedAllergies.includes(tag))) return false;
+    if (selectedAllergyFilters.some((tag) => normalizedAllergies.has(tag))) return false;
     if (
       selectedDifficultyFilters.length > 0 &&
       !selectedDifficultyFilters.includes(recipeDifficulty)
