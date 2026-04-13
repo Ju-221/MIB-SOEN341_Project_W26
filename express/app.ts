@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+app.disable('x-powered-by');
 
 app.use(cors({ origin: 'http://localhost:8080' }));
 app.use(express.json());
