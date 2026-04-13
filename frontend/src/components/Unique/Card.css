@@ -8,8 +8,8 @@
   position: relative;
   border-radius: 20px;
   box-shadow:
-    0 0 32px rgba(114, 75, 220, 0.35),
-    0 8px 32px rgba(0, 0, 0, 0.3);
+    0 0 32px rgba(124, 58, 237, 0.18),
+    0 8px 32px rgba(109, 40, 217, 0.12);
   animation:
     scaleIn 0.4s ease-out,
     floatSmooth 4s ease-in-out 0.4s infinite;
@@ -45,15 +45,15 @@
   backface-visibility: hidden;
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(124, 58, 237, 0.18);
 }
 
 /* ── FRONT — vertical portrait (default for Meal Tournament) ─ */
 .recipe-flip-card-front {
-  background: linear-gradient(160deg, #1a0845 0%, #2d1260 100%);
+  background: linear-gradient(160deg, #f5f0ff 0%, #ede9fe 100%);
   display: flex;
   flex-direction: column;
-  color: #ffffff;
+  color: #1e1b4b;
   overflow: hidden;
 }
 
@@ -63,7 +63,7 @@
   width: 100%;
   flex: 0 0 48%;
   overflow: hidden;
-  background: linear-gradient(135deg, #3b1a8a 0%, #1e0d55 100%);
+  background: linear-gradient(135deg, #ddd6fe 0%, #ede9fe 100%);
 }
 
 .recipe-image-panel img {
@@ -76,7 +76,7 @@
 .recipe-image-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(26, 8, 69, 0.6) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(109, 40, 217, 0.25) 100%);
   pointer-events: none;
 }
 
@@ -111,17 +111,17 @@
   gap: 10px;
   flex-shrink: 0;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.15);
 }
 
 .recipe-title {
   font-size: 17px;
   font-weight: 700;
   line-height: 1.3;
-  color: #ffffff !important;
+  color: #1e1b4b !important;
   margin: 0;
   letter-spacing: -0.3px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: none;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
@@ -129,10 +129,10 @@
 .recipe-meta {
   display: flex;
   gap: 0;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(124, 58, 237, 0.06);
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.14);
 }
 
 .meta-item {
@@ -141,7 +141,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 7px 10px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(124, 58, 237, 0.1);
 }
 
 .meta-item:last-child {
@@ -153,14 +153,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.42) !important;
+  color: rgba(109, 40, 217, 0.55) !important;
 }
 
 .meta-text {
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
-  color: #ffffff !important;
+  color: #1e1b4b !important;
 }
 
 /* Scrollable body */
@@ -194,7 +194,7 @@
   margin: 0;
   font-size: 12.5px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(49, 30, 100, 0.7);
 }
 
 /* Ingredients / tags sections */
@@ -209,7 +209,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(109, 40, 217, 0.5);
 }
 
 .recipe-front-ing-grid {
@@ -220,9 +220,9 @@
 
 .recipe-front-ing-item {
   font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #3b1f8c;
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.2);
   border-radius: 5px;
   padding: 2px 8px;
   text-transform: capitalize;
@@ -237,9 +237,9 @@
 .recipe-tag {
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(167, 139, 250, 0.18);
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  color: #c4b5fd;
+  background: rgba(167, 139, 250, 0.2);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  color: #5b21b6;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -249,7 +249,7 @@
 /* Pinned bottom hint */
 .recipe-flip-hint {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(109, 40, 217, 0.3);
   white-space: nowrap;
   flex-shrink: 0;
   text-align: right;
@@ -258,8 +258,8 @@
 
 /* ── BACK ────────────────────────────────────────────────── */
 .recipe-flip-card-back {
-  background: linear-gradient(160deg, #1c1040 0%, #2e1a64 55%, #1a0f3a 100%);
-  color: #ffffff;
+  background: linear-gradient(160deg, #ede9fe 0%, #f5f0ff 55%, #e9d5ff 100%);
+  color: #1e1b4b;
   transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
@@ -278,7 +278,7 @@
   font-size: 17px;
   font-weight: 700;
   margin: 0;
-  color: #ffffff;
+  color: #1e1b4b;
   line-height: 1.25;
   flex-shrink: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
@@ -287,11 +287,11 @@
 .recipe-description {
   font-size: 11.5px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(49, 30, 100, 0.65);
   margin: 0;
   flex-shrink: 0;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.15);
 }
 
 /* Two-column list area */
@@ -316,7 +316,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(109, 40, 217, 0.5);
   margin: 0;
   flex-shrink: 0;
 }
@@ -337,7 +337,7 @@
   gap: 7px;
   font-size: 11.5px;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(30, 27, 75, 0.85);
   text-transform: capitalize;
 }
 
@@ -370,7 +370,7 @@
 /* (...) shown when content is trimmed */
 .back-ellipsis {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(109, 40, 217, 0.35);
   font-style: italic;
   margin: 0;
   flex-shrink: 0;
@@ -384,7 +384,7 @@
 
 .flip-hint {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(109, 40, 217, 0.3);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -503,20 +503,20 @@
   0% {
     transform: translateY(0px);
     box-shadow:
-      0 0 32px rgba(114, 75, 220, 0.35),
-      0 8px 32px rgba(0, 0, 0, 0.3);
+      0 0 32px rgba(124, 58, 237, 0.2),
+      0 8px 32px rgba(109, 40, 217, 0.12);
   }
   50% {
     transform: translateY(-10px);
     box-shadow:
-      0 0 40px rgba(114, 75, 220, 0.5),
-      0 20px 40px rgba(0, 0, 0, 0.2);
+      0 0 40px rgba(124, 58, 237, 0.3),
+      0 20px 40px rgba(109, 40, 217, 0.15);
   }
   100% {
     transform: translateY(0px);
     box-shadow:
-      0 0 32px rgba(114, 75, 220, 0.35),
-      0 8px 32px rgba(0, 0, 0, 0.3);
+      0 0 32px rgba(124, 58, 237, 0.2),
+      0 8px 32px rgba(109, 40, 217, 0.12);
   }
 }
 
@@ -540,56 +540,102 @@
 @media (prefers-color-scheme: dark) {
   .recipe-flip-card {
     box-shadow:
-      0 0 40px rgba(103, 76, 240, 0.26),
-      0 18px 48px rgba(0, 0, 0, 0.5);
+      0 0 40px rgba(124, 58, 237, 0.22),
+      0 18px 48px rgba(0, 0, 0, 0.35);
   }
 
   .recipe-flip-card-front,
   .recipe-flip-card-back {
-    border-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(167, 139, 250, 0.22);
   }
 
   .recipe-flip-card-front {
-    background: linear-gradient(180deg, rgba(21, 18, 39, 0.9) 0%, rgba(14, 12, 31, 0.96) 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: linear-gradient(160deg, #2d1b69 0%, #1e1048 100%);
+    color: #f5f3ff;
   }
 
   .recipe-image-overlay {
     background: linear-gradient(180deg, rgba(9, 6, 24, 0.04) 15%, rgba(9, 6, 24, 0.78) 100%);
   }
 
-  .recipe-content {
-    background: linear-gradient(180deg, rgba(18, 16, 36, 0.12) 0%, rgba(18, 16, 36, 0.34) 100%);
-  }
-
   .recipe-title {
+    color: #f5f3ff !important;
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.48);
   }
 
   .recipe-meta {
-    color: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .meta-item {
+    border-right-color: rgba(255, 255, 255, 0.08);
   }
 
   .meta-label {
-    color: rgba(255, 255, 255, 0.64) !important;
+    color: rgba(255, 255, 255, 0.48) !important;
   }
 
   .meta-text {
-    color: rgba(255, 255, 255, 0.94) !important;
+    color: #f5f3ff !important;
+  }
+
+  .recipe-front-desc {
+    color: rgba(221, 214, 254, 0.72);
+  }
+
+  .recipe-front-section-label {
+    color: rgba(167, 139, 250, 0.5);
+  }
+
+  .recipe-front-ing-item {
+    color: #ddd6fe;
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .recipe-tag {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(167, 139, 250, 0.18);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: #c4b5fd;
+  }
+
+  .recipe-flip-hint {
+    color: rgba(221, 214, 254, 0.25);
+  }
+
+  .recipe-content-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
 
   .recipe-flip-card-back {
-    background: linear-gradient(
-      160deg,
-      rgba(15, 11, 34, 0.98) 0%,
-      rgba(28, 19, 62, 0.98) 55%,
-      rgba(11, 9, 25, 0.98) 100%
-    );
+    background: linear-gradient(160deg, #1c1040 0%, #2e1a64 55%, #1a0f3a 100%);
+    color: #ffffff;
+  }
+
+  .back-title {
+    color: #ffffff;
+  }
+
+  .recipe-description {
+    color: rgba(255, 255, 255, 0.62);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .back-section-heading {
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  .back-list-item {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .back-ellipsis {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .flip-hint {
+    color: rgba(255, 255, 255, 0.22);
   }
 
   .card-slot {

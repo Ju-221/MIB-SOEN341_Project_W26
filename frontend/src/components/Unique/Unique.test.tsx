@@ -148,7 +148,9 @@ async function startGameInUncommonMode() {
 describe('Unique – Loading state', () => {
   it('shows "Loading recipes…" while the fetch is in flight', async () => {
     // Use Once so the never-resolving promise does not leak into subsequent tests
-    vi.mocked(fetchRecipes).mockReturnValueOnce(new Promise(() => {}) as ReturnType<typeof fetchRecipes>);
+    vi.mocked(fetchRecipes).mockReturnValueOnce(
+      new Promise(() => {}) as ReturnType<typeof fetchRecipes>
+    );
     render(<Unique />);
     expect(screen.getByText(/loading recipes/i)).toBeInTheDocument();
   });

@@ -112,13 +112,13 @@
 }
 
 .aichat-bubble--model {
-  background: rgba(45, 22, 120, 0.82);
-  color: #ffffff;
+  background: #ede9fe;
+  color: #1e1b4b;
   border-bottom-left-radius: 5px;
-  border: 1px solid rgba(167, 139, 250, 0.55);
+  border: 1px solid rgba(124, 58, 237, 0.22);
   box-shadow:
-    0 4px 24px rgba(82, 39, 255, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 2px 12px rgba(124, 58, 237, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   text-shadow: none;
 }
 
@@ -134,7 +134,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(109, 40, 217, 0.5);
   animation: typingBounce 1.2s ease-in-out infinite;
 }
 
