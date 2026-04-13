@@ -468,11 +468,11 @@ export default function Recipes() {
       }
     }
     if (filterAllergens.size > 0) {
-      const recipeAllergies = normalizeAllergyLabels(r.allergies).map((allergy) =>
-        allergy.toLowerCase()
+      const recipeAllergies = new Set(
+        normalizeAllergyLabels(r.allergies).map((allergy) => allergy.toLowerCase())
       );
       for (const allergen of filterAllergens) {
-        if (recipeAllergies.includes(allergen)) return false;
+        if (recipeAllergies.has(allergen)) return false;
       }
     }
     return true;
@@ -1222,8 +1222,8 @@ export default function Recipes() {
                         next[idx] = v;
                         return next;
                       });
-                      const num = parseFloat(v);
-                      updateIngredient(idx, 'cost', isNaN(num) ? 0 : num);
+                      const num = Number.parseFloat(v);
+                      updateIngredient(idx, 'cost', Number.isNaN(num) ? 0 : num);
                     }}
                   />
                   <button

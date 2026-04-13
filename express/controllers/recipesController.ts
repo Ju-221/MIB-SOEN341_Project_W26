@@ -62,7 +62,7 @@ const normalizeRecipeAllergyLabels = (allergies: unknown): string[] => {
 
   const normalized = allergies.flatMap((allergy) => {
     if (typeof allergy !== 'string') return [];
-    const key = allergy.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    const key = allergy.toLowerCase().replaceAll(/[^a-z0-9_-]/g, '');
     const label = RECIPE_ALLERGY_ALIASES[key] ?? allergy;
     return RECIPE_ALLERGY_OPTIONS.includes(label) ? [label] : [];
   });
@@ -432,7 +432,7 @@ export const generateRecipe = async (req: Request, res: Response) => {
     }
 
     // strip away the markdown syntax
-    const json = text.replace(/```json|```/g, '').trim();
+    const json = text.replaceAll(/```json|```/g, '').trim();
     let recipe: {
       title: string;
       description: string;

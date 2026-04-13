@@ -60,7 +60,7 @@ export function normalizeAllergyLabels(allergies: unknown): string[] {
 
   const normalized = allergies.flatMap((allergy) => {
     if (typeof allergy !== 'string') return [];
-    const key = allergy.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    const key = allergy.toLowerCase().replaceAll(/[^a-z0-9_-]/g, '');
     const label = ALLERGY_ALIASES[key] ?? allergy;
     return (ALLERGY_OPTIONS as readonly string[]).includes(label) ? [label] : [];
   });
