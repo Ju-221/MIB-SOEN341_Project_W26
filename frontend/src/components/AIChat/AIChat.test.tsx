@@ -81,6 +81,10 @@ const generatedRecipe = {
   allergies: [],
 };
 
+function createToken(payload: object) {
+  return `header.${btoa(JSON.stringify(payload))}.signature`;
+}
+
 // ── Tests ────────────────────────────────────────────────────
 
 describe('AIChat – Initial Render', () => {
@@ -225,5 +229,103 @@ describe('AIChat – Clear Button', () => {
     // User message gone, initial greeting still present
     expect(screen.queryByText('hello')).not.toBeInTheDocument();
     expect(screen.getByText(/I'm your AI recipe chef/i)).toBeInTheDocument();
+  });
+});
+
+describe('AIChat – Stored Messages', () => {
+  it('loads saved messages that already have ids', () => {
+    sessionStorage.setItem(
+      'aichat_messages',
+      JSON.stringify({
+        userId: null,
+        messages: [{ id: 'saved-user-message', kind: 'user', text: 'saved chat text' }],
+      })
+    );
+
+    render(<AIChat />);
+
+    expect(screen.getByText('saved chat text')).toBeInTheDocument();
+  });
+
+  it('adds ids to legacy saved messages', async () => {
+    sessionStorage.setItem(
+      'aichat_messages',
+      JSON.stringify({
+        userId: null,
+        messages: [{ kind: 'model', text: 'legacy saved chat text' }],
+      })
+    );
+
+    render(<AIChat />);
+
+    expect(screen.getByText('legacy saved chat text')).toBeInTheDocument();
+
+    await waitFor(() => {
+      const saved = JSON.parse(sessionStorage.getItem('aichat_messages') ?? '{}') as {
+        messages?: Array<{ id?: string }>;
+      };
+      expect(saved.messages?.[0].id).toMatch(/^legacy-message-0-/);
+    });
+  });
+
+  it('ignores saved messages for a different user', () => {
+    localStorage.setItem('token', createToken({ id: 2 }));
+    sessionStorage.setItem(
+      'aichat_messages',
+      JSON.stringify({
+        userId: 1,
+        messages: [{ id: 'other-user-message', kind: 'user', text: 'other user chat text' }],
+      })
+    );
+
+    render(<AIChat />);
+
+    expect(screen.queryByText('other user chat text')).not.toBeInTheDocument();
+    expect(screen.getByText(/I'm your AI recipe chef/i)).toBeInTheDocument();
+  });
+
+  it('falls back to the initial greeting when the auth token is invalid', () => {
+    localStorage.setItem('token', 'invalid-token');
+    sessionStorage.setItem(
+      'aichat_messages',
+      JSON.stringify({
+        userId: 2,
+        messages: [{ id: 'saved-message', kind: 'user', text: 'saved invalid token text' }],
+      })
+    );
+
+    render(<AIChat />);
+
+    expect(screen.queryByText('saved invalid token text')).not.toBeInTheDocument();
+    expect(screen.getByText(/I'm your AI recipe chef/i)).toBeInTheDocument();
+  });
+
+  it('falls back to the initial greeting when saved messages are invalid', () => {
+    sessionStorage.setItem('aichat_messages', '{invalid json');
+
+    render(<AIChat />);
+
+    expect(screen.getByText(/I'm your AI recipe chef/i)).toBeInTheDocument();
+  });
+
+  it('keeps rendering when session storage cannot persist messages', async () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+    setItemSpy.mockImplementation(() => {
+      throw new Error('quota exceeded');
+    });
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => generatedRecipe,
+    });
+
+    render(<AIChat />);
+    const textarea = screen.getByPlaceholderText(/Describe what you're craving/i);
+    await userEvent.type(textarea, 'storage failure meal');
+    await userEvent.click(screen.getByRole('button', { name: /send/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('storage failure meal')).toBeInTheDocument();
+    });
   });
 });
