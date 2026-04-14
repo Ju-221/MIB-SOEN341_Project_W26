@@ -1,5 +1,3 @@
----
-
 ## Summary: Rubric Compliance and Calculation Steps
 
 This individual contribution assessment strictly follows the SOEN 341 guidelines as outlined in "How to mark Individual contribution.pdf":
@@ -37,7 +35,7 @@ This document is used to calculate the individual contribution (IC) grade for ea
 | :---                            | :---:        | :---:    |
 | Juan Vargas (Ju-221)            | 80           | 100      |
 | Anais Perron (Anaïs Perron)     | 42           | 52.5     |
-| Berenis F.T. (Berny-ft/Berny) | 72      | 90.0     |
+| Berenis F.T. (Berny-ft/Berny)   | 72           | 90.0     |
 | Ashton Levine (ashtonlevine)    | 41           | 51.3     |
 | Joseph Tilden (Joseph Tilden)   | 30           | 37.5     |
 | Zain Bassal (zain/ZainBassal)   | 7            | 8.8      |
