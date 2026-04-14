@@ -20,6 +20,8 @@ Beta 1.1 - refactor 1 to main, nightly builds to be pushed onto Main overnight.
 
 12/4/2026 - Beta 1.1. This new version refactors most of the website into a more coehesive version of the project getting it up to speed for Sprint 4.
 
+14/4/2026 - Beta 1.2 Final sprint! all features working accordingly and 70% coverage!
+
 ## Problem
 
 University students often struggle to eat healthy and stay organized with their meals. 
