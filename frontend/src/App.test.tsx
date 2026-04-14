@@ -12,12 +12,16 @@ vi.mock('./hooks/useHashNavigation', () => ({
 vi.mock('./components/Auth', () => ({
   SignIn: ({ onSuccess }: { onSuccess: () => void }) => (
     <div data-testid="signin">
-      <button data-testid="signin-btn" onClick={onSuccess}>Sign In</button>
+      <button data-testid="signin-btn" onClick={onSuccess}>
+        Sign In
+      </button>
     </div>
   ),
   SignUp: ({ onSuccess }: { onSuccess: () => void }) => (
     <div data-testid="signup">
-      <button data-testid="signup-btn" onClick={onSuccess}>Sign Up</button>
+      <button data-testid="signup-btn" onClick={onSuccess}>
+        Sign Up
+      </button>
     </div>
   ),
 }));
@@ -49,8 +53,12 @@ vi.mock('./components/Navbar/Navbar', () => ({
     <nav data-testid="navbar">
       <span data-testid="nav-page">{currentPage}</span>
       <span data-testid="nav-logged">{isLoggedIn ? 'yes' : 'no'}</span>
-      <button data-testid="nav-login" onClick={onLoginClick}>Login</button>
-      <button data-testid="nav-logout" onClick={onLogout}>Logout</button>
+      <button data-testid="nav-login" onClick={onLoginClick}>
+        Login
+      </button>
+      <button data-testid="nav-logout" onClick={onLogout}>
+        Logout
+      </button>
     </nav>
   ),
 }));
@@ -66,7 +74,9 @@ vi.mock('./components/AIChat/AIChat', () => ({
 vi.mock('./components/LoadingScreen/LoadingScreen', () => ({
   default: ({ onReady }: { onReady: () => void }) => (
     <div data-testid="loading-screen">
-      <button data-testid="loading-ready" onClick={onReady}>Ready</button>
+      <button data-testid="loading-ready" onClick={onReady}>
+        Ready
+      </button>
     </div>
   ),
 }));

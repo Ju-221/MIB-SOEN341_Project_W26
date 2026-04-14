@@ -43,7 +43,16 @@ describe('useHashNavigation', () => {
   });
 
   it('recognizes all valid pages', () => {
-    const pages = ['home', 'signin', 'signup', 'profile', 'calendar', 'unique', 'aichat', 'recipes'] as const;
+    const pages = [
+      'home',
+      'signin',
+      'signup',
+      'profile',
+      'calendar',
+      'unique',
+      'aichat',
+      'recipes',
+    ] as const;
     for (const page of pages) {
       window.location.hash = `#${page}`;
       const { result } = renderHook(() => useHashNavigation('home'));

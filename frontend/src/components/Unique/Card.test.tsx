@@ -18,10 +18,7 @@ const baseProps = {
   estimatedCost: 12.5,
   heroImage: 'recipe.jpg',
   categories: ['italian', 'dinner'],
-  ingredients: [
-    { name: 'chicken', amount: '500', unit: 'g' },
-    'garlic',
-  ],
+  ingredients: [{ name: 'chicken', amount: '500', unit: 'g' }, 'garlic'],
   steps: ['Prep chicken', 'Cook chicken', 'Serve'],
   dietaryPreferences: ['high-protein'],
   allergies: [],

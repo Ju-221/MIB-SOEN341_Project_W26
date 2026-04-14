@@ -158,30 +158,34 @@ describe('Recipes Component', () => {
       await userEvent.click(screen.getByRole('button', { name: /collapse filters/i }));
 
       expect(screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)).not.toBeInTheDocument();
-    // ── Delete error UI ──────────────────────────────────────────────────────
-    describe('Delete error UI', () => {
-      it('shows and closes the delete error message', async () => {
-        vi.mocked(localStorage.getItem).mockImplementation((key) =>
-          key === 'token' ? makeToken({ id: 42 }) : null
-        );
-        vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, createdBy: 42 })]);
-        render(<Recipes />);
-        await screen.findByText('Test Pasta');
+      // ── Delete error UI ──────────────────────────────────────────────────────
+      describe('Delete error UI', () => {
+        it('shows and closes the delete error message', async () => {
+          vi.mocked(localStorage.getItem).mockImplementation((key) =>
+            key === 'token' ? makeToken({ id: 42 }) : null
+          );
+          vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, createdBy: 42 })]);
+          render(<Recipes />);
+          await screen.findByText('Test Pasta');
 
-        // Simulate error state by setting deleteError in the DOM
-        // This requires triggering a delete with no token
-        // First, click Delete to show confirm UI
-        await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
-        // Remove token so delete will fail auth
-        vi.mocked(localStorage.getItem).mockReturnValue(null);
-        await userEvent.click(screen.getByRole('button', { name: /yes, delete/i }));
-        // Wait for error message
-        await waitFor(() => expect(screen.getByText(/you must be logged in to delete recipes/i)).toBeInTheDocument());
-        // Close error message
-        await userEvent.click(screen.getByRole('button', { name: /✕/i }));
-        expect(screen.queryByText(/you must be logged in to delete recipes/i)).not.toBeInTheDocument();
+          // Simulate error state by setting deleteError in the DOM
+          // This requires triggering a delete with no token
+          // First, click Delete to show confirm UI
+          await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+          // Remove token so delete will fail auth
+          vi.mocked(localStorage.getItem).mockReturnValue(null);
+          await userEvent.click(screen.getByRole('button', { name: /yes, delete/i }));
+          // Wait for error message
+          await waitFor(() =>
+            expect(screen.getByText(/you must be logged in to delete recipes/i)).toBeInTheDocument()
+          );
+          // Close error message
+          await userEvent.click(screen.getByRole('button', { name: /✕/i }));
+          expect(
+            screen.queryByText(/you must be logged in to delete recipes/i)
+          ).not.toBeInTheDocument();
+        });
       });
-    });
     });
 
     it('filters recipes by search term', async () => {
@@ -628,14 +632,8 @@ describe('Recipes Component', () => {
         makeRecipe({
           id: 1,
           title: 'Step Test',
-          steps: [
-            { text: 'Step 1' },
-            { text: 'Step 2' },
-            { text: 'Step 3' },
-          ],
-          ingredients: [
-            { name: 'Egg', amount: '1', unit: '', cost: 0.5 },
-          ],
+          steps: [{ text: 'Step 1' }, { text: 'Step 2' }, { text: 'Step 3' }],
+          ingredients: [{ name: 'Egg', amount: '1', unit: '', cost: 0.5 }],
         }),
       ]);
     });
@@ -954,7 +952,10 @@ describe('Recipes Component', () => {
       );
       await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
 
-      await userEvent.type(screen.getByPlaceholderText('e.g. Spaghetti Carbonara'), 'Brand New Recipe');
+      await userEvent.type(
+        screen.getByPlaceholderText('e.g. Spaghetti Carbonara'),
+        'Brand New Recipe'
+      );
       await userEvent.click(screen.getByRole('button', { name: /create recipe/i }));
 
       await waitFor(() => {

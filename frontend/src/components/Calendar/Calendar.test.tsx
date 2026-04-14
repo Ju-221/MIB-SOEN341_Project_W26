@@ -33,8 +33,8 @@ vi.mock('../../api/calendar', () => {
   });
 
   return {
-    getCalendarMonthKey: vi.fn((d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    getCalendarMonthKey: vi.fn(
+      (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
     ),
     getCalendarMonthWindow: vi.fn(() => windowDates),
     fetchCalendarWindow: vi.fn(async () => ({
@@ -149,8 +149,18 @@ describe('Calendar', () => {
 
     const now = new Date();
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     const expected = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
     expect(screen.getByText(expected)).toBeInTheDocument();
@@ -207,11 +217,23 @@ describe('Calendar', () => {
     const now = new Date();
     const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     await waitFor(() => {
-      expect(screen.getByText(`${monthNames[prev.getMonth()]} ${prev.getFullYear()}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`${monthNames[prev.getMonth()]} ${prev.getFullYear()}`)
+      ).toBeInTheDocument();
     });
   });
 
@@ -228,11 +250,23 @@ describe('Calendar', () => {
     const now = new Date();
     const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     await waitFor(() => {
-      expect(screen.getByText(`${monthNames[next.getMonth()]} ${next.getFullYear()}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`${monthNames[next.getMonth()]} ${next.getFullYear()}`)
+      ).toBeInTheDocument();
     });
   });
 
@@ -250,11 +284,23 @@ describe('Calendar', () => {
 
     const now = new Date();
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     await waitFor(() => {
-      expect(screen.getByText(`${monthNames[now.getMonth()]} ${now.getFullYear()}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`${monthNames[now.getMonth()]} ${now.getFullYear()}`)
+      ).toBeInTheDocument();
     });
   });
 
@@ -466,7 +512,7 @@ describe('Calendar', () => {
       expect(screen.getByText('Generate Recipe')).toBeInTheDocument();
     });
     expect(
-      screen.getByPlaceholderText("e.g. A quick high-protein breakfast under $5...")
+      screen.getByPlaceholderText('e.g. A quick high-protein breakfast under $5...')
     ).toBeInTheDocument();
   });
 
@@ -488,7 +534,7 @@ describe('Calendar', () => {
     });
     await user.click(screen.getByText('Generate with AI'));
 
-    const textarea = screen.getByPlaceholderText("e.g. A quick high-protein breakfast under $5...");
+    const textarea = screen.getByPlaceholderText('e.g. A quick high-protein breakfast under $5...');
     await user.type(textarea, 'A quick healthy breakfast');
 
     await user.click(screen.getByText('Generate Recipe'));
@@ -504,10 +550,10 @@ describe('Calendar', () => {
     globalThis.fetch = vi.fn(async (url: RequestInfo | URL) => {
       const urlString = typeof url === 'string' ? url : url.toString();
       if (urlString.includes('/api/recipes/generate')) {
-        return new Response(
-          JSON.stringify({ message: 'Quota exceeded' }),
-          { status: 429, headers: { 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ message: 'Quota exceeded' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
       if (urlString.includes('/api/recipes')) {
         return new Response(JSON.stringify(fakeRecipes), {
@@ -535,7 +581,7 @@ describe('Calendar', () => {
     });
     await user.click(screen.getByText('Generate with AI'));
 
-    const textarea = screen.getByPlaceholderText("e.g. A quick high-protein breakfast under $5...");
+    const textarea = screen.getByPlaceholderText('e.g. A quick high-protein breakfast under $5...');
     await user.type(textarea, 'Something tasty');
     await user.click(screen.getByText('Generate Recipe'));
 
@@ -570,11 +616,12 @@ describe('Calendar', () => {
 
   it('shows empty recipe message in picker when no recipes match', async () => {
     // Override fetch to return empty recipes
-    globalThis.fetch = vi.fn(async () =>
-      new Response(JSON.stringify([]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
     ) as typeof globalThis.fetch;
 
     const user = userEvent.setup();

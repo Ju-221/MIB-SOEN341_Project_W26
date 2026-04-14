@@ -52,17 +52,19 @@ describe('calendar API', () => {
         ok: true,
         json: async () => ({
           months: [april2026Key],
-          days: [[
-            {
-              date: 1,
-              meals: {
-                breakfast: { recipeId: 1, recipeTitle: 'Eggs' },
-                lunch: { recipeId: null, recipeTitle: null },
-                dinner: { recipeId: null, recipeTitle: null },
-                snack: { recipeId: null, recipeTitle: null },
+          days: [
+            [
+              {
+                date: 1,
+                meals: {
+                  breakfast: { recipeId: 1, recipeTitle: 'Eggs' },
+                  lunch: { recipeId: null, recipeTitle: null },
+                  dinner: { recipeId: null, recipeTitle: null },
+                  snack: { recipeId: null, recipeTitle: null },
+                },
               },
-            },
-          ]],
+            ],
+          ],
         }),
       } as Response);
 

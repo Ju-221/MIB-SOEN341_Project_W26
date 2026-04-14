@@ -17,10 +17,7 @@ const baseRecipe = {
   difficulty: 'Easy' as const,
   estimatedCost: 5.5,
   heroImage: 'pasta.jpg',
-  ingredients: [
-    { name: 'pasta', amount: '200', unit: 'g' },
-    'tomato sauce',
-  ],
+  ingredients: [{ name: 'pasta', amount: '200', unit: 'g' }, 'tomato sauce'],
   steps: ['Boil water', 'Cook pasta'],
   categories: ['italian', 'quick'],
   dietaryPreferences: ['vegetarian'],
@@ -123,9 +120,7 @@ describe('RecipePopup', () => {
   });
 
   it('hides dietary section when dietaryPreferences is empty', () => {
-    render(
-      <RecipePopup recipe={{ ...baseRecipe, dietaryPreferences: [] }} onClose={onClose} />
-    );
+    render(<RecipePopup recipe={{ ...baseRecipe, dietaryPreferences: [] }} onClose={onClose} />);
     expect(screen.queryByText('Dietary')).not.toBeInTheDocument();
   });
 
@@ -136,10 +131,7 @@ describe('RecipePopup', () => {
 
   it('renders ingredient with name only (no amount/unit)', () => {
     render(
-      <RecipePopup
-        recipe={{ ...baseRecipe, ingredients: [{ name: 'salt' }] }}
-        onClose={onClose}
-      />
+      <RecipePopup recipe={{ ...baseRecipe, ingredients: [{ name: 'salt' }] }} onClose={onClose} />
     );
     expect(screen.getByText('salt')).toBeInTheDocument();
   });
