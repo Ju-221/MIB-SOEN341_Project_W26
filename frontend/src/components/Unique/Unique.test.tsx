@@ -8,6 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Unique from './Unique';
 import type { Recipe } from './fakeRecipes';
+import React from 'react';
 
 // canvas-confetti uses browser canvas – unavailable in jsdom
 vi.mock('canvas-confetti', () => ({ default: vi.fn() }));

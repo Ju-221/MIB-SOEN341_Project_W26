@@ -9,6 +9,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Recipes from './Recipes';
 import type { Recipe } from '../Recipe-Manager/CreateRecipe';
+import React from 'react';
 
 // ── Mock the API layer ────────────────────────────────────────────────────────
 
@@ -157,6 +158,30 @@ describe('Recipes Component', () => {
       await userEvent.click(screen.getByRole('button', { name: /collapse filters/i }));
 
       expect(screen.queryByPlaceholderText(/e\.g\. healthy quick pasta/i)).not.toBeInTheDocument();
+    // ── Delete error UI ──────────────────────────────────────────────────────
+    describe('Delete error UI', () => {
+      it('shows and closes the delete error message', async () => {
+        vi.mocked(localStorage.getItem).mockImplementation((key) =>
+          key === 'token' ? makeToken({ id: 42 }) : null
+        );
+        vi.mocked(fetchRecipes).mockResolvedValue([makeRecipe({ id: 1, createdBy: 42 })]);
+        render(<Recipes />);
+        await screen.findByText('Test Pasta');
+
+        // Simulate error state by setting deleteError in the DOM
+        // This requires triggering a delete with no token
+        // First, click Delete to show confirm UI
+        await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        // Remove token so delete will fail auth
+        vi.mocked(localStorage.getItem).mockReturnValue(null);
+        await userEvent.click(screen.getByRole('button', { name: /yes, delete/i }));
+        // Wait for error message
+        await waitFor(() => expect(screen.getByText(/you must be logged in to delete recipes/i)).toBeInTheDocument());
+        // Close error message
+        await userEvent.click(screen.getByRole('button', { name: /✕/i }));
+        expect(screen.queryByText(/you must be logged in to delete recipes/i)).not.toBeInTheDocument();
+      });
+    });
     });
 
     it('filters recipes by search term', async () => {
@@ -594,6 +619,403 @@ describe('Recipes Component', () => {
 
       await waitFor(() => expect(screen.getByText('Pasta Al Dente')).toBeInTheDocument());
       expect(screen.queryByText(/cooking mode/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Cook mode navigation and edge cases', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({
+          id: 1,
+          title: 'Step Test',
+          steps: [
+            { text: 'Step 1' },
+            { text: 'Step 2' },
+            { text: 'Step 3' },
+          ],
+          ingredients: [
+            { name: 'Egg', amount: '1', unit: '', cost: 0.5 },
+          ],
+        }),
+      ]);
+    });
+
+    it('navigates steps in cook mode and finishes', async () => {
+      render(<Recipes />);
+      await screen.findByText('Step Test');
+      await userEvent.click(screen.getByRole('button', { name: /^cook$/i }));
+      // Should start at step 1
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+      // Next step
+      await userEvent.click(screen.getByRole('button', { name: /next step/i }));
+      expect(screen.getByText('Step 2')).toBeInTheDocument();
+      // Previous step
+      await userEvent.click(screen.getByRole('button', { name: /previous/i }));
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+      // Go to last step
+      await userEvent.click(screen.getByRole('button', { name: /next step/i }));
+      await userEvent.click(screen.getByRole('button', { name: /next step/i }));
+      expect(screen.getByText('Step 3')).toBeInTheDocument();
+      // Done Cooking
+      await userEvent.click(screen.getByRole('button', { name: /done cooking/i }));
+      // Should return to list view
+      expect(screen.getByText('Step Test')).toBeInTheDocument();
+    });
+
+    it('shows message for no ingredients and no steps', async () => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({
+          id: 2,
+          title: 'Empty Recipe',
+          steps: [],
+          ingredients: [],
+        }),
+      ]);
+      render(<Recipes />);
+      await screen.findByText('Empty Recipe');
+      await userEvent.click(screen.getByRole('button', { name: /^cook$/i }));
+      expect(screen.getByText('No ingredient')).toBeInTheDocument();
+      expect(screen.getByText('No step')).toBeInTheDocument();
+    });
+  });
+
+  // ── Edit / Add mode ──────────────────────────────────────────────────────────
+
+  describe('Edit mode', () => {
+    beforeEach(() => {
+      vi.mocked(localStorage.getItem).mockImplementation((key) =>
+        key === 'token' ? makeToken({ id: 42 }) : null
+      );
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({
+          id: 1,
+          createdBy: 42,
+          title: 'Editable Pasta',
+          description: 'A great pasta',
+          prepTime: 10,
+          cookTime: 20,
+          difficulty: 'Easy',
+          estimatedCost: 5,
+          ingredients: [{ name: 'pasta', amount: '200', unit: 'g', cost: 1 }],
+          steps: [{ text: 'Boil water' }, { text: 'Cook pasta' }],
+          categories: ['healthy'],
+        }),
+      ]);
+    });
+
+    it('opens edit form when clicking Edit button', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      expect(screen.getByText(/editing: editable pasta/i)).toBeInTheDocument();
+      expect(screen.getByText('Make changes and save when ready.')).toBeInTheDocument();
+    });
+
+    it('pre-fills form fields with recipe data', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      expect(screen.getByDisplayValue('Editable Pasta')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('A great pasta')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('10')).toBeInTheDocument(); // prepTime
+      expect(screen.getByDisplayValue('20')).toBeInTheDocument(); // cookTime
+    });
+
+    it('shows Save Changes button', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+    });
+
+    it('shows Cancel button that returns to list', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      await userEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+      // Back to list view
+      expect(screen.getByText('Editable Pasta')).toBeInTheDocument();
+      expect(screen.queryByText(/editing:/i)).not.toBeInTheDocument();
+    });
+
+    it('shows Back button that returns to list', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      await userEvent.click(screen.getByRole('button', { name: /^back$/i }));
+
+      expect(screen.getByText('Editable Pasta')).toBeInTheDocument();
+      expect(screen.queryByText(/editing:/i)).not.toBeInTheDocument();
+    });
+
+    it('displays Switch to Cook button in edit mode', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      expect(screen.getByRole('button', { name: /switch to cook/i })).toBeInTheDocument();
+    });
+
+    it('shows form error when title is empty', async () => {
+      const { createRecipe: mockCreate } = await import('../../api/recipes');
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      // Clear the title
+      const titleInput = screen.getByDisplayValue('Editable Pasta');
+      await userEvent.clear(titleInput);
+
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      expect(screen.getByText('Recipe title is required.')).toBeInTheDocument();
+    });
+
+    it('saves recipe and returns to list on success', async () => {
+      const { updateRecipe: mockUpdate } = await import('../../api/recipes');
+      vi.mocked(mockUpdate).mockResolvedValue(
+        makeRecipe({ id: 1, title: 'Updated Pasta', createdBy: 42 })
+      );
+
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      // Change title
+      const titleInput = screen.getByDisplayValue('Editable Pasta');
+      await userEvent.clear(titleInput);
+      await userEvent.type(titleInput, 'Updated Pasta');
+
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(mockUpdate).toHaveBeenCalled();
+      });
+    });
+
+    it('shows error when save fails', async () => {
+      const { updateRecipe: mockUpdate } = await import('../../api/recipes');
+      vi.mocked(mockUpdate).mockRejectedValue(new Error('Server error'));
+
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Server error')).toBeInTheDocument();
+      });
+    });
+
+    it('adds and removes ingredients in the form', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      // Add ingredient
+      await userEvent.click(screen.getByRole('button', { name: /\+ add ingredient/i }));
+
+      // Check that a new empty row was added (there should be more ingredient rows)
+      const removeButtons = screen.getAllByTitle('Remove');
+      const initialCount = removeButtons.length;
+      expect(initialCount).toBeGreaterThan(1);
+
+      // Remove the last ingredient row
+      await userEvent.click(removeButtons[removeButtons.length - 1]);
+
+      const afterRemove = screen.getAllByTitle('Remove');
+      expect(afterRemove.length).toBeLessThan(initialCount);
+    });
+
+    it('adds and removes steps in the form', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      // Add step
+      await userEvent.click(screen.getByRole('button', { name: /\+ add step/i }));
+
+      // Remove buttons should include step remove buttons
+      const removeButtons = screen.getAllByTitle('Remove');
+      const count = removeButtons.length;
+
+      // Remove a step
+      await userEvent.click(removeButtons[removeButtons.length - 1]);
+
+      expect(screen.getAllByTitle('Remove').length).toBeLessThan(count);
+    });
+
+    it('toggles category tags in the form', async () => {
+      render(<Recipes />);
+      await screen.findByText('Editable Pasta');
+      await userEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+      // Find a category tag button (e.g., "vegetarian")
+      const vegButton = screen.getByRole('button', { name: /^vegetarian$/i });
+      // Toggle it on
+      await userEvent.click(vegButton);
+      // Toggle it off
+      await userEvent.click(vegButton);
+      // Should still be in the document (just toggled)
+      expect(vegButton).toBeInTheDocument();
+    });
+  });
+
+  describe('Add mode', () => {
+    beforeEach(() => {
+      vi.mocked(localStorage.getItem).mockImplementation((key) =>
+        key === 'token' ? makeToken({ id: 42 }) : null
+      );
+      vi.mocked(fetchRecipes).mockResolvedValue([]);
+    });
+
+    it('opens add form when clicking + Add Recipe', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+
+      // Click the first "Add Recipe" button
+      const addButtons = screen.getAllByRole('button', { name: /add recipe/i });
+      await userEvent.click(addButtons[0]);
+
+      expect(screen.getByText('New Recipe')).toBeInTheDocument();
+      expect(screen.getByText('Fill in the details to add a new recipe.')).toBeInTheDocument();
+    });
+
+    it('shows Create Recipe button in add mode', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      expect(screen.getByRole('button', { name: /create recipe/i })).toBeInTheDocument();
+    });
+
+    it('does not show Switch to Cook button in add mode', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      expect(screen.queryByRole('button', { name: /switch to cook/i })).not.toBeInTheDocument();
+    });
+
+    it('validates title is required before creating', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      // Try to create without filling title
+      await userEvent.click(screen.getByRole('button', { name: /create recipe/i }));
+
+      expect(screen.getByText('Recipe title is required.')).toBeInTheDocument();
+    });
+
+    it('shows login error when trying to save without token', async () => {
+      // Start with token (to render add button), then remove it
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      // Type a title so it passes the title check
+      await userEvent.type(screen.getByPlaceholderText('e.g. Spaghetti Carbonara'), 'My Recipe');
+
+      // Clear token
+      vi.mocked(localStorage.getItem).mockReturnValue(null);
+
+      await userEvent.click(screen.getByRole('button', { name: /create recipe/i }));
+
+      expect(screen.getByText('You must be logged in to save recipes.')).toBeInTheDocument();
+    });
+
+    it('creates a recipe successfully', async () => {
+      const { createRecipe: mockCreate } = await import('../../api/recipes');
+      vi.mocked(mockCreate).mockResolvedValue(
+        makeRecipe({ id: 99, title: 'Brand New Recipe', createdBy: 42 })
+      );
+
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      await userEvent.type(screen.getByPlaceholderText('e.g. Spaghetti Carbonara'), 'Brand New Recipe');
+      await userEvent.click(screen.getByRole('button', { name: /create recipe/i }));
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalled();
+      });
+    });
+
+    it('changes difficulty dropdown', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      const difficultySelect = screen.getByLabelText(/difficulty/i);
+      await userEvent.selectOptions(difficultySelect, 'Hard');
+
+      expect((difficultySelect as HTMLSelectElement).value).toBe('Hard');
+    });
+
+    it('changes prep time and cook time inputs', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      const prepInput = screen.getByLabelText(/prep time/i);
+      await userEvent.clear(prepInput);
+      await userEvent.type(prepInput, '15');
+      expect(prepInput).toHaveValue(15);
+
+      const cookInput = screen.getByLabelText(/cook time/i);
+      await userEvent.clear(cookInput);
+      await userEvent.type(cookInput, '30');
+      expect(cookInput).toHaveValue(30);
+    });
+
+    it('changes description textarea', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      const descInput = screen.getByPlaceholderText('A short description of the recipe…');
+      await userEvent.type(descInput, 'Delicious meal');
+      expect(descInput).toHaveValue('Delicious meal');
+    });
+
+    it('changes estimated cost input', async () => {
+      render(<Recipes />);
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: /add recipe/i }).length).toBeGreaterThan(0)
+      );
+      await userEvent.click(screen.getAllByRole('button', { name: /add recipe/i })[0]);
+
+      const costInput = screen.getByLabelText(/estimated cost/i);
+      await userEvent.clear(costInput);
+      await userEvent.type(costInput, '12');
+      expect(costInput).toHaveValue(12);
     });
   });
 });

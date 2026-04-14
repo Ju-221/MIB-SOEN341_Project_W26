@@ -5,6 +5,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RotatingImageWithCallouts } from './Animations';
+import React from 'react';
 
 vi.mock('gsap', () => import('../../test/gsapMock'));
 vi.mock('gsap/ScrollTrigger', () => ({ ScrollTrigger: { refresh: vi.fn() } }));
