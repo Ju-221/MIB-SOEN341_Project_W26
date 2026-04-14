@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './CreateRecipe.css';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../../api/recipes';
+import { ALLERGY_OPTIONS, normalizeAllergyLabels } from '../../constants/allergies';
 import RecipePopup from '../RecipePopup/RecipePopup';
 
 export interface Ingredient {
@@ -28,6 +29,8 @@ export interface Recipe {
   ingredients: (string | Ingredient)[];
   steps: (string | Step)[];
   categories: string[];
+  allergies?: string[];
+  dietaryPreferences?: string[];
   difficulty?: string;
   prepTime: number;
   cookTime: number;
@@ -59,23 +62,12 @@ interface RecipeManagerProps {
   onRecipeSaved?: (recipe: Recipe) => void;
 }
 
+const allergyTags = [...ALLERGY_OPTIONS] as string[];
+
 const tagCategories = {
   allergies: {
     label: 'Allergies & Intolerances',
-    tags: [
-      'peanuts',
-      'tree-nuts',
-      'eggs',
-      'milk',
-      'fish',
-      'crustaceans',
-      'soy',
-      'wheat',
-      'sesame',
-      'mustard',
-      'lactose',
-      'gluten',
-    ],
+    tags: allergyTags,
   },
   difficulty: {
     label: 'Difficulty Level',
@@ -111,6 +103,8 @@ const createEmptyFormData = (): RecipeFormData => ({
   steps: [{ text: '' }],
   instructions: [''],
   categories: [],
+  allergies: [],
+  dietaryPreferences: [],
   difficulty: 'Medium',
   servings: '',
   prepTime: '',
@@ -324,7 +318,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
     if (selectedGoalFilters.some((tag) => !normalizedCategories.includes(tag))) return false;
     // Allergy/intolerance filters are exclusion filters:
     // if a recipe contains any selected allergy tag, hide it.
-    if (selectedAllergyFilters.some((tag) => normalizedCategories.includes(tag))) return false;
+    const normalizedAllergies = new Set(
+      normalizeAllergyLabels(recipe.allergies).map((tag) => normalizeText(tag))
+    );
+    if (selectedAllergyFilters.some((tag) => normalizedAllergies.has(tag))) return false;
     if (
       selectedDifficultyFilters.length > 0 &&
       !selectedDifficultyFilters.includes(recipeDifficulty)
@@ -361,6 +358,8 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
       prepTime: recipe.prepTime ?? '',
       cookTime: recipe.cookTime ?? '',
       estimatedCost: recipe.estimatedCost ?? 0,
+      allergies: normalizeAllergyLabels(recipe.allergies),
+      dietaryPreferences: recipe.dietaryPreferences ?? [],
       heroImageFile: null,
     });
     const customRecipeTags = recipe.categories.filter((tag) => !predefinedTags.includes(tag));
@@ -532,6 +531,18 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
 
   const handleToggleTag = (tag: string) => {
     const isDifficultyTag = tagCategories.difficulty.tags.includes(tag);
+    const isAllergyTag = tagCategories.allergies.tags.includes(tag);
+
+    if (isAllergyTag) {
+      const allergies = formData.allergies ?? [];
+      setFormData({
+        ...formData,
+        allergies: allergies.includes(tag)
+          ? allergies.filter((allergy) => allergy !== tag)
+          : [...allergies, tag],
+      });
+      return;
+    }
 
     if (isDifficultyTag) {
       // For difficulty tags, ensure only one can be selected
@@ -1058,6 +1069,7 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
             estimatedCost: selectedRecipe.estimatedCost as number,
             heroImage: selectedRecipe.heroImage || selectedRecipe.image || null,
             categories: selectedRecipe.categories,
+            allergies: selectedRecipe.allergies,
             ingredients: selectedRecipe.ingredients,
             steps: selectedRecipe.steps.map((s) => (typeof s === 'string' ? s : s.text)),
           }}
@@ -1402,7 +1414,10 @@ const RecipeManager: React.FC<RecipeManagerProps> = ({
                     <h4 className="tag-category-title">{category.label}</h4>
                     <div className="tags-container">
                       {category.tags.map((tag) => {
-                        const isSelected = formData.categories.includes(tag);
+                        const isSelected =
+                          categoryKey === 'allergies'
+                            ? (formData.allergies ?? []).includes(tag)
+                            : formData.categories.includes(tag);
                         const isProfileTag = userProfileTags.includes(tag);
                         return (
                           <button

@@ -1,3 +1,7 @@
+/* Hide the Remove Photo button */
+#remove-photo-btn {
+  display: none !important;
+}
 /* ── Imports Profile base styles via shared class names ─────────────────────── */
 
 /* Back button */
@@ -335,6 +339,22 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.recipe-allergy-warning {
+  margin: 0 0 10px;
+  padding: 7px 9px;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.recipes-allergy-tags-title {
+  margin-top: 18px;
 }
 
 .recipe-card-actions {
@@ -786,6 +806,35 @@
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.recipes-cost-total {
+  font-weight: 600;
+  color: #22c55e;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.recipes-custom-tag-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.recipes-custom-tag-input {
+  flex: 1;
+  max-width: 240px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.recipes-custom-tag-input:focus {
+  border-color: #5227ff;
 }
 
 .recipes-ingredient-row {

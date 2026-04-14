@@ -11,6 +11,27 @@ vi.mock('../../api/recipes', () => ({
   deleteRecipe: vi.fn(() => Promise.resolve()),
 }));
 
+import { fetchRecipes } from '../../api/recipes';
+
+const makeRecipe = (overrides = {}) => ({
+  id: '1',
+  title: 'Test Recipe',
+  description: 'A description',
+  ingredients: [{ name: 'pasta', amount: '200', unit: 'g', cost: 1 }],
+  steps: [{ text: 'Cook it' }],
+  categories: [] as string[],
+  allergies: [] as string[],
+  dietaryPreferences: [] as string[],
+  difficulty: 'medium',
+  prepTime: 10,
+  cookTime: 20,
+  estimatedCost: 5,
+  heroImage: '',
+  createdBy: 1,
+  createdAt: '2026-01-01',
+  ...overrides,
+});
+
 describe('RecipeManager Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -199,6 +220,122 @@ describe('RecipeManager Component', () => {
         },
         { timeout: 3000 }
       );
+    });
+  });
+
+  // ── Filter logic (filteredRecipes branches) ─────────────────────────────────
+
+  describe('Dietary tag filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: '1', title: 'Vegan Stew', categories: ['vegan'] }),
+        makeRecipe({ id: '2', title: 'Beef Burger', categories: ['dinner'] }),
+      ] as never);
+    });
+
+    it('hides recipes not matching the selected diet filter', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Vegan Stew');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: /^vegan$/i }));
+
+      await waitFor(() => expect(screen.queryByText('Beef Burger')).not.toBeInTheDocument());
+      expect(screen.getByText('Vegan Stew')).toBeInTheDocument();
+    });
+
+    it('restores all recipes when diet filter chip is deselected', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Vegan Stew');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const chip = screen.getByRole('button', { name: /^vegan$/i });
+      await userEvent.click(chip);
+      await userEvent.click(chip);
+
+      await waitFor(() => expect(screen.getByText('Beef Burger')).toBeInTheDocument());
+    });
+  });
+
+  describe('Difficulty filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: '1', title: 'Easy Omelette', difficulty: 'easy' }),
+        makeRecipe({ id: '2', title: 'Hard Soufflé', difficulty: 'hard' }),
+      ] as never);
+    });
+
+    it('hides recipes not matching the selected difficulty (single-select)', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Easy Omelette');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: /^easy$/i }));
+
+      await waitFor(() => expect(screen.queryByText('Hard Soufflé')).not.toBeInTheDocument());
+      expect(screen.getByText('Easy Omelette')).toBeInTheDocument();
+    });
+  });
+
+  describe('Allergen exclusion filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: '1', title: 'Peanut Curry', allergies: ['Peanuts'] }),
+        makeRecipe({ id: '2', title: 'Rice Bowl', allergies: [] }),
+      ] as never);
+    });
+
+    it('hides recipes containing the selected allergen', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Peanut Curry');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: /^peanuts$/i }));
+
+      await waitFor(() => expect(screen.queryByText('Peanut Curry')).not.toBeInTheDocument());
+      expect(screen.getByText('Rice Bowl')).toBeInTheDocument();
+    });
+  });
+
+  describe('Max cook time filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: '1', title: 'Quick Fry', cookTime: 5 }),
+        makeRecipe({ id: '2', title: 'Slow Roast', cookTime: 180 }),
+      ] as never);
+    });
+
+    it('hides recipes whose cook time exceeds the maximum', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Quick Fry');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const cookInput = screen.getByLabelText(/max cook time/i);
+      await userEvent.type(cookInput, '30');
+
+      await waitFor(() => expect(screen.queryByText('Slow Roast')).not.toBeInTheDocument());
+      expect(screen.getByText('Quick Fry')).toBeInTheDocument();
+    });
+  });
+
+  describe('Max total time filter', () => {
+    beforeEach(() => {
+      vi.mocked(fetchRecipes).mockResolvedValue([
+        makeRecipe({ id: '1', title: 'Express Snack', prepTime: 3, cookTime: 5 }),
+        makeRecipe({ id: '2', title: 'Elaborate Feast', prepTime: 60, cookTime: 90 }),
+      ] as never);
+    });
+
+    it('hides recipes whose total time exceeds the maximum', async () => {
+      render(<RecipeManager />);
+      await screen.findByText('Express Snack');
+
+      await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+      const totalInput = screen.getByLabelText(/max total time/i);
+      await userEvent.type(totalInput, '30');
+
+      await waitFor(() => expect(screen.queryByText('Elaborate Feast')).not.toBeInTheDocument());
+      expect(screen.getByText('Express Snack')).toBeInTheDocument();
     });
   });
 });

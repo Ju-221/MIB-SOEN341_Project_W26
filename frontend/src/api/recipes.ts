@@ -99,6 +99,8 @@ async function serializeRecipe(recipe: Recipe, heroImageFile?: File | null): Pro
   );
   formData.append('steps', JSON.stringify(recipe.steps, ['text'])); // Assuming no image for steps
   formData.append('categories', JSON.stringify(recipe.categories));
+  formData.append('allergies', JSON.stringify(recipe.allergies ?? []));
+  formData.append('dietaryPreferences', JSON.stringify(recipe.dietaryPreferences ?? []));
 
   // Image - only send if user selected an image
   if (heroImageFile) {

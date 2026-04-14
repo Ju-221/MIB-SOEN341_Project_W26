@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { CiNoWaitingSign } from 'react-icons/ci';
 import Card from './Card';
 import Aurora from './Background';
 import { type Recipe } from './fakeRecipes';
@@ -136,7 +137,12 @@ const Unique: React.FC = () => {
 
   const allIngredients = useMemo(() => {
     const set = new Set<string>();
-    recipes.forEach((r) => r.ingredients.forEach((i) => set.add(getIngredientName(i))));
+    recipes.forEach((r) =>
+      r.ingredients.forEach((i) => {
+        const name = getIngredientName(i).trim();
+        if (name) set.add(name);
+      })
+    );
     return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
   }, [recipes]);
 
@@ -271,6 +277,7 @@ const Unique: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          background: '#121212',
         }}
       >
         {aurora}
@@ -281,9 +288,40 @@ const Unique: React.FC = () => {
     );
   }
 
+  if (recipes.length === 0) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#121212',
+        }}
+      >
+        {aurora}
+        <div className="no-results-container">
+          <CiNoWaitingSign className="no-results-icon" />
+          <h2 className="no-results-title">No recipes found</h2>
+          <p className="no-results-body">
+            You don't have any recipes yet. Generate one from scratch with AI!
+          </p>
+          <div className="no-results-actions">
+            <a href="#aichat" className="no-results-generate-btn">
+              Generate one from scratch with AI →
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (phase === 'intro') {
     return (
-      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: '#121212' }}>
         {aurora}
         <div className="intro-overlay" onClick={() => setPhase('picker')}>
           <div className="intro-card">
@@ -297,9 +335,38 @@ const Unique: React.FC = () => {
     );
   }
 
+  if (phase === 'picker' && allIngredients.length === 0) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#121212',
+        }}
+      >
+        {aurora}
+        <div className="no-results-container">
+          <CiNoWaitingSign className="no-results-icon" />
+          <h2 className="no-results-title">No ingredients found</h2>
+          <p className="no-results-body">None of your recipes have ingredients listed.</p>
+          <div className="no-results-actions">
+            <button className="no-results-back-btn" onClick={() => setPhase('intro')}>
+              ← Go back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (phase === 'picker') {
     return (
-      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: '#121212' }}>
         {aurora}
         <div className="picker-wrapper">
           <div className="picker-card">
@@ -365,11 +432,12 @@ const Unique: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          background: '#121212',
         }}
       >
         {aurora}
         <div className="no-results-container">
-          <p className="no-results-icon">X</p>
+          <CiNoWaitingSign className="no-results-icon" />
           <h2 className="no-results-title">No recipe found</h2>
           <p className="no-results-body">
             None of your recipes use all of <strong>{selectedIngredients.join(', ')}</strong>{' '}
@@ -399,6 +467,7 @@ const Unique: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          background: '#121212',
         }}
       >
         {aurora}
@@ -529,6 +598,7 @@ const Unique: React.FC = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        background: '#121212',
       }}
     >
       {aurora}

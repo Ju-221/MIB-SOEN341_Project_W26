@@ -1,0 +1,42 @@
+# Sprint 4 Contribution Log — Anaïs Perron
+
+| Date       | Activity                                                                                      | Commit(s)           | Time spent (hours) |
+|------------|-----------------------------------------------------------------------------------------------|---------------------|--------------------|
+| 2026-04-09 | Homepage UI overhaul: redesigned Hero, Animations, Homepage components; added RecipesPage; removed legacy CoverFlow/FeatureSection; updated tests and CI config | `ec66215`           | 4.5                  |
+| 2026-04-11 | Navbar redesign (CSS + logic), fixed app routing                                              | `877b730`           | 2                  |
+| 2026-04-11 | Fixed Navbar routing error (minor patch)                                                      | `4d0c8ee`           | 0.5                |
+| 2026-04-11 | Fixed and updated UI tests to pass                                                            | `4c485c2`           | 1.5                |
+| 2026-04-13 | Fixed UI: AI Chat layout, Tournament card styles, Recipe editing flow                        | `b212323`           | 3                  |
+| 2026-04-13 | SonarQube fixes (multiple iterations): code quality, coverage, and style issues in Recipes   | `e1ff793` `99c3efb` `ae9192f` `ff9c0fb` `555103e` | 3  |
+| 2026-04-13 | Ran Prettier write on all files                                                               | `12b6ff9`           | 0.5                |
+| 2026-04-14 | Added Sprint 4 meeting minutes (meetings 10, 11, 12)                                         | `d99090b`           | 0.5                |
+
+**Total time spent: 15.5 hours**
+
+---
+
+## Detailed Contributions
+
+### Homepage UI Overhaul (`ec66215` — 2026-04-09)
+Major redesign and cleanup of the homepage. Rewrote the `Hero` and `Animations` components, significantly simplified `Homepage.tsx` and its CSS. Removed legacy components (`CoverFlow`, `FeatureSection`, `RecentRecipes`, `UserSection`) that were replaced by the new layout. Added a new `RecipesPage` component (with its own CSS). Updated all related tests (`Animations.test.tsx`, `Hero.test.tsx`, `Homepage.test.tsx`) and added a GSAP mock (`gsapMock.ts`) for test stability. Updated CI workflow files and `package.json` dependencies.
+
+### Navbar Redesign & Route Fixes (`877b730`, `4d0c8ee` — 2026-04-11)
+Fully reworked the Navbar component: updated CSS for improved visual style, rewrote component logic in `Navbar.tsx` to fix active route tracking and link behavior, and updated `Navbar.test.tsx` accordingly. A follow-up patch (`4d0c8ee`) addressed a small routing error introduced by the refactor.
+
+### UI Test Fixes (`4c485c2` — 2026-04-11)
+Ensured all frontend UI tests pass after the navbar and homepage changes, aligning test expectations with the updated component structure.
+
+### AI Chat, Tournament & Recipe UI Fixes (`b212323` — 2026-04-13)
+Resolved multiple UI issues across three features:
+- **AI Chat**: Cleaned up `AIChat.css` layout (removed ~90 lines of conflicting styles).
+- **Recipes**: Enhanced `Recipes.tsx` and `Recipes.css` with improved editing flow and display logic.
+- **Tournament (Unique)**: Refactored `Unique.tsx` and `Unique.css` / `Card.css` for better card presentation.
+
+### SonarQube Quality Fixes (`e1ff793`, `99c3efb`, `ae9192f`, `ff9c0fb`, `555103e` — 2026-04-13)
+Iteratively resolved SonarQube code quality issues in the frontend, primarily in `Recipes.tsx`. Addressed code smells, added test coverage for the SonarQube coverage report, and ensured all quality gates pass.
+
+### Prettier Formatting (`95313de`, `12b6ff9` — 2026-04-11, 2026-04-13)
+Ran Prettier across the codebase to enforce consistent code style, applied in two separate passes alongside feature and fix commits.
+
+### Meeting Minutes (`d99090b` — 2026-04-14)
+Added PDFs for Sprint 4 meeting minutes (meetings 10, 11, and 12) to the repository.

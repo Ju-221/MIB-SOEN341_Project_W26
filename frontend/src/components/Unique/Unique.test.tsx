@@ -1,3 +1,8 @@
+/*# The following file was generated with the assistance of Claude.
+#Prompt:  Create a test suite for the Unique component using Vitest and React Testing Library. Cover rendering of brand, nav links
+based on login state, username display, and profile dropdown behavior.
+# I, Anais Perron reviewed, modified, and tested the code to ensure correctness.
+*/
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -99,6 +104,8 @@ vi.mock('../../api/recipes', () => ({
   fetchRecipes: vi.fn(() => Promise.resolve(fakeRecipes)),
 }));
 
+import { fetchRecipes } from '../../api/recipes';
+
 // ── Setup / teardown ─────────────────────────────────────────
 
 beforeEach(() => {
@@ -135,6 +142,138 @@ async function startGameInUncommonMode() {
 }
 
 // ── Tests ────────────────────────────────────────────────────
+
+// ── Loading / empty states ────────────────────────────────────────────────────
+
+describe('Unique – Loading state', () => {
+  it('shows "Loading recipes…" while the fetch is in flight', async () => {
+    // Use Once so the never-resolving promise does not leak into subsequent tests
+    vi.mocked(fetchRecipes).mockReturnValueOnce(
+      new Promise(() => {}) as ReturnType<typeof fetchRecipes>
+    );
+    render(<Unique />);
+    expect(screen.getByText(/loading recipes/i)).toBeInTheDocument();
+  });
+});
+
+describe('Unique – Empty recipes state', () => {
+  it('shows "No recipes found" when the user has no recipes', async () => {
+    vi.mocked(fetchRecipes).mockResolvedValueOnce([]);
+    render(<Unique />);
+    await waitFor(() => {
+      expect(screen.getByText(/no recipes found/i)).toBeInTheDocument();
+    });
+  });
+
+  it('shows a link to generate a recipe with AI', async () => {
+    vi.mocked(fetchRecipes).mockResolvedValueOnce([]);
+    render(<Unique />);
+    await waitFor(() => {
+      // The empty-state body text includes this phrase
+      expect(screen.getByText(/generate one from scratch with AI!/i)).toBeInTheDocument();
+    });
+  });
+});
+
+describe('Unique – No-ingredients state', () => {
+  it('shows "No ingredients found" when all recipes have empty ingredient lists', async () => {
+    vi.mocked(fetchRecipes).mockResolvedValueOnce([
+      {
+        id: 99,
+        title: 'Mystery Recipe',
+        description: 'No ingredients',
+        prepTime: 5,
+        cookTime: 5,
+        difficulty: 'Easy',
+        estimatedCost: 0,
+        heroImage: null,
+        categories: [],
+        ingredients: [],
+        steps: [],
+        createdBy: USER_ID,
+      },
+    ]);
+
+    render(<Unique />);
+    await waitFor(() => screen.getByText(/click anywhere to continue/i));
+    await userEvent.click(screen.getByText(/click anywhere to continue/i));
+
+    await waitFor(() => {
+      expect(screen.getByText(/no ingredients found/i)).toBeInTheDocument();
+    });
+  });
+
+  it('shows a "Go back" button on the no-ingredients screen', async () => {
+    vi.mocked(fetchRecipes).mockResolvedValueOnce([
+      {
+        id: 99,
+        title: 'Mystery Recipe',
+        description: '',
+        prepTime: 0,
+        cookTime: 0,
+        difficulty: 'Easy',
+        estimatedCost: 0,
+        heroImage: null,
+        categories: [],
+        ingredients: [],
+        steps: [],
+        createdBy: USER_ID,
+      },
+    ]);
+
+    render(<Unique />);
+    await waitFor(() => screen.getByText(/click anywhere to continue/i));
+    await userEvent.click(screen.getByText(/click anywhere to continue/i));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /go back/i })).toBeInTheDocument();
+    });
+  });
+});
+
+// ── Single-recipe shortcut (Common mode winner) ───────────────────────────────
+
+describe('Unique – Single-recipe winner via Common mode', () => {
+  it('skips the game phase and shows the winner when exactly one recipe matches', async () => {
+    await goToPicker();
+    await waitFor(() => screen.getByRole('button', { name: /^eggs$/i }));
+
+    // Only "Omelette" contains eggs
+    await userEvent.click(screen.getByRole('button', { name: /^eggs$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /let's play/i }));
+
+    // Winner screen should appear (no Choose! buttons)
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /choose!/i })).not.toBeInTheDocument();
+    });
+    // Winner title appears both in the Card stub and the winner label
+    expect(screen.getAllByText(/omelette/i).length).toBeGreaterThan(0);
+  });
+});
+
+// ── No-results back button ────────────────────────────────────────────────────
+
+describe('Unique – No-results back navigation', () => {
+  it('returns to the picker when "Change my ingredients" is clicked', async () => {
+    await goToPicker();
+    await waitFor(() => screen.getByRole('button', { name: /^pasta$/i }));
+
+    await userEvent.click(screen.getByRole('button', { name: /^pasta$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^broccoli$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /let's play/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /change my ingredients/i })).toBeInTheDocument()
+    );
+    await userEvent.click(screen.getByRole('button', { name: /change my ingredients/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /let's play/i })).toBeInTheDocument();
+    });
+  });
+});
+
+// ── Intro Phase ───────────────────────────────────────────────────────────────
 
 describe('Unique – Intro Phase', () => {
   it('renders the intro text on mount', async () => {

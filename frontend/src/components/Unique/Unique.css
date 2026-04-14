@@ -191,8 +191,10 @@
 }
 
 .no-results-icon {
-  font-size: 3rem;
-  margin: 0;
+  width: 3rem;
+  height: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
 }
 
 .no-results-title {
@@ -271,7 +273,7 @@
 }
 
 .intro-text {
-  color: #1a1a2e;
+  color: #ffffff;
   font-size: 2rem;
   font-weight: 600;
   text-align: center;
@@ -284,7 +286,7 @@
 
 .intro-hint {
   margin-top: 1.5rem;
-  color: rgba(26, 26, 46, 0.45);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   animation:
@@ -293,12 +295,12 @@
 }
 
 .intro-card {
-  background: #ffffff;
+  background: transparent;
   border-radius: 20px;
   padding: 2.5rem 3rem;
   max-width: 700px;
   width: 100%;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
   animation: fadeInFloat 1s ease forwards;
   text-align: center;
   display: flex;
@@ -342,7 +344,7 @@
 }
 
 .picker-dialogue {
-  color: #1a1a2e;
+  color: #ffffff;
   font-size: 1.6rem;
   font-weight: 600;
   text-align: center;
@@ -352,7 +354,7 @@
 }
 
 .picker-tip {
-  color: rgba(26, 26, 46, 0.6);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.9rem;
   font-style: italic;
   margin-bottom: 0;
@@ -360,21 +362,21 @@
 }
 
 .picker-card {
-  background: #ffffff;
+  background: transparent;
   border-radius: 20px;
   padding: 2rem 2.5rem;
   margin-bottom: 2rem;
   max-width: 660px;
   width: 100%;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
   animation: fadeInFloat 1s ease forwards;
   text-align: center;
 }
 
 .filter-toggle {
   display: flex;
-  background: rgba(82, 39, 255, 0.08);
-  border: 1px solid rgba(82, 39, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   padding: 4px;
   gap: 4px;
@@ -387,7 +389,7 @@
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: rgba(26, 26, 46, 0.5);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -397,7 +399,7 @@
 }
 
 .toggle-option:hover {
-  color: rgba(26, 26, 46, 0.8);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .toggle-option.toggle-active {
@@ -406,7 +408,7 @@
 }
 
 .filter-toggle-hint {
-  color: rgba(26, 26, 46, 0.5);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.78rem;
   font-style: italic;
   margin: 0.5rem 0 0.5rem;
@@ -426,9 +428,9 @@
 .ingredient-chip {
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
-  border: 2px solid rgba(82, 39, 255, 0.25);
-  background: rgba(82, 39, 255, 0.05);
-  color: #1a1a2e;
+  border: 2px solid rgba(167, 139, 250, 0.45);
+  background: rgba(82, 39, 255, 0.08);
+  color: #ffffff;
   font-size: 0.88rem;
   cursor: pointer;
   transition:
@@ -439,8 +441,8 @@
 }
 
 .ingredient-chip:hover {
-  border-color: rgba(82, 39, 255, 0.5);
-  background: rgba(82, 39, 255, 0.1);
+  border-color: rgba(196, 181, 253, 0.8);
+  background: rgba(82, 39, 255, 0.22);
   transform: scale(1.05);
 }
 
@@ -474,7 +476,7 @@
 
 .picker-aichat-link {
   margin-top: 1.4rem;
-  color: rgba(26, 26, 46, 0.45);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.82rem;
   font-style: italic;
   text-decoration: none;
@@ -486,77 +488,6 @@
 }
 
 .picker-aichat-link:hover {
-  color: #5227ff;
+  color: #ffffff;
   text-decoration: underline;
-}
-
-/* ── Dark mode overrides ─────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  .picker-dialogue {
-    color: rgba(255, 255, 255, 0.96);
-  }
-
-  .picker-tip {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .picker-card {
-    background: rgba(16, 18, 32, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
-    backdrop-filter: blur(18px);
-  }
-
-  .filter-toggle {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.28);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  .toggle-option {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .toggle-option:hover {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .toggle-option.toggle-active {
-    background: rgba(255, 255, 255, 0.9);
-    color: #5227ff;
-  }
-
-  .filter-toggle-hint {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .ingredient-chip {
-    background: rgba(11, 14, 27, 0.72);
-    border-color: rgba(167, 139, 250, 0.55);
-    color: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
-  }
-
-  .ingredient-chip:hover {
-    background: rgba(82, 39, 255, 0.22);
-    border-color: rgba(196, 181, 253, 0.9);
-  }
-
-  .picker-start-btn {
-    background: #ffffff;
-    color: #5227ff;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-  }
-
-  .picker-start-btn:hover {
-    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
-  }
-
-  .picker-aichat-link {
-    color: rgba(255, 255, 255, 0.68);
-  }
-
-  .picker-aichat-link:hover {
-    color: #ffffff;
-  }
 }

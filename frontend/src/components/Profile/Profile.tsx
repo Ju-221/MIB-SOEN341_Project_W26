@@ -1,4 +1,5 @@
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { ALLERGY_FIELD_TO_OPTION, ALLERGY_OPTIONS } from '../../constants/allergies';
 
 import './Profile.css';
 
@@ -21,6 +22,29 @@ const CheckIcon = () => (
     </svg>
   </span>
 );
+
+type PreferenceValue = boolean | number | null | undefined;
+type PreferenceResponse = Record<string, PreferenceValue>;
+
+const DIET_FIELD_TO_OPTION: Record<string, string> = {
+  vegetarian: 'Vegetarian',
+  vegan: 'Vegan',
+  pescetarian: 'Pescatarian',
+  halal: 'Halal',
+  kosher: 'Kosher',
+  keto: 'Keto',
+};
+
+const getSelectedPreferenceOptions = (
+  preferences: PreferenceResponse | undefined,
+  fieldToOption: Record<string, string>
+): string[] => {
+  if (!preferences) return [];
+
+  return Object.entries(fieldToOption).flatMap(([field, option]) =>
+    preferences[field] === true || preferences[field] === 1 ? [option] : []
+  );
+};
 
 function Profile() {
   const getEmailFromToken = (token: string): string => {
@@ -56,6 +80,9 @@ function Profile() {
   const [nameSaveStatus, setNameSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
     'idle'
   );
+  const [preferencesSaveStatus, setPreferencesSaveStatus] = useState<
+    'idle' | 'saving' | 'saved' | 'error'
+  >('idle');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -70,6 +97,22 @@ function Profile() {
           const data = (await res.json()) as { firstName?: string; lastName?: string };
           setFirstName(data.firstName ?? '');
           setLastName(data.lastName ?? '');
+        }
+
+        const preferencesRes = await fetch('http://localhost:3000/api/preferences', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (preferencesRes.ok) {
+          const data = (await preferencesRes.json()) as {
+            allergies?: PreferenceResponse;
+            dietaryPreferences?: PreferenceResponse;
+          };
+          setSelectedAllergies(
+            getSelectedPreferenceOptions(data.allergies, ALLERGY_FIELD_TO_OPTION)
+          );
+          setSelectedDiets(
+            getSelectedPreferenceOptions(data.dietaryPreferences, DIET_FIELD_TO_OPTION)
+          );
         }
       } catch (error) {
         console.error('Error loading profile data:', error);
@@ -121,6 +164,7 @@ function Profile() {
       keto: selectedDiets.includes('Keto'),
     };
 
+    setPreferencesSaveStatus('saving');
     try {
       const response = await fetch('http://localhost:3000/api/preferences', {
         method: 'PUT',
@@ -135,10 +179,15 @@ function Profile() {
       });
 
       if (response.ok) {
-        alert('Preferences saved!');
+        setPreferencesSaveStatus('saved');
+      } else {
+        setPreferencesSaveStatus('error');
       }
     } catch (error) {
+      setPreferencesSaveStatus('error');
       console.error('Failed to save:', error);
+    } finally {
+      setTimeout(() => setPreferencesSaveStatus('idle'), 2000);
     }
   };
 
@@ -155,21 +204,7 @@ function Profile() {
     'Halal',
     'Kosher',
   ];
-  const allergyOptions = [
-    'Nuts',
-    'Peanuts',
-    'Dairy',
-    'Eggs',
-    'Wheat',
-    'Gluten',
-    'Shellfish',
-    'Fish',
-    'Soy',
-    'Sesame',
-    'Mustard',
-    'Lactose Intolerance',
-    'Sulfites',
-  ];
+  const allergyOptions = [...ALLERGY_OPTIONS];
 
   const [selectedDiets, setSelectedDiets] = useState<string[]>([]);
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
@@ -509,6 +544,16 @@ function Profile() {
             Save Changes
           </button>
         </div>
+        {preferencesSaveStatus === 'saved' && (
+          <p className="profile-hint" style={{ color: '#16a34a' }}>
+            Preferences saved!
+          </p>
+        )}
+        {preferencesSaveStatus === 'error' && (
+          <p className="profile-hint" style={{ color: '#dc2626' }}>
+            Failed to save preferences.
+          </p>
+        )}
       </div>
     </div>
   );
