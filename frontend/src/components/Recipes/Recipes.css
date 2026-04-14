@@ -1,3 +1,7 @@
+/* Hide the Remove Photo button */
+#remove-photo-btn {
+  display: none !important;
+}
 /* ── Imports Profile base styles via shared class names ─────────────────────── */
 
 /* Back button */
