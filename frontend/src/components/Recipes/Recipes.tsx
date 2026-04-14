@@ -1156,6 +1156,7 @@ export default function Recipes() {
                 <button
                   type="button"
                   className="profile-button secondary"
+                  id="remove-photo-btn"
                   onClick={() => {
                     setImagePreview(null);
                     setHeroImageFile(null);
