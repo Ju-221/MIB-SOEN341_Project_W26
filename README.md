@@ -10,6 +10,31 @@
 
 Beta 1.1 - refactor 1 to main, nightly builds to be pushed onto Main overnight.
 
+# HOW TO SETUP / RUN
+
+## .env
+.env file in root with these
+```
+PORT=3000
+JWT_SECRET=secretkey
+GEMINI_API_KEY=your_key_here
+```
+
+## Backend
+1. ``cd express``
+2. ``npm i``
+3. Delete the mealmajor.db file from the backend
+4. ``npm run db:push``
+5. ``npm run dev``
+
+Open a second terminal and run the following (split terminal makes this easy) 
+
+## Frontend
+1. ``cd ..``
+2. ``cd frontend``
+3. ``npm i``
+4. ``npm run dev``
+
 # Major updates:
 
 31/1/2026 - added dot net 10 backend and supabase(postgre-db) as database. Initalization for more features like loggin to start soon...
