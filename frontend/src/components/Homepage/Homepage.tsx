@@ -295,9 +295,9 @@ function Homepage({ isLoggedIn }: HomepageProps) {
         <div className="zigzag-content-row">
           <div className="zigzag-features-list">
             {ZIGZAG_FEATURES.map((f, i) => (
-              <div
+              <button
                 key={f.id}
-                role="button"
+                type="button"
                 className={`zigzag-feature-card${hoveredFeature === i ? ' zigzag-feature-card--active' : ''}${i === 2 ? ' zigzag-feature-card--generate' : ''}`}
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
@@ -307,7 +307,7 @@ function Homepage({ isLoggedIn }: HomepageProps) {
               >
                 <h3>{f.heading}</h3>
                 <p>{f.body}</p>
-              </div>
+              </button>
             ))}
           </div>
           <span className="zigzag-mandala-wrapper">

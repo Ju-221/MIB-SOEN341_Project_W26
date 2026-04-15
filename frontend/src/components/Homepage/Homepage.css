@@ -516,6 +516,9 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  background: none;
+  border: none;
+  text-align: left;
 }
 
 .zigzag-feature-card h3 {
