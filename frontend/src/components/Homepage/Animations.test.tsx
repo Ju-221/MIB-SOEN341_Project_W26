@@ -16,6 +16,9 @@ vi.mock('gsap/SplitText', () => ({
 }));
 vi.mock('gsap/InertiaPlugin', () => ({ InertiaPlugin: {} }));
 
+vi.mock('../../assets/uploads/round-plate.png', () => ({ default: 'round-plate.png' }));
+vi.mock('../../assets/uploads/chopsticks.png', () => ({ default: 'chopsticks.png' }));
+
 describe('RotatingImageWithCallouts', () => {
   it('renders the default callout labels', () => {
     render(<RotatingImageWithCallouts />);

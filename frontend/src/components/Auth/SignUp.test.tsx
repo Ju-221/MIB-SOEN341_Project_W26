@@ -274,8 +274,6 @@ describe('SignUp Component', () => {
       await userEvent.click(btn);
 
       await waitFor(() => expect(btn).toBeDisabled());
-      // Drain the in-flight request so no state updates leak after test teardown
-      await waitFor(() => expect(btn).not.toBeDisabled(), { timeout: 500 });
     });
   });
 

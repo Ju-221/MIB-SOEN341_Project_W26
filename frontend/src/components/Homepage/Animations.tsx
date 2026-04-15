@@ -9,8 +9,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
-const roundPlate = '/images/round-plate.png';
-const chopsticks = '/images/chopsticks.png';
+import roundPlate from '../../assets/uploads/round-plate.png';
+import chopsticks from '../../assets/uploads/chopsticks.png';
 
 gsap.registerPlugin(SplitText, InertiaPlugin, ScrollTrigger);
 

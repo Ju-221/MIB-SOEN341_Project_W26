@@ -18,6 +18,13 @@ vi.mock('gsap/SplitText', () => ({
 vi.mock('gsap/InertiaPlugin', () => ({ InertiaPlugin: {} }));
 
 // ── Asset mocks ───────────────────────────────────────────────────────────────
+vi.mock('../../assets/uploads/mandala.png', () => ({ default: 'mandala.png' }));
+vi.mock('../../assets/uploads/tacos.png', () => ({ default: 'tacos.png' }));
+vi.mock('../../assets/uploads/round-plate.png', () => ({ default: 'round-plate.png' }));
+vi.mock('../../assets/uploads/chopsticks.png', () => ({ default: 'chopsticks.png' }));
+vi.mock('../../assets/uploads/olives.png', () => ({ default: 'olives.png' }));
+vi.mock('../../assets/uploads/mint.png', () => ({ default: 'mint.png' }));
+vi.mock('../../assets/uploads/tomato.png', () => ({ default: 'tomato.png' }));
 
 // ── Fetch mock ────────────────────────────────────────────────────────────────
 const mockRecipes = [

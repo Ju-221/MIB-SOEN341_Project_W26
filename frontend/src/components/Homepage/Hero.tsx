@@ -3,9 +3,9 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { TextAnimation, RotatingImage } from './Animations';
-const olives = '/images/olives.png';
-const mint = '/images/mint.png';
-const tomato = '/images/tomato.png';
+import olives from '../../assets/uploads/olives.png';
+import mint from '../../assets/uploads/mint.png';
+import tomato from '../../assets/uploads/tomato.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
