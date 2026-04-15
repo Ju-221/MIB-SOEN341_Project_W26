@@ -170,7 +170,7 @@
 .aichat-input {
   flex: 1;
   resize: none;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(85, 83, 83, 0.12);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   color: #ffffff;
@@ -281,8 +281,8 @@
   gap: 6px;
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(85, 83, 83, 0.12);
   color: #ffffff;
   font-size: 0.82rem;
   font-weight: 600;
@@ -303,7 +303,7 @@
 .aichat-action-btn--done {
   border-color: #22c55e;
   color: #22c55e;
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(7, 19, 11, 0.733);
   cursor: default;
 }
 
@@ -378,7 +378,7 @@
   padding: 0.3rem 0.6rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(85, 83, 83, 0.12);
   color: #ffffff;
   font-size: 0.82rem;
   cursor: pointer;
