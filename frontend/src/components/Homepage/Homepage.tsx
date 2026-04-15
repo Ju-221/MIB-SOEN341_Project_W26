@@ -4,8 +4,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Homepage.css';
 import Hero from './Hero';
 
-import mandala from '../../assets/uploads/mandala.png';
-import tacos from '../../assets/uploads/tacos.png';
+const mandala = '/images/mandala.png';
+const tacos = '/images/tacos.png';
 import Icon from '@mdi/react';
 import { mdiPodium } from '@mdi/js';
 import { AiFillStar } from 'react-icons/ai';
