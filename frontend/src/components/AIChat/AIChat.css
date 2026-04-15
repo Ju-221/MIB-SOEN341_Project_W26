@@ -281,8 +281,8 @@
   gap: 6px;
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(85, 83, 83, 0.12);
   color: #ffffff;
   font-size: 0.82rem;
   font-weight: 600;
