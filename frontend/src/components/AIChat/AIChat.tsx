@@ -402,7 +402,8 @@ const AIChat: React.FC = () => {
         console.error(`AI recipe generation failed\n${JSON.stringify(logDetails, null, 2)}`);
         let errorMessage = err.message ?? 'Failed to generate recipe';
         if (response.status === 503) {
-          errorMessage = 'The AI service is currently experiencing high demand. Please try again later.';
+          errorMessage =
+            'The AI service is currently experiencing high demand. Please try again later.';
         }
         throw new Error(errorMessage);
       }
