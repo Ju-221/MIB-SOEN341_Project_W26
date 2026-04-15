@@ -170,7 +170,7 @@
 .aichat-input {
   flex: 1;
   resize: none;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(85, 83, 83, 0.12);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   color: #ffffff;
